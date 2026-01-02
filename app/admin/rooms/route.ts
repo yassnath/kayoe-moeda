@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const imageUrl = `/uploads/${filename}`;
     // ------------------------------
 
-    const Produk = await prisma.Produk.create({
+    const produk = await prisma.produk.create({
       data: {
         name,
         description,
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(Produk, { status: 201 });
+    return NextResponse.json(produk, { status: 201 });
   } catch (err: any) {
     console.error("Produk CREATE ERROR →", err);
 
