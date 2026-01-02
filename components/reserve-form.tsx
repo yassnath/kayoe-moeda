@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { addDays } from "date-fns";
 
 import { createReserve } from "@/lib/actions";
-import { produkProps2, DisabledDateProps } from "@/types/produk";
+import { produkProps2, DisabledDateProps } from "@/types/room";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import clsx from "clsx";
