@@ -23,7 +23,7 @@ const MyReservationList = async ({
             <div className="flex gap-1 px-3 py-2 text-sm font-normal">
               <span>Status:</span>
               <span className="font-bold uppercase">
-                {item.Payment?.status}
+                {item.payment?.status}
               </span>
             </div>
           </div>
@@ -73,7 +73,7 @@ const MyReservationList = async ({
                   <div className="flex items-center justify-between text-sm font-medium text-gray-900 truncate">
                     <span>Sub Total</span>
                     <span>
-                      {item.Payment && formatCurrency(item.Payment?.amount)}
+                      {item.payment && formatCurrency(item.payment?.amount)}
                     </span>
                   </div>
                 </div>
@@ -82,7 +82,7 @@ const MyReservationList = async ({
             </div>
           </div>
           <div className="flex items-end justify-end absolute inset-4">
-            {item.Payment?.status === "unpaid" ? (
+            {item.payment?.status === "unpaid" ? (
               <Link
                 href={`/checkout/${item.id}`}
                 className="px-6 py-1 bg-orange-400 text-white rounded-md hover:bg-orange-500"

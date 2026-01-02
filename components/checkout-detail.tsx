@@ -7,7 +7,7 @@ import { PaymentButton } from "@/components/payment-button";
 const CheckoutDetail = async ({ reservationId }: { reservationId: string }) => {
   const reservation = await getReservationById(reservationId);
   // console.log(reservation);
-  if (!reservation || !reservation.Payment)
+  if (!reservation || !reservation.payment)
     return <h1>No Reservation Found</h1>;
 
   const duration = differenceInCalendarDays(
@@ -54,16 +54,16 @@ const CheckoutDetail = async ({ reservationId }: { reservationId: string }) => {
             </tr>
             <tr className="">
               <td className="py-2">Name</td>
-              <td className="py-2 text-right">{reservation.User.name}</td>
+              <td className="py-2 text-right">{reservation.user.name}</td>
             </tr>
             <tr className="">
               <td className="py-2">Email</td>
-              <td className="py-2 text-right">{reservation.User.email}</td>
+              <td className="py-2 text-right">{reservation.user.email}</td>
             </tr>
             <tr className="">
               <td className="py-2 truncate">Phone Number</td>
               <td className="py-2 text-right truncate">
-                {reservation.User.phone}
+                {reservation.user.phone}
               </td>
             </tr>
             <tr className="">
@@ -89,12 +89,12 @@ const CheckoutDetail = async ({ reservationId }: { reservationId: string }) => {
             <tr className="">
               <td className="py-2 truncate">Amount in Rupiah</td>
               <td className="py-2 text-right truncate">
-                <span>{formatCurrency(reservation.Payment.amount)}</span>
+                <span>{formatCurrency(reservation.payment.amount)}</span>
               </td>
             </tr>
             <tr className="">
               <td className="py-2">Status</td>
-              <td className="py-2 text-right">{reservation.Payment.status}</td>
+              <td className="py-2 text-right">{reservation.payment.status}</td>
             </tr>
           </tbody>
         </table>

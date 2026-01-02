@@ -47,7 +47,7 @@ const ReservationDetail = async ({
                 </p>
               </div>
               <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                {reservation.User.name}
+                {reservation.user.name}
               </div>
             </div>
           </li>
@@ -59,7 +59,7 @@ const ReservationDetail = async ({
                 </p>
               </div>
               <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                {reservation.User.email}
+                {reservation.user.email}
               </div>
             </div>
           </li>
@@ -73,7 +73,7 @@ const ReservationDetail = async ({
                 </p>
               </div>
               <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                {reservation.User.phone}
+                {reservation.user.phone}
               </div>
             </div>
           </li>
@@ -85,8 +85,8 @@ const ReservationDetail = async ({
                 </p>
               </div>
               <div className="inline-flex items-center text-base font-semibold text-gray-900 capitalize">
-                {reservation.Payment?.method
-                  ? reservation.Payment?.method.replace("_", " ")
+                {reservation.payment?.method
+                  ? reservation.payment?.method.replace("_", " ")
                   : null}
               </div>
             </div>
@@ -99,7 +99,7 @@ const ReservationDetail = async ({
                 </p>
               </div>
               <div className="inline-flex items-center text-base font-semibold text-gray-900u uppercase">
-                {reservation.Payment?.status}
+                {reservation.payment?.status}
               </div>
             </div>
           </li>
@@ -151,8 +151,8 @@ const ReservationDetail = async ({
                 Night
               </td>
               <td className="px-6 py-4 text-right">
-                {reservation.Payment &&
-                  formatCurrency(reservation.Payment.amount)}
+                {reservation.payment &&
+                  formatCurrency(reservation.payment.amount)}
               </td>
             </tr>
           </tbody>
@@ -166,8 +166,8 @@ const ReservationDetail = async ({
                 className="px-6 py-3 text-right font-bold"
                 colSpan={3}
               >
-                {reservation.Payment &&
-                  formatCurrency(reservation.Payment.amount)}
+                {reservation.payment &&
+                  formatCurrency(reservation.payment.amount)}
               </td>
             </tr>
           </tfoot>

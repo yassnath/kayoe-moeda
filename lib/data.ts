@@ -95,14 +95,33 @@ export const addToCart = async (
   }
 };
 
+export const getReservationById = async (id: string) => {
+  try {
+    const reservation = await prisma.reservation.findUnique({
+      where: { id },
+      include: {
+        produk: true,
+        user: true,
+        payment: true,
+      },
+    });
+
+    return reservation;
+  } catch (err) {
+    console.error("Error getReservationById:", err);
+    return null;
+  }
+};
+
 // === FUNCTION: getReservationByUserId ===
 export const getReservationByUserId = async (userId: string) => {
   try {
     const reservations = await prisma.reservation.findMany({
       where: { userId },
       include: {
-        // sesuai saran TypeScript: pakai 'produk' (R besar)
         produk: true,
+        user: true,
+        payment: true,
       },
       orderBy: {
         createdAt: "desc",
