@@ -1,0 +1,281 @@
+@import "tailwindcss";
+
+/* Font variables (diisi oleh next/font di layout.tsx) */
+:root {
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+    "Noto Sans", "Liberation Sans", sans-serif;
+  --font-head: ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Kayoe Moeda palette (forest green + gold) */
+  --km-paper: #f6eed8;
+  --km-sand: #e6d1a0;
+  --km-cream: #f4ead2;
+  --km-ink: #1b1a14;
+  --km-wood: #0b2a22;
+  --km-brass: #c2a15a;
+  --km-clay: #9e7a39;
+  --km-line: rgba(194, 161, 90, 0.35);
+  --km-accent: #c2a15a;
+  --km-accent-2: #0f3a2c;
+}
+
+/* Base styling (tanpa @apply md:... supaya aman di Tailwind v4) */
+html {
+  font-family: var(--font-body);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--km-ink);
+  isolation: isolate;
+
+  background:
+    radial-gradient(1200px 700px at 10% -10%, rgba(194, 161, 90, 0.22), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(15, 58, 44, 0.8), transparent 60%),
+    radial-gradient(700px 500px at 50% 110%, rgba(194, 161, 90, 0.18), transparent 60%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 14px
+    ),
+    linear-gradient(180deg, #071a14 0%, #0b2a22 50%, #071a14 100%);
+}
+
+/* Headings pakai font header */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-head);
+  letter-spacing: -0.02em;
+}
+
+/* Typography hierarchy (pakai CSS biasa + media query) */
+h1 {
+  font-weight: 600;
+  font-size: 1.875rem; /* text-3xl */
+  line-height: 2.25rem;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 2.25rem; /* md:text-4xl */
+    line-height: 2.5rem;
+  }
+}
+
+h2 {
+  font-weight: 600;
+  font-size: 1.5rem; /* text-2xl */
+  line-height: 2rem;
+}
+
+@media (min-width: 768px) {
+  h2 {
+    font-size: 1.875rem; /* md:text-3xl */
+    line-height: 2.25rem;
+  }
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 1.25rem; /* text-xl */
+  line-height: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  h3 {
+    font-size: 1.5rem; /* md:text-2xl */
+    line-height: 2rem;
+  }
+}
+
+p {
+  line-height: 1.75;
+  color: color-mix(in oklab, currentColor 82%, transparent);
+}
+
+/* Link default */
+a {
+  text-decoration: none;
+  transition: opacity 150ms ease;
+}
+
+/* Brand selection */
+::selection {
+  background: var(--km-accent);
+  color: #0b2a22;
+}
+
+/* Utility skins */
+.km-panel {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(11, 42, 34, 0.05) 0,
+      rgba(11, 42, 34, 0.05) 1px,
+      transparent 1px,
+      transparent 14px
+    ),
+    radial-gradient(620px 420px at 95% 5%, rgba(194, 161, 90, 0.32), transparent 60%),
+    linear-gradient(135deg, rgba(246, 238, 216, 0.96), rgba(230, 209, 160, 0.9));
+  border: 1px solid rgba(194, 161, 90, 0.45);
+  box-shadow: 0 30px 70px rgba(6, 18, 14, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+
+.km-tile {
+  background:
+    radial-gradient(200px 130px at 100% 0%, rgba(194, 161, 90, 0.25), transparent 60%),
+    linear-gradient(180deg, #f9f1da, #e8d3a5);
+  border: 1px solid rgba(194, 161, 90, 0.28);
+  box-shadow: 0 16px 32px rgba(6, 18, 14, 0.18);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.km-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 40px rgba(6, 18, 14, 0.28);
+}
+
+.km-chip {
+  background: rgba(230, 209, 160, 0.92);
+  border: 1px solid rgba(194, 161, 90, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.km-shell {
+  position: relative;
+  overflow: hidden;
+}
+
+.km-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(194, 161, 90, 0.25),
+    rgba(11, 42, 34, 0.05) 45%,
+    rgba(194, 161, 90, 0.18)
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.km-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(11, 42, 34, 0.08) 0,
+    rgba(11, 42, 34, 0.08) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.km-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.km-nav {
+  position: relative;
+  overflow: hidden;
+}
+
+.km-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(194, 161, 90, 0.9), transparent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.km-footer {
+  position: relative;
+  overflow: hidden;
+}
+
+.km-footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(194, 161, 90, 0.8), transparent);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Global override to keep legacy white surfaces on-theme */
+.bg-white {
+  background-color: var(--km-cream) !important;
+}
+.bg-white\/90 {
+  background-color: rgba(244, 234, 210, 0.9) !important;
+}
+.bg-white\/80 {
+  background-color: rgba(244, 234, 210, 0.8) !important;
+}
+.bg-white\/70 {
+  background-color: rgba(244, 234, 210, 0.7) !important;
+}
+.bg-white\/60 {
+  background-color: rgba(244, 234, 210, 0.6) !important;
+}
+
+/* Legacy gray overrides to match theme */
+.text-gray-400 {
+  color: color-mix(in oklab, var(--km-ink) 55%, transparent) !important;
+}
+.text-gray-500 {
+  color: color-mix(in oklab, var(--km-ink) 62%, transparent) !important;
+}
+.text-gray-600 {
+  color: color-mix(in oklab, var(--km-ink) 72%, transparent) !important;
+}
+.text-gray-700 {
+  color: color-mix(in oklab, var(--km-ink) 85%, transparent) !important;
+}
+.text-gray-800,
+.text-gray-900 {
+  color: var(--km-ink) !important;
+}
+
+.bg-gray-50 {
+  background-color: rgba(246, 238, 216, 0.75) !important;
+}
+.bg-gray-100 {
+  background-color: rgba(230, 209, 160, 0.6) !important;
+}
+.bg-gray-200 {
+  background-color: rgba(194, 161, 90, 0.45) !important;
+}
+.bg-gray-300 {
+  background-color: rgba(194, 161, 90, 0.6) !important;
+}
+.bg-gray-800 {
+  background-color: #0b2a22 !important;
+}
+
+.border-gray-200 {
+  border-color: rgba(194, 161, 90, 0.35) !important;
+}
+.border-gray-300 {
+  border-color: rgba(194, 161, 90, 0.5) !important;
+}

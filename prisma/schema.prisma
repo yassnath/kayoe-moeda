@@ -1,0 +1,345 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  OWNER
+  CUSTOMER
+}
+
+/**
+ * PRODUK (pakai tabel `room`)
+ */
+model Produk {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  image       String
+  price       Int
+  capacity    Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  amenities    ProdukAmenities[]
+  reservations Reservation[]
+  cartItems    CartItem[]
+
+  // relasi untuk order item
+  orderItems OrderItem[]
+
+  @@map("room")
+}
+
+/**
+ * AMENITIES (pakai tabel `amenities`)
+ */
+model Amenities {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  produkAmenities ProdukAmenities[]
+
+  @@map("amenities")
+}
+
+/**
+ * RELASI PRODUK ↔ AMENITIES (pakai tabel `roomamenities`)
+ */
+model ProdukAmenities {
+  id String @id @default(cuid())
+
+  produkId String @map("roomId")
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+
+  amenitiesId String
+  amenities   Amenities @relation(fields: [amenitiesId], references: [id], onDelete: Cascade)
+
+  @@map("roomamenities")
+}
+
+/**
+ * RESERVATION (pakai tabel `reservation`)
+ * NOTE: aku BIARKAN `starDate` supaya tidak merusak sistem lama.
+ */
+model Reservation {
+  id       String   @id @default(cuid())
+  starDate DateTime
+  endDate  DateTime
+  price    Int
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  produkId String @map("roomId")
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payment Payment?
+
+  @@index([userId])
+  @@index([produkId])
+  @@map("reservation")
+}
+
+/**
+ * PAYMENT (pakai tabel `payment`)
+ */
+model Payment {
+  id     String  @id @default(cuid())
+  method String?
+  amount Int
+  status String  @default("unpaid")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reservationId String      @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@map("payment")
+}
+
+/**
+ * USER (pakai tabel `user`)
+ */
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  username      String    @unique
+  password      String
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(CUSTOMER)
+  phone         String?
+
+  accounts     Account[]
+  reservations Reservation[]
+  carts        Cart[]
+
+  customOrders CustomOrder[]
+  orders       Order[]
+
+  passwordResetTokens PasswordResetToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user")
+}
+
+/**
+ * ACCOUNT (pakai tabel `account`)
+ */
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+  @@map("account")
+}
+
+/**
+ * CART (pakai tabel `cart`)
+ */
+model Cart {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("cart")
+}
+
+/**
+ * CART ITEM (pakai tabel `cartitem`)
+ */
+model CartItem {
+  id String @id @default(cuid())
+
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  produkId String @map("roomId")
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+
+  quantity  Int      @default(1)
+  price     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, produkId])
+  @@index([produkId])
+  @@map("cartitem")
+}
+
+/**
+ * PASSWORD RESET TOKEN (pakai tabel `passwordresettoken`)
+ */
+model PasswordResetToken {
+  id    String @id @default(cuid())
+  token String @unique
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expires])
+  @@map("passwordresettoken")
+}
+
+/**
+ * CUSTOM ORDER
+ */
+enum CustomOrderType {
+  MUG
+  GELAS
+  PIRING
+  MANGKOK
+  LAINNYA
+}
+
+enum CustomOrderStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+model CustomOrder {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  customerName String
+  email        String
+  phone        String
+
+  orderName   String
+  orderType   CustomOrderType
+  description String          @db.Text
+
+  image  String?
+  status CustomOrderStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("customorder")
+}
+
+/**
+ * ORDER + SHIPPING ADDRESS (manual)
+ */
+
+// Status pembayaran (manual)
+enum OrderPaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+// Status pengiriman (e-commerce)
+enum ShippingStatus {
+  PENDING
+  PACKED
+  SHIPPED
+  DELIVERED
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  // dipakai sebagai order_id di Midtrans
+  orderCode String @unique
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  paymentStatus  OrderPaymentStatus @default(PENDING)
+  shippingStatus ShippingStatus     @default(PENDING)
+
+  grossAmount Int
+
+  // SHIPPING ADDRESS (optional biar db push aman)
+  recipientName  String?
+  recipientPhone String?
+  addressLine    String?
+  city           String?
+  province       String?
+  postalCode     String?
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // index untuk history & insight
+  @@index([userId])
+  @@index([createdAt])
+  @@index([paymentStatus])
+  @@index([shippingStatus])
+  @@map("order")
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  produkId String @map("roomId")
+  produk   Produk @relation(fields: [produkId], references: [id], onDelete: Cascade)
+
+  quantity Int @default(1)
+
+  // snapshot saat order dibuat
+  price Int
+  name  String
+  image String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([produkId])
+  @@map("orderitem")
+}
