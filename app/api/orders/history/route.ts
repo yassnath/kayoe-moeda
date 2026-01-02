@@ -16,7 +16,6 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       include: {
         items: true,
-        payment: true,
       },
     });
 
