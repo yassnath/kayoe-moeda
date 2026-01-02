@@ -140,7 +140,7 @@ export const getprodukDetailById = async (id: string) => {
     const produk = await prisma.produk.findUnique({
       where: { id },
       include: {
-        produkAmenities: {
+        amenities: {
           include: {
             amenities: {
               select: {

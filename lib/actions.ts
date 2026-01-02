@@ -41,7 +41,7 @@ export const saveproduk = async (
         image,
         price,
         capacity,
-        produkAmenities: {
+        amenities: {
           createMany: {
             data: amenities.map((item) => ({
               amenitiesId: item,
@@ -93,7 +93,7 @@ export const updateproduk = async (
           image,
           price,
           capacity,
-          produkAmenities: {
+          amenities: {
             deleteMany: {},
           },
         },
@@ -176,7 +176,7 @@ export const createReserve = async (
           price: price,
           produkId: produkId,
           userId: session.user.id as string,
-          Payment: {
+          payment: {
             create: {
               amount: total,
             },

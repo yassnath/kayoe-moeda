@@ -62,7 +62,7 @@ const EditForm = ({
     updateproduk.bind(null, image, produk.id),
     null
   );
-  const checkedAmenities = produk.produkAmenities.map(
+  const checkedAmenities = produk.amenities.map(
     (item: { amenitiesId: string }) => item.amenitiesId
   );
 
