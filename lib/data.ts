@@ -25,6 +25,18 @@ export const getprodukById = async (id: string) => {
   }
 };
 
+export const getAmenities = async () => {
+  try {
+    const result = await prisma.amenities.findMany({
+      orderBy: { name: "asc" },
+    });
+    return result;
+  } catch (err) {
+    console.error("Error getAmenities:", err);
+    return [];
+  }
+};
+
 export const addToCart = async (
   userId: string,
   produkId: string,
