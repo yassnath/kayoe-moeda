@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getToken } from "next-auth/jwt";
 
 // route yang wajib login
 const ProtectedRoutes = ["/history-order", "/cart/checkout", "/checkout", "/admin", "/owner"];
 
 export async function middleware(request: NextRequest) {
-  const session = await auth();
-  const isLoggedIn = !!session?.user;
-  const role = (session?.user as any)?.role as "ADMIN" | "OWNER" | "CUSTOMER" | undefined;
+  const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  const token = await getToken({ req: request, secret: authSecret });
+  const isLoggedIn = !!token;
+  const role = token?.role as "ADMIN" | "OWNER" | "CUSTOMER" | undefined;
 
   const { pathname, search } = request.nextUrl;
 
