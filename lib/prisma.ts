@@ -1,15 +1,26 @@
 import { PrismaClient } from "@prisma/client";
 
-const dbUrl = process.env.DATABASE_URL;
-const postgresUrl =
-  process.env.POSTGRES_PRISMA_URL || process.env.POSTGRES_URL;
+const postgresCandidate =
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.DATABASE_URL;
 
-if (
-  (!dbUrl || (!dbUrl.startsWith("postgres://") && !dbUrl.startsWith("postgresql://"))) &&
-  postgresUrl
-) {
-  // Use Vercel Postgres URL when DATABASE_URL is missing or still MySQL.
-  process.env.DATABASE_URL = postgresUrl;
+const isPostgres =
+  !!postgresCandidate &&
+  (postgresCandidate.startsWith("postgres://") ||
+    postgresCandidate.startsWith("postgresql://"));
+
+if (isPostgres) {
+  // Ensure Prisma envs exist when only one Postgres URL is provided.
+  if (!process.env.POSTGRES_PRISMA_URL) {
+    process.env.POSTGRES_PRISMA_URL = postgresCandidate;
+  }
+  if (!process.env.POSTGRES_URL_NON_POOLING) {
+    process.env.POSTGRES_URL_NON_POOLING = postgresCandidate;
+  }
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = postgresCandidate;
+  }
 }
 
 const globalForPrisma = globalThis as unknown as {
