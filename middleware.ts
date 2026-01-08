@@ -6,7 +6,9 @@ const ProtectedRoutes = ["/history-order", "/cart/checkout", "/checkout", "/admi
 
 export async function middleware(request: NextRequest) {
   const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
-  const token = await getToken({ req: request, secret: authSecret });
+  const token = authSecret
+    ? await getToken({ req: request, secret: authSecret })
+    : null;
   const isLoggedIn = !!token;
   const role = token?.role as "ADMIN" | "OWNER" | "CUSTOMER" | undefined;
 
