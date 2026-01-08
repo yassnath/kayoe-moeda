@@ -1,25 +1,38 @@
 import { PrismaClient } from "@prisma/client";
 
-const postgresCandidate =
-  process.env.POSTGRES_PRISMA_URL ||
-  process.env.POSTGRES_URL ||
-  process.env.DATABASE_URL;
+const isPostgresUrl = (value?: string) =>
+  !!value &&
+  (value.startsWith("postgres://") || value.startsWith("postgresql://"));
 
-const isPostgres =
-  !!postgresCandidate &&
-  (postgresCandidate.startsWith("postgres://") ||
-    postgresCandidate.startsWith("postgresql://"));
+const pooledCandidates = [
+  process.env.POSTGRES_PRISMA_URL,
+  process.env.POSTGRES_URL,
+  process.env.DATABASE_URL,
+  process.env.NEON_URL,
+  process.env.NEON_DATABASE_URL,
+];
 
-if (isPostgres) {
-  // Ensure Prisma envs exist when only one Postgres URL is provided.
-  if (!process.env.POSTGRES_PRISMA_URL) {
-    process.env.POSTGRES_PRISMA_URL = postgresCandidate;
+const directCandidates = [
+  process.env.POSTGRES_URL_NON_POOLING,
+  process.env.DATABASE_URL_NON_POOLING,
+  process.env.DATABASE_URL_UNPOOLED,
+  process.env.NEON_URL_NON_POOLING,
+  process.env.NEON_URL_UNPOOLED,
+];
+
+const pooledUrl = pooledCandidates.find(isPostgresUrl);
+const directUrl = directCandidates.find(isPostgresUrl) || pooledUrl;
+
+if (pooledUrl) {
+  // Normalize envs so Prisma uses the Neon/Vercel connection strings.
+  if (!isPostgresUrl(process.env.POSTGRES_PRISMA_URL)) {
+    process.env.POSTGRES_PRISMA_URL = pooledUrl;
   }
-  if (!process.env.POSTGRES_URL_NON_POOLING) {
-    process.env.POSTGRES_URL_NON_POOLING = postgresCandidate;
+  if (!isPostgresUrl(process.env.POSTGRES_URL_NON_POOLING) && directUrl) {
+    process.env.POSTGRES_URL_NON_POOLING = directUrl;
   }
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = postgresCandidate;
+  if (!isPostgresUrl(process.env.DATABASE_URL)) {
+    process.env.DATABASE_URL = pooledUrl;
   }
 }
 
