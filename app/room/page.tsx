@@ -2,8 +2,10 @@ import { getprodukById } from "@/lib/data";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function produkDetailPage({ params }: { params: { id: string } }) {
-  const produk = await getprodukById(params.id);
+export default async function produkDetailPage(
+  { params }: { params?: { id?: string } } = {}
+) {
+  const produk = await getprodukById(params?.id);
 
   if (!produk) {
     return (

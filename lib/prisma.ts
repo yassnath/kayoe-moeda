@@ -10,6 +10,9 @@ const pooledCandidates = [
   process.env.DATABASE_URL,
   process.env.NEON_URL,
   process.env.NEON_DATABASE_URL,
+  process.env.NEON_POSTGRES_PRISMA_URL,
+  process.env.NEON_POSTGRES_URL,
+  process.env.NEON_DATABASE_URL,
 ];
 
 const directCandidates = [
@@ -18,6 +21,8 @@ const directCandidates = [
   process.env.DATABASE_URL_UNPOOLED,
   process.env.NEON_URL_NON_POOLING,
   process.env.NEON_URL_UNPOOLED,
+  process.env.NEON_POSTGRES_URL_NON_POOLING,
+  process.env.NEON_POSTGRES_URL_UNPOOLED,
 ];
 
 const pooledUrl = pooledCandidates.find(isPostgresUrl);

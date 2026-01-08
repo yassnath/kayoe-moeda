@@ -12,7 +12,11 @@ export const getproduks = async () => {
   }
 };
 
-export const getprodukById = async (id: string) => {
+export const getprodukById = async (id?: string) => {
+  if (!id) {
+    return null;
+  }
+
   try {
     const produk = await prisma.produk.findUnique({
       where: { id },
