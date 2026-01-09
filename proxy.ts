@@ -3,12 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 // route yang wajib login
 const ProtectedRoutes = ["/history-order", "/cart/checkout", "/checkout", "/admin", "/owner"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   /**
    * ✅ FIX: skip total untuk static assets & file umum
-   * (karena kamu sekarang 500 juga di favicon.ico)
    */
   if (
     pathname.startsWith("/_next") ||
@@ -104,7 +103,7 @@ export async function middleware(request: NextRequest) {
 }
 
 /**
- * ✅ FIX: exclude favicon dll langsung dari matcher,
+ * ✅ matcher exclude favicon dll langsung dari matcher,
  * jadi proxy tidak akan terpanggil pada request itu sama sekali.
  */
 export const config = {
