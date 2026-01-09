@@ -1,6 +1,6 @@
-# Kaluna-living
+# Kayoe Moeda
 
-Aplikasi pemesanan kamar/reservasi (kaluna living).
+Aplikasi pemesanan furniture.
 
 ## 🚀 Getting Started (Proyek Lokal)
 
