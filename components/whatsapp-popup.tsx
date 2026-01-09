@@ -97,7 +97,10 @@ const WhatsAppPopup = () => {
   return (
     <>
       {isChatOpen && (
-        <div className="fixed bottom-40 right-4 sm:right-6 w-[calc(100vw-3.5rem)] max-w-[320px] km-tile rounded-2xl p-0 text-sm z-40 overflow-hidden">
+        <div
+          className="fixed bottom-40 right-6 left-auto w-[calc(100vw-3.5rem)] max-w-[320px] km-tile rounded-2xl p-0 text-sm z-40 overflow-hidden"
+          style={{ right: "1.5rem", left: "auto" }}
+        >
           <div className="flex items-start justify-between gap-3 border-b border-km-line px-4 py-3 bg-km-cream/70">
             <div>
               <p className="text-[10px] uppercase tracking-[0.3em] text-km-ink/45">
@@ -179,7 +182,8 @@ const WhatsAppPopup = () => {
         type="button"
         aria-label="Buka Chatbot Kayoe Moeda"
         onClick={() => setIsChatOpen((prev) => !prev)}
-        className="group fixed bottom-24 right-6 bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-14 h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
+        className="group fixed bottom-24 right-6 left-auto bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-14 h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
+        style={{ right: "1.5rem", left: "auto" }}
       >
         <span
           aria-hidden="true"
@@ -192,7 +196,8 @@ const WhatsAppPopup = () => {
         href={`https://wa.me/62${phone.slice(1)}?text=${encodedText}`}
         aria-label="Buka WhatsApp"
         target="_blank"
-        className="fixed bottom-6 right-6 bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-40"
+        className="fixed bottom-6 right-6 left-auto bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-40"
+        style={{ right: "1.5rem", left: "auto" }}
       >
         <IoLogoWhatsapp className="size-7" />
       </Link>

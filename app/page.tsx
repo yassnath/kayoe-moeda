@@ -19,7 +19,7 @@ export default function Home() {
               Tentang Kayoe Moeda
             </p>
             <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-km-ink">
-              Furnitur kayu yang rapi, kuat, dan nyaman digunakan
+              Furniture Shop
             </h2>
             <p className="mt-4 text-sm text-km-ink/70 leading-relaxed">
               Kayoe Moeda fokus pada kursi, meja, lemari, dan rak kayu dengan
