@@ -17,7 +17,7 @@ const WhatsAppPopup = () => {
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-20 w-[calc(100vw-2rem)] max-w-xs sm:w-64 km-tile rounded-lg p-4 text-sm z-40">
+        <div className="fixed bottom-24 right-4 sm:right-6 left-auto w-[calc(100vw-2rem)] max-w-xs sm:w-64 km-tile rounded-lg p-4 text-sm z-40">
           <div className="flex items-center justify-between mb-2">
             <span className="font-semibold text-km-ink">Chat via WhatsApp</span>
             <button
@@ -44,7 +44,7 @@ const WhatsAppPopup = () => {
       <Link
         href="/chat"
         aria-label="Buka Chatbot Kayoe Moeda"
-        className="group fixed bottom-24 right-4 sm:right-6 bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
+        className="group fixed bottom-24 right-4 sm:right-6 left-auto bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
       >
         <span
           aria-hidden="true"
@@ -56,7 +56,7 @@ const WhatsAppPopup = () => {
       <button
         aria-label="Buka WhatsApp"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-4 sm:right-6 bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-lg z-40"
+        className="fixed bottom-6 right-4 sm:right-6 left-auto bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-lg z-40"
       >
         <IoLogoWhatsapp className="size-7" />
       </button>

@@ -2,9 +2,8 @@
 
 /* Font variables (diisi oleh next/font di layout.tsx) */
 :root {
-  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
-    "Noto Sans", "Liberation Sans", sans-serif;
-  --font-head: ui-serif, Georgia, "Times New Roman", serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-head: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Kayoe Moeda palette (forest green + gold) */
   --km-paper: #f6eed8;
