@@ -15,37 +15,92 @@ async function main() {
   const ownerUsername = process.env.SEED_OWNER_USERNAME ?? "owner";
   const ownerPasswordPlain = process.env.SEED_OWNER_PASSWORD ?? "password";
 
-  const adminPasswordHash = await bcrypt.hash(adminPasswordPlain, 10);
-  const ownerPasswordHash = await bcrypt.hash(ownerPasswordPlain, 10);
+  const upsertSeedUser = async ({
+    name,
+    email,
+    username,
+    role,
+    passwordPlain,
+  }: {
+    name: string;
+    email?: string;
+    username: string;
+    role: "ADMIN" | "OWNER";
+    passwordPlain: string;
+  }) => {
+    const passwordHash = await bcrypt.hash(passwordPlain, 10);
 
-  await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {
-      password: adminPasswordHash,
-      role: "ADMIN",
-    },
-    create: {
-      name: "Super Admin Kayoe Moeda",
-      email: adminEmail,
-      username: adminUsername,
-      password: adminPasswordHash,
-      role: "ADMIN",
-    },
+    const existingByUsername = await prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (existingByUsername) {
+      let safeEmail: string | undefined;
+      if (email && email !== existingByUsername.email) {
+        const emailOwner = await prisma.user.findUnique({
+          where: { email },
+        });
+        if (!emailOwner || emailOwner.id === existingByUsername.id) {
+          safeEmail = email;
+        }
+      }
+
+      await prisma.user.update({
+        where: { id: existingByUsername.id },
+        data: {
+          name,
+          role,
+          password: passwordHash,
+          ...(safeEmail ? { email: safeEmail } : {}),
+        },
+      });
+      return;
+    }
+
+    if (email) {
+      const existingByEmail = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (existingByEmail) {
+        await prisma.user.update({
+          where: { id: existingByEmail.id },
+          data: {
+            name,
+            username,
+            role,
+            password: passwordHash,
+          },
+        });
+        return;
+      }
+    }
+
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        username,
+        password: passwordHash,
+        role,
+      },
+    });
+  };
+
+  await upsertSeedUser({
+    name: "Super Admin Kayoe Moeda",
+    email: adminEmail,
+    username: adminUsername,
+    role: "ADMIN",
+    passwordPlain: adminPasswordPlain,
   });
 
-  await prisma.user.upsert({
-    where: { email: ownerEmail },
-    update: {
-      password: ownerPasswordHash,
-      role: "OWNER",
-    },
-    create: {
-      name: "Owner Kayoe Moeda",
-      email: ownerEmail,
-      username: ownerUsername,
-      password: ownerPasswordHash,
-      role: "OWNER",
-    },
+  await upsertSeedUser({
+    name: "Owner Kayoe Moeda",
+    email: ownerEmail,
+    username: ownerUsername,
+    role: "OWNER",
+    passwordPlain: ownerPasswordPlain,
   });
 
   console.log("Admin created or updated");
