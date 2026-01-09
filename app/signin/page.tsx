@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,15 +116,31 @@ export default function SignInPage() {
                   <label className="text-sm font-semibold text-[#111827]">
                     Password
                   </label>
-                  <input
-                    type="password"
-                    className="rounded-2xl px-4 py-3 text-sm text-[#111827]
-                               ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="w-full rounded-2xl px-4 py-3 pr-12 text-sm text-[#111827]
+                                 ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-km-ink/60 hover:text-km-ink transition"
+                      aria-label={
+                        showPassword ? "Sembunyikan password" : "Lihat password"
+                      }
+                    >
+                      {showPassword ? (
+                        <IoEyeOffOutline className="h-5 w-5" />
+                      ) : (
+                        <IoEyeOutline className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Forgot password link */}
