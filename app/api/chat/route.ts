@@ -13,7 +13,8 @@ type ChatRequest = {
 
 export async function POST(req: Request) {
   try {
-    const apiKey = process.env.CEREBRAS_API_KEY;
+    const rawApiKey = process.env.CEREBRAS_API_KEY ?? "";
+    const apiKey = rawApiKey.trim().replace(/^['"]|['"]$/g, "");
     if (!apiKey) {
       return NextResponse.json(
         { message: "CEREBRAS_API_KEY belum di-set." },
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
         "Gunakan Bahasa Indonesia yang sopan dan ringkas.",
     };
 
-    const model = process.env.CEREBRAS_MODEL || "llama3.1-8b";
+    const model = (process.env.CEREBRAS_MODEL || "llama3.1-8b").trim();
 
     const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
       method: "POST",
@@ -58,9 +59,14 @@ export async function POST(req: Request) {
 
     const data = await res.json().catch(() => null);
     if (!res.ok) {
+      const errorMessage =
+        data?.error?.message ||
+        data?.message ||
+        "Gagal memproses chat.";
+      console.error("CEREBRAS API ERROR:", res.status, data);
       return NextResponse.json(
-        { message: data?.error?.message || "Gagal memproses chat." },
-        { status: 500 }
+        { message: errorMessage },
+        { status: res.status || 500 }
       );
     }
 

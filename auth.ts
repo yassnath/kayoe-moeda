@@ -19,32 +19,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        username: { label: "Username / Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
 
       async authorize(credentials) {
         // ✅ NORMALIZE supaya TS yakin string (fix error {} is not assignable to string)
-        const username =
+        const identifier =
           typeof credentials?.username === "string" ? credentials.username.trim() : "";
         const password =
           typeof credentials?.password === "string" ? credentials.password : "";
 
-        if (!username || !password) {
-          throw new Error("Username dan password wajib diisi");
+        if (!identifier || !password) {
+          throw new Error("Username/email dan password wajib diisi");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { username }, // ✅ sekarang pasti string
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [{ username: identifier }, { email: identifier }],
+          },
         });
 
         if (!user) {
-          throw new Error("Username atau password salah");
+          throw new Error("Username/email atau password salah");
         }
 
         const isValid = await bcrypt.compare(password, user.password); // ✅ password pasti string
         if (!isValid) {
-          throw new Error("Username atau password salah");
+          throw new Error("Username/email atau password salah");
         }
 
         const role = user.role as Role;
@@ -80,3 +82,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+
+

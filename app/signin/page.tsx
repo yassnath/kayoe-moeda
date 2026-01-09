@@ -20,7 +20,7 @@ export default function SignInPage() {
     setError(null);
 
     try {
-      // kalau ada ?callbackUrl= pakai itu, kalau tidak → /admin
+      // kalau ada ?callbackUrl= pakai itu, kalau tidak /admin
       const callbackUrl = searchParams.get("callbackUrl") ?? "/admin";
 
       const res = await signIn("credentials", {
@@ -61,7 +61,7 @@ export default function SignInPage() {
             </p>
 
             <div className="mt-6 rounded-2xl bg-white ring-1 ring-black/5 p-5 shadow-md max-w-md">
-                <p className="text-sm font-semibold text-[#111827]">Catatan</p>
+              <p className="text-sm font-semibold text-[#111827]">Catatan</p>
               <p className="mt-1 text-sm text-[#111827]/70">
                 Customer, Admin, dan Owner akan diarahkan sesuai perannya setelah login.
               </p>
@@ -79,7 +79,7 @@ export default function SignInPage() {
                   Sign In Kayoe Moeda
                 </h2>
                 <p className="mt-2 text-sm text-[#111827]/65">
-                  Masukkan username dan password untuk melanjutkan.
+                  Masukkan username/email dan password untuk melanjutkan.
                 </p>
               </div>
 
@@ -92,13 +92,14 @@ export default function SignInPage() {
               )}
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                {/* Username */}
+                {/* Username / Email */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-[#111827]">
-                    Username
+                    Username / Email
                   </label>
                   <input
                     type="text"
+                    placeholder="username atau email"
                     className="rounded-2xl px-4 py-3 text-sm text-[#111827]
                                ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
                     value={username}

@@ -5,30 +5,55 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // 🔐 DATA ADMIN AWAL
-  const adminEmail = "lanabintang54@gmail.com"; // email untuk login
-  const adminUsername = "admin"; // hanya identitas, bukan login utama
-  const adminPasswordPlain = "Admin123!"; // password untuk login (boleh diganti)
+  // Admin seed data
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? "admin@kayoemoeda.local";
+  const adminUsername = process.env.SEED_ADMIN_USERNAME ?? "admin";
+  const adminPasswordPlain = process.env.SEED_ADMIN_PASSWORD ?? "password";
 
-  // Hash password (sesuai field password di Prisma: String)
-  const passwordHash = await bcrypt.hash(adminPasswordPlain, 10);
+  // Owner seed data
+  const ownerEmail = process.env.SEED_OWNER_EMAIL ?? "owner@kayoemoeda.local";
+  const ownerUsername = process.env.SEED_OWNER_USERNAME ?? "owner";
+  const ownerPasswordPlain = process.env.SEED_OWNER_PASSWORD ?? "password";
 
-  // Upsert admin (kalau sudah ada, tidak diubah)
+  const adminPasswordHash = await bcrypt.hash(adminPasswordPlain, 10);
+  const ownerPasswordHash = await bcrypt.hash(ownerPasswordPlain, 10);
+
   await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    update: {
+      password: adminPasswordHash,
+      role: "ADMIN",
+    },
     create: {
-      name: "Super Admin Kaluna Living",
+      name: "Super Admin Kayoe Moeda",
       email: adminEmail,
       username: adminUsername,
-      password: passwordHash,
+      password: adminPasswordHash,
       role: "ADMIN",
     },
   });
 
-  console.log("✅ Admin created or already exists");
-  console.log("➡ Email   :", adminEmail);
-  console.log("➡ Password:", adminPasswordPlain);
+  await prisma.user.upsert({
+    where: { email: ownerEmail },
+    update: {
+      password: ownerPasswordHash,
+      role: "OWNER",
+    },
+    create: {
+      name: "Owner Kayoe Moeda",
+      email: ownerEmail,
+      username: ownerUsername,
+      password: ownerPasswordHash,
+      role: "OWNER",
+    },
+  });
+
+  console.log("Admin created or updated");
+  console.log("Admin Email   :", adminEmail);
+  console.log("Admin Password:", adminPasswordPlain);
+  console.log("Owner created or updated");
+  console.log("Owner Email   :", ownerEmail);
+  console.log("Owner Password:", ownerPasswordPlain);
 }
 
 main()
