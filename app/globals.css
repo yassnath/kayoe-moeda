@@ -185,20 +185,19 @@ a {
   border-color: rgba(194, 161, 90, 0.5);
 }
 
-.km-chat-shell {
+.km-chat-bubble {
   background:
-    radial-gradient(320px 220px at 10% -10%, rgba(194, 161, 90, 0.2), transparent 60%),
-    radial-gradient(240px 180px at 90% 0%, rgba(15, 58, 44, 0.7), transparent 65%),
+    radial-gradient(240px 160px at 0% 0%, rgba(194, 161, 90, 0.16), transparent 60%),
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.03) 0,
-      rgba(255, 255, 255, 0.03) 1px,
+      rgba(255, 255, 255, 0.05) 0,
+      rgba(255, 255, 255, 0.05) 1px,
       transparent 1px,
-      transparent 16px
+      transparent 14px
     ),
     linear-gradient(180deg, #061610 0%, #0b2a22 60%, #061610 100%);
-  color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 20px 50px rgba(4, 12, 10, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .km-chip {
