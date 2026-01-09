@@ -33,7 +33,13 @@ export default function SignInPage() {
       });
 
       if (res?.error) {
-        setError(res.error || "Login gagal");
+        const message =
+          res.error === "CredentialsSignin"
+            ? "Username/email atau password salah"
+            : res.error === "Configuration"
+            ? "Konfigurasi login belum lengkap. Hubungi admin."
+            : res.error;
+        setError(message || "Login gagal");
         return;
       }
 

@@ -31,7 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           typeof credentials?.password === "string" ? credentials.password : "";
 
         if (!identifier || !password) {
-          throw new Error("Username/email dan password wajib diisi");
+          return null;
         }
 
         const user = await prisma.user.findFirst({
@@ -41,12 +41,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (!user) {
-          throw new Error("Username/email atau password salah");
+          return null;
         }
 
         const isValid = await bcrypt.compare(password, user.password); // ✅ password pasti string
         if (!isValid) {
-          throw new Error("Username/email atau password salah");
+          return null;
         }
 
         const role = user.role as Role;
@@ -82,6 +82,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
 
 
 

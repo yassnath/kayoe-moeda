@@ -153,7 +153,7 @@ const Footer = () => {
       {/* Bottom bar */}
       <div className="border-t border-km-line">
         <div className="mx-auto max-w-6xl px-4 md:px-6 py-6 text-center text-sm text-white/85">
-          &copy; Copyright 2025 | Maulana-fti-unmer
+          &copy; Copyright 2025 | Kayoe Moeda
         </div>
       </div>
     </footer>
