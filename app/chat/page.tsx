@@ -143,10 +143,6 @@ export default function ChatPage() {
                 {loading ? "Mengirim..." : "Kirim"}
               </button>
             </div>
-            <p className="mt-2 text-xs text-km-ink/55">
-              Balasan bersifat otomatis. Untuk pesanan cepat, gunakan tombol
-              WhatsApp.
-            </p>
           </div>
         </div>
       </div>

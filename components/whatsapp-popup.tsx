@@ -97,23 +97,23 @@ const WhatsAppPopup = () => {
   return (
     <>
       {isChatOpen && (
-        <div className="km-fab-right bottom-40 w-[calc(100vw-3.5rem)] max-w-[320px] km-tile rounded-2xl p-0 text-sm z-40 overflow-hidden">
-          <div className="flex items-start justify-between gap-3 border-b border-km-line px-4 py-3 bg-km-cream/70">
+        <div className="km-fab-right bottom-40 w-[calc(100vw-3.5rem)] max-w-[320px] km-chat-shell ring-1 ring-km-line rounded-2xl p-0 text-sm z-40 overflow-hidden">
+          <div className="flex items-start justify-between gap-3 border-b border-white/10 px-4 py-3 bg-white/5">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-km-ink/45">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">
                 Chatbot
               </p>
-              <p className="text-sm font-semibold text-km-ink">
+              <p className="text-sm font-semibold text-white">
                 Kayoe Moeda Assistant
               </p>
-              <p className="text-xs text-km-ink/60">
+              <p className="text-xs text-white/70">
                 Tanyakan produk &amp; pemesanan.
               </p>
             </div>
             <button
               aria-label="Tutup chatbot"
               onClick={() => setIsChatOpen(false)}
-              className="text-km-ink/50 hover:text-km-ink/80 transition"
+              className="text-white/60 hover:text-white transition"
             >
               <IoClose className="size-5" />
             </button>
@@ -128,7 +128,7 @@ const WhatsAppPopup = () => {
                 }`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed text-km-ink ${
                     msg.role === "user"
                       ? "bg-km-sand ring-1 ring-km-line"
                       : "bg-km-paper ring-1 ring-km-line"
@@ -149,7 +149,7 @@ const WhatsAppPopup = () => {
             )}
             <div className="flex items-center gap-2">
               <input
-                className="flex-1 rounded-2xl border border-km-line bg-km-paper px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                className="flex-1 rounded-2xl border border-km-line bg-km-paper px-3 py-2 text-xs text-km-ink placeholder:text-km-ink/60 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
                 placeholder="Tulis pertanyaan..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -169,7 +169,7 @@ const WhatsAppPopup = () => {
                 {loading ? "..." : "Kirim"}
               </button>
             </div>
-            <p className="mt-2 text-[10px] text-km-ink/55">
+            <p className="mt-2 text-[10px] text-white/60">
               Untuk respon cepat, gunakan WhatsApp.
             </p>
           </div>

@@ -185,6 +185,22 @@ a {
   border-color: rgba(194, 161, 90, 0.5);
 }
 
+.km-chat-shell {
+  background:
+    radial-gradient(320px 220px at 10% -10%, rgba(194, 161, 90, 0.2), transparent 60%),
+    radial-gradient(240px 180px at 90% 0%, rgba(15, 58, 44, 0.7), transparent 65%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 16px
+    ),
+    linear-gradient(180deg, #061610 0%, #0b2a22 60%, #061610 100%);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px rgba(4, 12, 10, 0.55);
+}
+
 .km-chip {
   background: rgba(230, 209, 160, 0.92);
   border: 1px solid rgba(194, 161, 90, 0.4);
