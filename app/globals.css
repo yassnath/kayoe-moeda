@@ -30,17 +30,26 @@ body {
   isolation: isolate;
 
   background:
-    radial-gradient(1200px 700px at 10% -10%, rgba(194, 161, 90, 0.22), transparent 60%),
-    radial-gradient(900px 500px at 90% 0%, rgba(15, 58, 44, 0.8), transparent 60%),
-    radial-gradient(700px 500px at 50% 110%, rgba(194, 161, 90, 0.18), transparent 60%),
+    radial-gradient(1100px 620px at 6% -12%, rgba(194, 161, 90, 0.26), transparent 60%),
+    radial-gradient(900px 520px at 94% 2%, rgba(15, 58, 44, 0.85), transparent 65%),
+    radial-gradient(680px 460px at 78% 120%, rgba(194, 161, 90, 0.2), transparent 60%),
+    conic-gradient(from 210deg at 32% 18%, rgba(194, 161, 90, 0.08), transparent 35%, rgba(11, 42, 34, 0.22) 65%, transparent 85%),
     repeating-linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.02) 0,
-      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.035) 0,
+      rgba(255, 255, 255, 0.035) 1px,
       transparent 1px,
       transparent 14px
     ),
-    linear-gradient(180deg, #071a14 0%, #0b2a22 50%, #071a14 100%);
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.03) 0,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 12px
+    ),
+    linear-gradient(180deg, #061610 0%, #0b2a22 45%, #061610 100%);
+  background-attachment: fixed;
 }
 
 /* Headings pakai font header */
@@ -111,35 +120,79 @@ a {
 
 /* Utility skins */
 .km-panel {
+  position: relative;
   background:
+    radial-gradient(900px 440px at 0% 0%, rgba(15, 58, 44, 0.2), transparent 60%),
+    radial-gradient(520px 320px at 100% 0%, rgba(194, 161, 90, 0.35), transparent 65%),
     repeating-linear-gradient(
       90deg,
-      rgba(11, 42, 34, 0.05) 0,
-      rgba(11, 42, 34, 0.05) 1px,
+      rgba(11, 42, 34, 0.06) 0,
+      rgba(11, 42, 34, 0.06) 1px,
       transparent 1px,
-      transparent 14px
+      transparent 12px
     ),
-    radial-gradient(620px 420px at 95% 5%, rgba(194, 161, 90, 0.32), transparent 60%),
-    linear-gradient(135deg, rgba(246, 238, 216, 0.96), rgba(230, 209, 160, 0.9));
-  border: 1px solid rgba(194, 161, 90, 0.45);
+    linear-gradient(135deg, rgba(246, 238, 216, 0.98), rgba(230, 209, 160, 0.92));
+  border: 1px solid rgba(194, 161, 90, 0.5);
   box-shadow: 0 30px 70px rgba(6, 18, 14, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px) saturate(120%);
   -webkit-backdrop-filter: blur(16px) saturate(120%);
 }
 
+.km-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.35),
+    transparent 35%,
+    rgba(194, 161, 90, 0.18)
+  );
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .km-tile {
+  position: relative;
+  overflow: hidden;
   background:
-    radial-gradient(200px 130px at 100% 0%, rgba(194, 161, 90, 0.25), transparent 60%),
-    linear-gradient(180deg, #f9f1da, #e8d3a5);
-  border: 1px solid rgba(194, 161, 90, 0.28);
-  box-shadow: 0 16px 32px rgba(6, 18, 14, 0.18);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+    radial-gradient(240px 160px at 100% 0%, rgba(194, 161, 90, 0.3), transparent 60%),
+    radial-gradient(220px 140px at 0% 0%, rgba(15, 58, 44, 0.16), transparent 60%),
+    linear-gradient(180deg, rgba(249, 241, 218, 0.98), rgba(232, 211, 165, 0.92));
+  border: 1px solid rgba(194, 161, 90, 0.32);
+  box-shadow: 0 16px 32px rgba(6, 18, 14, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.km-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(11, 42, 34, 0.05) 0,
+    rgba(11, 42, 34, 0.05) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.km-tile > * {
+  position: relative;
+  z-index: 1;
 }
 
 .km-tile:hover {
   transform: translateY(-2px);
   box-shadow: 0 22px 40px rgba(6, 18, 14, 0.28);
+  border-color: rgba(194, 161, 90, 0.5);
 }
 
 .km-chip {
@@ -193,6 +246,17 @@ a {
   overflow: hidden;
 }
 
+.km-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(420px 140px at 18% 0%, rgba(194, 161, 90, 0.18), transparent 70%),
+    radial-gradient(320px 140px at 82% 0%, rgba(15, 58, 44, 0.35), transparent 70%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .km-nav::after {
   content: "";
   position: absolute;
@@ -205,6 +269,51 @@ a {
   pointer-events: none;
 }
 
+.km-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-bottom: 0.35rem;
+  transition: color 200ms ease, transform 200ms ease, text-shadow 200ms ease;
+}
+
+.km-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(194, 161, 90, 0.9), transparent);
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+
+.km-nav-link:hover {
+  transform: translateY(-1px);
+  text-shadow: 0 0 18px rgba(194, 161, 90, 0.45);
+}
+
+.km-nav-link:hover::after,
+.km-nav-link.is-active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.min-h-screen.bg-km-sand {
+  background-image:
+    radial-gradient(600px 420px at 12% 0%, rgba(194, 161, 90, 0.18), transparent 60%),
+    radial-gradient(500px 360px at 90% 8%, rgba(15, 58, 44, 0.18), transparent 65%),
+    repeating-linear-gradient(
+      90deg,
+      rgba(11, 42, 34, 0.05) 0,
+      rgba(11, 42, 34, 0.05) 1px,
+      transparent 1px,
+      transparent 16px
+    );
+}
 .km-footer {
   position: relative;
   overflow: hidden;

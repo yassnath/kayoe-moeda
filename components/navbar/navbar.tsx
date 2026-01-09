@@ -102,9 +102,9 @@ export default function Navbar() {
                     key={it.href}
                     href={it.href}
                     className={[
-                      "no-underline text-sm font-semibold tracking-widest transition uppercase",
+                      "km-nav-link no-underline text-sm font-semibold tracking-widest uppercase",
                       isActive(it.href)
-                        ? "border-b-2 border-km-brass text-white pb-1"
+                        ? "is-active text-white"
                         : "text-white/85 hover:text-white",
                     ].join(" ")}
                   >
@@ -243,7 +243,7 @@ export default function Navbar() {
                 <button
                   onClick={() => signOut({ callbackUrl: "/signin" })}
                   className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
-                             bg-km-brass text-white ring-1 ring-km-line hover:opacity-90 transition"
+                             bg-km-brass text-white ring-1 ring-km-brass hover:opacity-90 transition shadow-sm"
                 >
                   Sign Out
                 </button>
