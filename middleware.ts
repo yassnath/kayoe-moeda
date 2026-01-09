@@ -6,9 +6,18 @@ const ProtectedRoutes = ["/history-order", "/cart/checkout", "/checkout", "/admi
 
 export async function middleware(request: NextRequest) {
   const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
-  const token = authSecret
-    ? await getToken({ req: request, secret: authSecret })
-    : null;
+
+  let token: any = null;
+
+  try {
+    if (authSecret) {
+      token = await getToken({ req: request, secret: authSecret });
+    }
+  } catch (err) {
+    // jangan biarkan middleware crash di Edge Runtime
+    token = null;
+  }
+
   const isLoggedIn = !!token;
   const role = token?.role as "ADMIN" | "OWNER" | "CUSTOMER" | undefined;
 
@@ -47,5 +56,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image).*)"],
 };
+
