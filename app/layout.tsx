@@ -22,6 +22,11 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "Kayoe Moeda",
   description: "Mebel kayu berkualitas untuk rumah Anda.",
+  icons: {
+    icon: "/logo-kayoe.png",
+    shortcut: "/logo-kayoe.png",
+    apple: "/logo-kayoe.png",
+  },
 };
 
 export default async function RootLayout({

@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { IoLogoWhatsapp, IoClose, IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import {
+  IoLogoWhatsapp,
+  IoClose,
+  IoChatbubbleEllipses,
+  IoSparkles,
+} from "react-icons/io5";
 
 const WhatsAppPopup = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -12,7 +17,7 @@ const WhatsAppPopup = () => {
   return (
     <>
       {isOpen && (
-        <div className="fixed bottom-40 right-6 max-w-xs w-64 km-tile rounded-lg p-4 text-sm z-40">
+        <div className="fixed bottom-24 right-4 sm:right-20 w-[calc(100vw-2rem)] max-w-xs sm:w-64 km-tile rounded-lg p-4 text-sm z-40">
           <div className="flex items-center justify-between mb-2">
             <span className="font-semibold text-km-ink">Chat via WhatsApp</span>
             <button
@@ -39,14 +44,19 @@ const WhatsAppPopup = () => {
       <Link
         href="/chat"
         aria-label="Buka Chatbot Kayoe Moeda"
-        className="fixed bottom-24 right-6 bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-14 h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40"
+        className="group fixed bottom-24 right-4 sm:right-6 bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
       >
-        <IoChatbubbleEllipsesOutline className="size-6" />
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 rounded-full ring-2 ring-white/15 group-hover:ring-white/35 transition"
+        />
+        <IoChatbubbleEllipses className="relative z-10 size-6 drop-shadow-[0_0_6px_rgba(255,255,255,0.45)]" />
+        <IoSparkles className="absolute z-10 right-3 top-3 size-3 text-white/80" />
       </Link>
       <button
         aria-label="Buka WhatsApp"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-40"
+        className="fixed bottom-6 right-4 sm:right-6 bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-lg z-40"
       >
         <IoLogoWhatsapp className="size-7" />
       </button>

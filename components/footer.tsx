@@ -11,8 +11,8 @@ const Footer = () => {
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12 md:py-16">
         <div className="grid gap-10 md:grid-cols-3">
           {/* Brand */}
-          <div>
-            <Link href="/" className="inline-flex items-center">
+          <div className="flex flex-col items-center text-center md:items-start md:text-left">
+            <Link href="/" className="inline-flex items-center justify-center md:justify-start">
               <Image
                 src="/logo-kayoe.png"
                 alt="Kayoe Moeda"
@@ -29,7 +29,7 @@ const Footer = () => {
             </p>
 
             {/* Social */}
-            <div className="mt-6 flex items-center gap-4">
+            <div className="mt-6 flex items-center justify-center gap-4 md:justify-start">
               <a
                 href="https://www.instagram.com/kayoemoeda.id?igsh=bDV2NWdpNmRmcDAz"
                 target="_blank"
@@ -55,66 +55,71 @@ const Footer = () => {
           </div>
 
           {/* Links */}
-          <div className="grid grid-cols-2 gap-8 md:gap-10">
-            <div>
+          <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 md:gap-10 md:text-left">
+            <div className="md:text-left">
               <h4 className="text-sm font-semibold tracking-wide text-white">
-                Links
+                Menu
               </h4>
               <ul className="mt-5 space-y-3 text-sm text-white/90">
                 <li>
-                  <Link href="#" className="hover:opacity-90 transition no-underline">
+                  <Link href="/" className="hover:opacity-90 transition no-underline">
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:opacity-90 transition no-underline">
-                    About Us
+                  <Link href="/about" className="hover:opacity-90 transition no-underline">
+                    About
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:opacity-90 transition no-underline">
-                    Produk
+                  <Link href="/produk" className="hover:opacity-90 transition no-underline">
+                    Product
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:opacity-90 transition no-underline">
-                    Contact Us
+                  <Link href="/custom-order" className="hover:opacity-90 transition no-underline">
+                    Custom Order
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/history-order" className="hover:opacity-90 transition no-underline">
+                    History
                   </Link>
                 </li>
               </ul>
             </div>
 
-            <div>
+            <div className="md:text-left">
               <h4 className="text-sm font-semibold tracking-wide text-white">
-                Legal
+                Bantuan
               </h4>
               <ul className="mt-5 space-y-3 text-sm text-white/90">
                 <li>
-                  <a href="#" className="hover:opacity-90 transition no-underline">
-                    Legal
-                  </a>
+                  <Link href="/contact" className="hover:opacity-90 transition no-underline">
+                    Contact
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:opacity-90 transition no-underline">
-                    Term &amp; Condition
-                  </a>
+                  <Link href="/chat" className="hover:opacity-90 transition no-underline">
+                    Chat
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:opacity-90 transition no-underline">
-                    Payment Method
-                  </a>
+                  <Link href="/signin" className="hover:opacity-90 transition no-underline">
+                    Sign In
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:opacity-90 transition no-underline">
-                    Privacy Policy
-                  </a>
+                  <Link href="/signup" className="hover:opacity-90 transition no-underline">
+                    Sign Up
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-sm font-semibold tracking-wide text-white">
               Newsletter
             </h4>
