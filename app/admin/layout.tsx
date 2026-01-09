@@ -1,8 +1,26 @@
 // app/admin/layout.tsx
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const session = await auth();
+
+  // ✅ Wajib login
+  if (!session) {
+    redirect("/signin?callbackUrl=/admin");
+  }
+
+  // ✅ Role guard
+  const role = (session.user as any)?.role as "ADMIN" | "OWNER" | "CUSTOMER" | undefined;
+
+  // Jika bukan admin, redirect sesuai role
+  if (role !== "ADMIN") {
+    if (role === "OWNER") redirect("/owner");
+    redirect("/");
+  }
+
   return (
     // offset dari navbar global (64px)
     <div className="min-h-screen pt-20 bg-km-sand">
@@ -22,16 +40,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               {/* Menu */}
               <nav className="px-3 py-4 text-sm space-y-1">
                 <SidebarLink href="/admin">Overview</SidebarLink>
-                <SidebarLink href="/admin/products">
-                  Produk / Produk
-                </SidebarLink>
+                <SidebarLink href="/admin/products">Produk / Produk</SidebarLink>
                 <SidebarLink href="/admin/orders">Pesanan</SidebarLink>
-                <SidebarLink href="/admin/custom-orders">
-                  Custom Order
-                </SidebarLink>
-                <SidebarLink href="/admin/insight">
-                  Insight Penjualan
-                </SidebarLink>
+                <SidebarLink href="/admin/custom-orders">Custom Order</SidebarLink>
+                <SidebarLink href="/admin/insight">Insight Penjualan</SidebarLink>
               </nav>
 
               {/* Footer sidebar */}
