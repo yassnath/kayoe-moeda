@@ -1,50 +1,185 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
-  IoLogoWhatsapp,
   IoClose,
+  IoLogoWhatsapp,
   IoChatbubbleEllipses,
   IoSparkles,
 } from "react-icons/io5";
 
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 const WhatsAppPopup = () => {
-  const [isOpen, setIsOpen] = useState(true);
   const phone = "085771753354";
   const encodedText = encodeURIComponent("Halo Kayoe Moeda, saya mau pesan.");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: "assistant",
+      content:
+        "Halo! Saya chatbot Kayoe Moeda. Silakan tanya seputar produk, custom order, atau proses pemesanan.",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isChatOpen) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isChatOpen]);
+
+  const handleSend = async () => {
+    const trimmed = input.trim();
+    if (!trimmed || loading) return;
+
+    const nextMessages: ChatMessage[] = [
+      ...messages,
+      { role: "user", content: trimmed },
+    ];
+    setMessages(nextMessages);
+    setInput("");
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data?.message || "Gagal memproses chat.");
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              "Maaf, ada kendala saat memproses pesan. Silakan coba lagi.",
+          },
+        ]);
+        return;
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply || "Baik, saya bantu." },
+      ]);
+    } catch (err) {
+      console.error(err);
+      setError("Terjadi kesalahan saat menghubungi chatbot.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Maaf, ada kendala jaringan. Silakan coba lagi beberapa saat.",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 left-auto w-[calc(100vw-2rem)] max-w-xs sm:w-64 km-tile rounded-lg p-4 text-sm z-40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-km-ink">Chat via WhatsApp</span>
+      {isChatOpen && (
+        <div className="fixed bottom-40 right-4 sm:right-6 w-[calc(100vw-3.5rem)] max-w-[320px] km-tile rounded-2xl p-0 text-sm z-40 overflow-hidden">
+          <div className="flex items-start justify-between gap-3 border-b border-km-line px-4 py-3 bg-km-cream/70">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-km-ink/45">
+                Chatbot
+              </p>
+              <p className="text-sm font-semibold text-km-ink">
+                Kayoe Moeda Assistant
+              </p>
+              <p className="text-xs text-km-ink/60">
+                Tanyakan produk &amp; pemesanan.
+              </p>
+            </div>
             <button
-              aria-label="Tutup popup WhatsApp"
-              onClick={() => setIsOpen(false)}
-              className="text-km-ink/40 hover:text-km-ink/70"
+              aria-label="Tutup chatbot"
+              onClick={() => setIsChatOpen(false)}
+              className="text-km-ink/50 hover:text-km-ink/80 transition"
             >
               <IoClose className="size-5" />
             </button>
           </div>
-          <p className="text-km-ink/70 mb-3">
-            Hai! Butuh bantuan? Klik tombol di bawah untuk chat langsung.
-          </p>
-          <Link
-            href={`https://wa.me/62${phone.slice(1)}?text=${encodedText}`}
-            target="_blank"
-            className="flex items-center justify-center gap-2 bg-km-sand ring-1 ring-km-line py-2 rounded-md hover:bg-km-clay"
-          >
-            <IoLogoWhatsapp className="size-5" />
-            Mulai Chat
-          </Link>
+
+          <div className="px-4 py-3 space-y-3 max-h-[38vh] overflow-y-auto">
+            {messages.map((msg, idx) => (
+              <div
+                key={`${msg.role}-${idx}`}
+                className={`flex ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
+                    msg.role === "user"
+                      ? "bg-km-sand ring-1 ring-km-line"
+                      : "bg-km-paper ring-1 ring-km-line"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="border-t border-km-line px-4 py-3">
+            {error && (
+              <div className="mb-2 rounded-2xl bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-xs">
+                {error}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <input
+                className="flex-1 rounded-2xl border border-km-line bg-km-paper px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                placeholder="Tulis pertanyaan..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                disabled={loading}
+              />
+              <button
+                onClick={handleSend}
+                disabled={loading}
+                className="rounded-2xl bg-km-wood text-km-cream ring-1 ring-km-wood px-3 py-2 text-xs font-semibold hover:opacity-90 transition disabled:opacity-60"
+              >
+                {loading ? "..." : "Kirim"}
+              </button>
+            </div>
+            <p className="mt-2 text-[10px] text-km-ink/55">
+              Untuk respon cepat, gunakan WhatsApp.
+            </p>
+          </div>
         </div>
       )}
-      <Link
-        href="/chat"
+      <button
+        type="button"
         aria-label="Buka Chatbot Kayoe Moeda"
-        className="group fixed bottom-24 right-4 sm:right-6 left-auto bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
+        onClick={() => setIsChatOpen((prev) => !prev)}
+        className="group fixed bottom-24 right-6 bg-[#2563EB] text-white ring-1 ring-[#1D4ED8] hover:bg-[#1D4ED8] rounded-full w-14 h-14 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.5)] z-40 relative overflow-hidden"
       >
         <span
           aria-hidden="true"
@@ -52,14 +187,15 @@ const WhatsAppPopup = () => {
         />
         <IoChatbubbleEllipses className="relative z-10 size-6 drop-shadow-[0_0_6px_rgba(255,255,255,0.45)]" />
         <IoSparkles className="absolute z-10 right-3 top-3 size-3 text-white/80" />
-      </Link>
-      <button
+      </button>
+      <Link
+        href={`https://wa.me/62${phone.slice(1)}?text=${encodedText}`}
         aria-label="Buka WhatsApp"
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-4 sm:right-6 left-auto bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shadow-lg z-40"
+        target="_blank"
+        className="fixed bottom-6 right-6 bg-[#22C55E] text-white ring-1 ring-[#16A34A] hover:bg-[#16A34A] rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-40"
       >
         <IoLogoWhatsapp className="size-7" />
-      </button>
+      </Link>
     </>
   );
 };
