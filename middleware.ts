@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 
 // route yang wajib login
 const ProtectedRoutes = ["/history-order", "/cart/checkout", "/checkout", "/admin", "/owner"];
@@ -8,29 +7,7 @@ export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   /**
-   * ✅ FIX: Jangan jalankan middleware untuk route publik utama
-   * Ini mencegah 404 / routing error pada Next.js 16 proxy layer
-   */
-  const isPublicRoute =
-    pathname === "/" ||
-    pathname.startsWith("/about") ||
-    pathname.startsWith("/produk") ||
-    pathname.startsWith("/room") ||
-    pathname.startsWith("/contact") ||
-    pathname.startsWith("/custom-order") ||
-    pathname.startsWith("/chat") ||
-    pathname.startsWith("/cart") ||
-    pathname.startsWith("/signup") ||
-    pathname.startsWith("/reset-password") ||
-    pathname.startsWith("/forgot-password");
-
-  // ✅ Jangan sentuh route publik
-  if (isPublicRoute) {
-    return NextResponse.next();
-  }
-
-  /**
-   * ✅ Safety: Skip untuk request static / assets / metadata umum
+   * ✅ FIX 1: Skip request yang pasti bukan halaman (static / api / assets)
    */
   if (
     pathname.startsWith("/_next") ||
@@ -49,23 +26,39 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  /**
+   * ✅ FIX 2: Jika route TIDAK termasuk ProtectedRoutes dan bukan /signin,
+   * middleware cukup pass-through agar tidak memicu error Edge.
+   */
+  const isProtectedRoute = ProtectedRoutes.some((route) => pathname.startsWith(route));
+  const isSigninRoute = pathname.startsWith("/signin");
+
+  if (!isProtectedRoute && !isSigninRoute) {
+    return NextResponse.next();
+  }
 
   /**
-   * ✅ Kalau secret tidak ada, jangan crash
-   * Biarkan request lanjut (biar tidak bikin 500)
+   * ✅ FIX 3 (PENTING): Jangan import next-auth/jwt di top-level
+   * karena bisa crash di Edge runtime. Lazy import hanya saat dibutuhkan.
    */
+  const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+
+  // kalau secret kosong, tidak usah crash
   if (!authSecret) {
+    // jika masuk protected route tapi secret kosong, redirect ke signin biar aman
+    if (isProtectedRoute) {
+      const signInUrl = new URL("/signin", request.url);
+      signInUrl.searchParams.set("callbackUrl", pathname + search);
+      return NextResponse.redirect(signInUrl);
+    }
     return NextResponse.next();
   }
 
   let token: any = null;
 
   try {
-    token = await getToken({
-      req: request,
-      secret: authSecret
-    });
+    const { getToken } = await import("next-auth/jwt");
+    token = await getToken({ req: request, secret: authSecret });
   } catch (err) {
     token = null;
   }
@@ -76,7 +69,7 @@ export async function middleware(request: NextRequest) {
   /**
    * ✅ 1) WAJIB LOGIN untuk route tertentu
    */
-  if (!isLoggedIn && ProtectedRoutes.some((route) => pathname.startsWith(route))) {
+  if (!isLoggedIn && isProtectedRoute) {
     const signInUrl = new URL("/signin", request.url);
     signInUrl.searchParams.set("callbackUrl", pathname + search);
     return NextResponse.redirect(signInUrl);
@@ -101,7 +94,7 @@ export async function middleware(request: NextRequest) {
   /**
    * ✅ 4) Kalau sudah login tapi buka /signin -> redirect sesuai role
    */
-  if (isLoggedIn && pathname.startsWith("/signin")) {
+  if (isLoggedIn && isSigninRoute) {
     if (role === "ADMIN") return NextResponse.redirect(new URL("/admin", request.url));
     if (role === "OWNER") return NextResponse.redirect(new URL("/owner", request.url));
     return NextResponse.redirect(new URL("/", request.url));
@@ -111,9 +104,8 @@ export async function middleware(request: NextRequest) {
 }
 
 /**
- * ✅ FIX UTAMA:
- * matcher dikembalikan "global" agar Next.js 16 proxy layer tidak bikin 404,
- * tetapi logic auth hanya aktif di ProtectedRoutes saja (karena public di-skip).
+ * ✅ matcher tetap global agar tidak memicu bug Next.js proxy routing (404),
+ * tapi logic auth hanya aktif pada ProtectedRoutes /signin.
  */
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image).*)"]
