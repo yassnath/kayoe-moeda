@@ -7,7 +7,31 @@ const ProtectedRoutes = ["/history-order", "/cart/checkout", "/checkout", "/admi
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // ✅ Safety: jangan jalankan middleware untuk file statik & metadata umum
+  /**
+   * ✅ FIX: Jangan jalankan middleware untuk route publik utama
+   * Ini mencegah 404 / routing error pada Next.js 16 proxy layer
+   */
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/produk") ||
+    pathname.startsWith("/room") ||
+    pathname.startsWith("/contact") ||
+    pathname.startsWith("/custom-order") ||
+    pathname.startsWith("/chat") ||
+    pathname.startsWith("/cart") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/forgot-password");
+
+  // ✅ Jangan sentuh route publik
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  /**
+   * ✅ Safety: Skip untuk request static / assets / metadata umum
+   */
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -27,12 +51,15 @@ export async function middleware(request: NextRequest) {
 
   const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
 
-  let token: any = null;
-
-  // ✅ Safety: jika secret tidak ada, jangan crash. Skip auth check.
+  /**
+   * ✅ Kalau secret tidak ada, jangan crash
+   * Biarkan request lanjut (biar tidak bikin 500)
+   */
   if (!authSecret) {
     return NextResponse.next();
   }
+
+  let token: any = null;
 
   try {
     token = await getToken({
@@ -46,26 +73,34 @@ export async function middleware(request: NextRequest) {
   const isLoggedIn = !!token;
   const role = token?.role as "ADMIN" | "OWNER" | "CUSTOMER" | undefined;
 
-  // ✅ 1) WAJIB LOGIN untuk route tertentu
+  /**
+   * ✅ 1) WAJIB LOGIN untuk route tertentu
+   */
   if (!isLoggedIn && ProtectedRoutes.some((route) => pathname.startsWith(route))) {
     const signInUrl = new URL("/signin", request.url);
     signInUrl.searchParams.set("callbackUrl", pathname + search);
     return NextResponse.redirect(signInUrl);
   }
 
-  // ✅ 2) Role guard: Admin area
+  /**
+   * ✅ 2) Role guard: Admin area
+   */
   if (isLoggedIn && pathname.startsWith("/admin") && role !== "ADMIN") {
     if (role === "OWNER") return NextResponse.redirect(new URL("/owner", request.url));
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // ✅ 3) Role guard: Owner area
+  /**
+   * ✅ 3) Role guard: Owner area
+   */
   if (isLoggedIn && pathname.startsWith("/owner") && role !== "OWNER") {
     if (role === "ADMIN") return NextResponse.redirect(new URL("/admin", request.url));
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // ✅ 4) Kalau sudah login tapi buka /signin -> redirect sesuai role
+  /**
+   * ✅ 4) Kalau sudah login tapi buka /signin -> redirect sesuai role
+   */
   if (isLoggedIn && pathname.startsWith("/signin")) {
     if (role === "ADMIN") return NextResponse.redirect(new URL("/admin", request.url));
     if (role === "OWNER") return NextResponse.redirect(new URL("/owner", request.url));
@@ -76,17 +111,10 @@ export async function middleware(request: NextRequest) {
 }
 
 /**
- * ✅ FIX PENTING:
- * Middleware hanya jalan di route yang butuh auth/role guard,
- * bukan di semua halaman.
+ * ✅ FIX UTAMA:
+ * matcher dikembalikan "global" agar Next.js 16 proxy layer tidak bikin 404,
+ * tetapi logic auth hanya aktif di ProtectedRoutes saja (karena public di-skip).
  */
 export const config = {
-  matcher: [
-    "/history-order/:path*",
-    "/cart/checkout/:path*",
-    "/checkout/:path*",
-    "/admin/:path*",
-    "/owner/:path*",
-    "/signin/:path*"
-  ]
+  matcher: ["/((?!api|_next/static|_next/image).*)"]
 };
