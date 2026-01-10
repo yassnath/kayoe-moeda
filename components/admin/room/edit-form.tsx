@@ -160,6 +160,7 @@ const EditForm = ({
                 onChange={handleSubmit}
                 type="file"
                 id="input-file"
+                accept=".png,.jpg,.jpeg,.webp"
                 className="hidden"
               />
             ) : (

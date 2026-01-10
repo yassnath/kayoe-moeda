@@ -216,7 +216,7 @@ export default function EditProdukClient({ produk }: Props) {
           <input
             type="file"
             name="image"
-            accept="image/*"
+            accept=".png,.jpg,.jpeg,.webp"
             onChange={handlePreviewChange}
             className="text-sm"
           />

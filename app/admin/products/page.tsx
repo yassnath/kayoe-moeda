@@ -196,7 +196,7 @@ export default function AdminProductsPage() {
             <input
               name="image"
               type="file"
-              accept="image/*"
+              accept=".png,.jpg,.jpeg,.webp"
               className="w-full border px-3 py-2 rounded text-sm"
               required
             />

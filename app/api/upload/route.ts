@@ -1,6 +1,8 @@
 import { put, del } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
+const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+
 export const PUT = async (request: Request) => {
   const form = await request.formData();
   const file = form.get("file") as File;
@@ -14,9 +16,9 @@ export const PUT = async (request: Request) => {
       { status: 400 }
     );
   }
-  if (!file.type.startsWith("image/")) {
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
     return NextResponse.json(
-      { message: "File must be an image" },
+      { message: "Format file tidak didukung. Gunakan .png, .jpg, .jpeg, atau .webp." },
       { status: 400 }
     );
   }

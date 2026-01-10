@@ -276,7 +276,7 @@ export default function CustomOrderCustomerPage() {
                 <input
                   type="file"
                   name="image"
-                  accept="image/*"
+                  accept=".png,.jpg,.jpeg,.webp"
                   className="w-full rounded-2xl px-4 py-3 text-sm text-[#111827]
                              ring-1 ring-black/10 bg-white"
                 />

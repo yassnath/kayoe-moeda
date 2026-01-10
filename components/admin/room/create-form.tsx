@@ -147,6 +147,7 @@ const CreateForm = ({ amenities }: { amenities: Amenities[] }) => {
                 onChange={handleSubmit}
                 type="file"
                 id="input-file"
+                accept=".png,.jpg,.jpeg,.webp"
                 className="hidden"
               />
             ) : (

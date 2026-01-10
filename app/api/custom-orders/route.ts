@@ -6,7 +6,20 @@ import { put } from "@vercel/blob";
 
 export const runtime = "nodejs";
 
+const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const ALLOWED_IMAGE_EXT = [".png", ".jpg", ".jpeg", ".webp"];
+
+function isAllowedImage(file: File) {
+  const type = file.type?.toLowerCase();
+  if (type && ALLOWED_IMAGE_TYPES.has(type)) return true;
+  const name = file.name?.toLowerCase() ?? "";
+  return ALLOWED_IMAGE_EXT.some((ext) => name.endsWith(ext));
+}
+
 async function uploadCustomOrderImage(file: File): Promise<string> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error("BLOB_READ_WRITE_TOKEN missing");
+  }
   const safeName = file.name.replace(/\s+/g, "-").toLowerCase();
   const filename = `custom-orders/${Date.now()}-${safeName}`;
   const blob = await put(filename, file, { access: "public" });
@@ -54,12 +67,24 @@ export async function POST(req: NextRequest) {
     let imagePath: string | null = null;
 
     if (file && file.size > 0) {
+      if (!isAllowedImage(file)) {
+        return NextResponse.json(
+          { message: "Format file tidak didukung. Gunakan .png, .jpg, .jpeg, atau .webp." },
+          { status: 400 }
+        );
+      }
+
       try {
         imagePath = await uploadCustomOrderImage(file);
       } catch (error) {
         console.error("Upload custom order image error:", error);
+        const errorMessage =
+          error instanceof Error &&
+          error.message.includes("BLOB_READ_WRITE_TOKEN")
+            ? "Vercel Blob belum terhubung. Tambahkan BLOB_READ_WRITE_TOKEN di Environment Variables."
+            : "Gagal mengunggah gambar. Pastikan Vercel Blob sudah aktif.";
         return NextResponse.json(
-          { message: "Gagal mengunggah gambar. Pastikan Vercel Blob sudah aktif." },
+          { message: errorMessage },
           { status: 500 }
         );
       }

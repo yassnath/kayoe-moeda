@@ -119,14 +119,14 @@ export default function produkTable({ initialproduks }: Props) {
             <input
               id="produk-image-input"
               type="file"
-              accept="image/*"
+              accept=".png,.jpg,.jpeg,.webp"
               className="border rounded-md px-3 py-2 text-sm bg-white"
               onChange={(e) =>
                 setImageFile(e.target.files?.[0] ? e.target.files[0] : null)
               }
             />
             <span className="text-[11px] text-gray-500">
-              Format: JPG, PNG, dll. Disimpan di /public/uploads.
+              Format: PNG, JPG, JPEG, atau WEBP. Disimpan di Vercel Blob.
             </span>
           </div>
 
