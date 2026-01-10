@@ -8,25 +8,35 @@ const TitleSection = ({
   subTitle: string;
 }) => {
   return (
-    <div className="relative h-60 overflow-hidden rounded-3xl ring-1 ring-km-line">
+    <section className="relative w-full overflow-hidden border-b border-white/10">
       <div className="absolute inset-0">
         <Image
           src="/hero.jpg"
           alt="Background Image"
           fill
-          className="object-cover object-center w-full h-full"
+          className="object-cover object-center"
+          sizes="100vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-km-cream/85 via-km-sand/80 to-km-brass/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#061610] via-[#0b2a22]/80 to-transparent" />
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(180deg, rgba(255,255,255,0.08) 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
       </div>
-      <div className="relative flex flex-col justify-center items-center h-60 text-center pt-14">
-        <div className="rounded-2xl km-tile px-6 py-4">
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight capitalize text-km-ink">
-            {title}
-          </h1>
-          <p className="text-lg text-km-ink/70">{subTitle}</p>
-        </div>
+
+      <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6 py-20">
+        <p className="text-xs uppercase tracking-[0.32em] text-white/55">
+          {subTitle}
+        </p>
+        <h1 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight text-white">
+          {title}
+        </h1>
       </div>
-    </div>
+    </section>
   );
 };
 

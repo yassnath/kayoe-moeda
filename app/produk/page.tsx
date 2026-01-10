@@ -132,118 +132,117 @@ export default function ProdukPage() {
   };
 
   return (
-    <div className="min-h-screen bg-km-sand">
-      {/* OPSI B: container per page */}
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-10">
-        <div className="flex flex-col gap-2">
-          <p className="text-xs uppercase tracking-[0.32em] text-black/45">
-            Katalog
-          </p>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#111827]">
-            Produk Kayoe Moeda
-          </h1>
-          <p className="text-[#111827]/70 max-w-2xl">
-            Temukan kursi, meja, dan perabotan kayu lainnya. Gunakan layanan
-            custom untuk ukuran dan model yang lebih sesuai kebutuhan ruang.
-          </p>
-        </div>
-
-        {/* Alerts */}
-        {error && (
-          <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-red-500/20 text-red-700 shadow-md">
-            <p className="text-sm font-semibold">Terjadi kesalahan</p>
-            <p className="text-sm mt-1 text-red-700/90">{error}</p>
+    <div className="min-h-screen bg-transparent text-white">
+      <section className="w-full py-16 lg:py-20">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.32em] text-white/55">
+              Katalog
+            </p>
+            <h1 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-white">
+              Produk Kayoe Moeda
+            </h1>
+            <p className="mt-3 text-sm text-white/70">
+              Temukan kursi, meja, dan perabotan kayu lainnya. Gunakan layanan
+              custom untuk ukuran dan model yang lebih sesuai kebutuhan ruang.
+            </p>
           </div>
-        )}
 
-        {info && (
-          <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-emerald-500/20 text-emerald-700 shadow-md">
-            <p className="text-sm font-semibold">Berhasil</p>
-            <p className="text-sm mt-1 text-emerald-700/90">{info}</p>
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="mt-8">
-          {loading ? (
-            <div className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-md">
-              <p className="text-sm text-black/60">Memuat produk...</p>
-            </div>
-          ) : produks.length === 0 ? (
-            <div className="rounded-2xl bg-white p-8 text-center ring-1 ring-black/5 shadow-md">
-              <p className="text-sm uppercase tracking-[0.32em] text-black/40">
-                Empty state
-              </p>
-              <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-[#111827]">
-                Belum ada produk tersedia
-              </h3>
-              <p className="mt-2 text-[#111827]/70">
-                Silakan cek kembali nanti atau ajukan pesanan custom.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {produks.map((produk) => {
-                const imageSrc = resolveImageSrc(produk.image);
-
-                return (
-                  <article
-                    key={produk.id}
-                    className="group overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-md
-                               transition hover:-translate-y-1 hover:shadow-lg flex flex-col"
-                  >
-                    <div className="relative h-52 w-full overflow-hidden">
-                      <Image
-                        src={imageSrc}
-                        alt={produk.name}
-                        fill
-                        className="object-cover transition duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-70" />
-                    </div>
-
-                    <div className="p-5 md:p-6 flex-1 flex flex-col gap-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="text-base md:text-lg font-semibold tracking-tight text-[#111827] line-clamp-1">
-                          {produk.name}
-                        </h3>
-
-                        <span className="shrink-0 rounded-full bg-black/[0.04] px-3 py-1 text-xs text-black/60">
-                          Stok {produk.capacity}
-                        </span>
-                      </div>
-
-                      <p className="text-sm text-[#111827]/70 line-clamp-3 leading-relaxed">
-                        {produk.description}
-                      </p>
-
-                      <div className="mt-2 flex items-center justify-between">
-              <p className="text-base md:text-lg font-semibold text-km-ink">
-                Rp {produk.price.toLocaleString("id-ID")}
-              </p>
-                        <p className="text-xs text-black/45">Ready stock</p>
-                      </div>
-
-                      <button
-                        onClick={() => handleAddToCart(produk.id)}
-                        disabled={addingId === produk.id}
-                        className="mt-3 inline-flex items-center justify-center rounded-2xl px-4 py-2.5
-                                   text-sm font-semibold bg-km-clay ring-1 ring-km-line transition hover:bg-km-cream
-                                   disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        {addingId === produk.id
-                          ? "Menambahkan..."
-                          : "Tambah ke keranjang"}
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
+          {/* Alerts */}
+          {error && (
+            <div className="mt-6 border border-red-500/40 bg-red-500/10 p-4 text-red-100">
+              <p className="text-sm font-semibold">Terjadi kesalahan</p>
+              <p className="text-sm mt-1 text-red-100/90">{error}</p>
             </div>
           )}
+
+          {info && (
+            <div className="mt-6 border border-emerald-400/40 bg-emerald-400/10 p-4 text-emerald-100">
+              <p className="text-sm font-semibold">Berhasil</p>
+              <p className="text-sm mt-1 text-emerald-100/90">{info}</p>
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="mt-10">
+            {loading ? (
+              <div className="border border-white/10 bg-white/5 p-6 text-white/70">
+                <p className="text-sm">Memuat produk...</p>
+              </div>
+            ) : produks.length === 0 ? (
+              <div className="border border-white/10 bg-white/5 p-8 text-center">
+                <p className="text-xs uppercase tracking-[0.32em] text-white/50">
+                  Empty state
+                </p>
+                <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-white">
+                  Belum ada produk tersedia
+                </h3>
+                <p className="mt-2 text-sm text-white/70">
+                  Silakan cek kembali nanti atau ajukan pesanan custom.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {produks.map((produk) => {
+                  const imageSrc = resolveImageSrc(produk.image);
+
+                  return (
+                    <article
+                      key={produk.id}
+                      className="group relative min-h-[280px] overflow-hidden border border-white/10 bg-[#071a14]/60"
+                    >
+                      <div className="absolute inset-0">
+                        <Image
+                          src={imageSrc}
+                          alt={produk.name}
+                          fill
+                          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/80" />
+                      </div>
+
+                      <div className="relative z-10 flex h-full flex-col justify-end p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="text-base md:text-lg font-semibold text-white line-clamp-1">
+                            {produk.name}
+                          </h3>
+                          <span className="shrink-0 rounded-full border border-white/20 px-3 py-1 text-xs text-white/70">
+                            Stok {produk.capacity}
+                          </span>
+                        </div>
+
+                        <p className="mt-2 text-sm text-white/70 line-clamp-2 leading-relaxed">
+                          {produk.description}
+                        </p>
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <p className="text-base md:text-lg font-semibold text-white">
+                            Rp {produk.price.toLocaleString("id-ID")}
+                          </p>
+                          <p className="text-xs text-white/55">Ready stock</p>
+                        </div>
+
+                        <button
+                          onClick={() => handleAddToCart(produk.id)}
+                          disabled={addingId === produk.id}
+                          className="mt-4 inline-flex items-center justify-center px-4 py-2 text-sm font-semibold
+                                     bg-km-brass text-km-wood ring-1 ring-white/20 hover:opacity-90 transition
+                                     disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {addingId === produk.id
+                            ? "Menambahkan..."
+                            : "Tambah ke keranjang"}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

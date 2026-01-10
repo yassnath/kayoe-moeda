@@ -29,15 +29,8 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           <Navbar />
 
-          {/* ✅ Global offset untuk fixed navbar */}
-          <main className="pt-24">
-            {/* ✅ Lebih lebar + panel utama */}
-            <div className="mx-auto w-full max-w-7xl px-4 md:px-6 py-12">
-            <div className="rounded-[28px] km-panel km-shell">
-              <div className="px-4 md:px-10 py-10">{children}</div>
-            </div>
-            </div>
-          </main>
+          {/* ? Global offset untuk fixed navbar */}
+          <main className="pt-24">{children}</main>
 
           <Footer />
           <WhatsAppPopup />

@@ -8,113 +8,123 @@ import HomeSkeleton from "@/components/skeletons/home-skeleton";
 export default function Home() {
   return (
     <div className="bg-transparent">
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-10 space-y-14">
-        {/* HERO */}
-        <Hero />
+      {/* HERO */}
+      <Hero />
 
-        {/* ABOUT */}
-        <section className="grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="rounded-2xl km-tile p-7">
-            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/45">
+      {/* ABOUT */}
+      <section className="relative w-full border-t border-white/10 py-20 lg:py-28">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6 grid gap-12 lg:grid-cols-[1.2fr,0.8fr]">
+          <div className="space-y-6 text-white/80">
+            <p className="text-xs uppercase tracking-[0.32em] text-white/55">
               Tentang Kayoe Moeda
             </p>
-            <h2 className="mt-3 text-2xl md:text-3xl font-semibold tracking-tight text-km-ink">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white">
               Furniture Shop
             </h2>
-            <p className="mt-4 text-sm text-km-ink/70 leading-relaxed">
+            <p className="text-sm leading-relaxed text-white/70">
               Kayoe Moeda fokus pada kursi, meja, lemari, dan rak kayu dengan
               kualitas bahan yang konsisten dan finishing yang bersih.
             </p>
 
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/produk"
-                className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
-                           bg-km-wood text-km-cream ring-1 ring-km-wood hover:opacity-90 transition shadow-md no-underline"
+                className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
+                           bg-km-brass text-km-wood ring-1 ring-white/15 hover:opacity-90 transition no-underline"
               >
                 Lihat Katalog
               </Link>
               <Link
                 href="/custom-order"
-                className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
-                           bg-km-sand ring-1 ring-km-line hover:bg-km-clay transition no-underline"
+                className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
+                           bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20 transition no-underline"
               >
                 Ajukan Custom
               </Link>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-3 text-xs font-semibold">
-              <div className="rounded-2xl km-chip px-3 py-3">
+            <div className="flex flex-wrap gap-3 text-[11px] uppercase tracking-[0.24em] text-white/70">
+              <span className="rounded-full px-3 py-2 border border-white/15">
                 Material kayu pilihan
-              </div>
-              <div className="rounded-2xl km-chip px-3 py-3">
+              </span>
+              <span className="rounded-full px-3 py-2 border border-white/15">
                 Finishing halus & rapi
-              </div>
-              <div className="rounded-2xl km-chip px-3 py-3">
+              </span>
+              <span className="rounded-full px-3 py-2 border border-white/15">
                 Bisa custom ukuran
-              </div>
+              </span>
             </div>
           </div>
 
-          <div className="rounded-2xl km-tile p-7">
-            <h3 className="text-lg font-semibold tracking-tight text-km-ink">
+          <div className="space-y-4 text-white/75 lg:border-l lg:border-white/10 lg:pl-8">
+            <h3 className="text-lg font-semibold tracking-tight text-white">
               Kenapa Kayoe Moeda?
             </h3>
-            <ul className="mt-4 space-y-3 text-sm text-km-ink/70">
-              <li>• Material kayu pilihan, finishing rapi.</li>
-              <li>• Custom ukuran, warna, dan model.</li>
-              <li>• Proses produksi jelas dan terukur.</li>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-km-brass">-</span>
+                Material kayu pilihan, finishing rapi.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-km-brass">-</span>
+                Custom ukuran, warna, dan model.
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-km-brass">-</span>
+                Proses produksi jelas dan terukur.
+              </li>
             </ul>
-
-            <div className="mt-6 rounded-2xl km-chip p-4">
-              <p className="text-sm font-semibold text-km-ink">
-                Cerita singkat
-              </p>
-              <p className="mt-1 text-sm text-km-ink/70 leading-relaxed">
-                Kayoe Moeda hadir untuk menghadirkan furnitur yang rapi, kuat,
-                dan terasa hangat di setiap sudut rumah.
-              </p>
-            </div>
+            <p className="text-sm text-white/70 leading-relaxed">
+              Kayoe Moeda hadir untuk menghadirkan furnitur yang rapi, kuat, dan
+              terasa hangat di setiap sudut rumah.
+            </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* FEATURED PRODUCTS */}
-        <section className="pt-2">
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/45">
+      {/* FEATURED PRODUCTS */}
+      <section className="w-full border-t border-white/10 py-20 lg:py-28">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+          <div className="max-w-3xl">
+            <p className="text-xs uppercase tracking-[0.32em] text-white/55">
               Katalog Unggulan
             </p>
-            <h2 className="mt-3 text-2xl md:text-4xl font-semibold tracking-tight text-km-ink">
+            <h2 className="mt-3 text-2xl md:text-4xl font-semibold tracking-tight text-white">
               Produk Kayoe Moeda
             </h2>
-            <p className="mt-3 text-sm text-km-ink/70">
+            <p className="mt-3 text-sm text-white/70">
               Pilihan kursi, meja, lemari, dan rak kayu untuk kebutuhan rumah.
             </p>
           </div>
+        </div>
 
+        <div className="mt-10">
           <Suspense fallback={<HomeSkeleton />}>
             <Main />
           </Suspense>
+        </div>
 
-          <div className="text-center mt-8">
-            <Link
-              href="/produk"
-              className="inline-flex items-center justify-center rounded-2xl px-7 py-3 text-sm font-semibold
-                         bg-km-sand ring-1 ring-km-line hover:bg-km-clay transition no-underline"
-            >
-              Lihat Semua Produk
-            </Link>
-          </div>
-        </section>
+        <div className="text-center mt-10">
+          <Link
+            href="/produk"
+            className="inline-flex items-center justify-center rounded-full px-7 py-3 text-sm font-semibold
+                       bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20 transition no-underline"
+          >
+            Lihat Semua Produk
+          </Link>
+        </div>
+      </section>
 
-        {/* CTA */}
-        <section className="rounded-3xl km-tile p-7 md:p-10">
-          <div className="grid gap-6 md:grid-cols-[1fr,auto] items-center">
+      {/* CTA */}
+      <section className="relative w-full border-t border-white/10 py-20 lg:py-28">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0b2a22]/65 via-[#0f3a2c]/35 to-[#0b2a22]/85" />
+        <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 text-white">
             <div>
-              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-km-ink">
+              <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
                 Siap belanja atau pesan mebel custom?
               </h2>
-              <p className="mt-3 text-sm text-km-ink/70 leading-relaxed max-w-2xl">
+              <p className="mt-3 text-sm text-white/70 leading-relaxed max-w-2xl">
                 Masuk untuk akses katalog, pesanan custom, dan riwayat.
               </p>
             </div>
@@ -122,22 +132,22 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/signin"
-                className="inline-flex items-center justify-center rounded-2xl px-7 py-3 text-sm font-semibold
-                           bg-km-wood text-km-cream ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+                className="inline-flex items-center justify-center rounded-full px-7 py-3 text-sm font-semibold
+                           bg-km-brass text-km-wood ring-1 ring-white/20 hover:opacity-90 transition no-underline"
               >
                 Masuk / Daftar
               </Link>
               <Link
                 href="/custom-order"
-                className="inline-flex items-center justify-center rounded-2xl px-7 py-3 text-sm font-semibold
-                           bg-km-sand ring-1 ring-km-line hover:bg-km-clay transition no-underline"
+                className="inline-flex items-center justify-center rounded-full px-7 py-3 text-sm font-semibold
+                           bg-white/10 text-white ring-1 ring-white/20 hover:bg-white/20 transition no-underline"
               >
                 Custom Order
               </Link>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

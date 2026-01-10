@@ -10,59 +10,85 @@ export const metadata: Metadata = {
 
 const About = () => {
   return (
-    <div>
-      <TitleSection title="About Us" subTitle="Kayoe Moeda." />
-      <div className="max-w-screen-xl mx-auto py-20 px-4">
-        <div className="grid md:grid-cols-2 gap-8">
-          <Image src="/about-image.jpg" width={650} height={579} alt="About Kayoe Moeda" />
-          <div>
-            <h1 className="text-5xl font-semibold text-gray-900 mb-4">
-              Siapa Kami – Kayoe Moeda
-            </h1>
-            <p className="text-gray-700 py-5 text-justify">
+    <div className="bg-transparent">
+      <TitleSection title="About Us" subTitle="Kayoe Moeda" />
+
+      <section className="w-full py-16 lg:py-20">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6 grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
+          <div className="relative min-h-[320px] overflow-hidden border border-white/10">
+            <Image
+              src="/about-image.jpg"
+              width={900}
+              height={700}
+              alt="About Kayoe Moeda"
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+          </div>
+
+          <div className="space-y-6 text-white/80">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white">
+              Siapa Kami - Kayoe Moeda
+            </h2>
+            <p className="text-sm leading-relaxed text-white/70">
               Kayoe Moeda adalah perusahaan mebel yang berfokus pada pembuatan kursi, meja, dan
               berbagai perabotan rumah berbahan kayu. Kami mengutamakan kualitas material, kerapian
               finishing, dan ketepatan ukuran agar setiap produk nyaman digunakan serta awet untuk
-              jangka panjang.
-              Kami tumbuh bersama pelanggan yang membutuhkan furnitur fungsional dengan desain yang
-              rapi dan mudah dipadukan di berbagai gaya interior. Karena itu, Kayoe Moeda juga
-              menyediakan layanan custom untuk menyesuaikan ukuran, model, dan warna sesuai kebutuhan
-              ruang. Setiap produk dikerjakan oleh pengrajin lokal dengan perhatian pada detail agar
-              hasilnya kuat, presisi, dan tetap hangat bagi rumah Anda.
+              jangka panjang. Kami tumbuh bersama pelanggan yang membutuhkan furnitur fungsional
+              dengan desain yang rapi dan mudah dipadukan di berbagai gaya interior. Karena itu,
+              Kayoe Moeda juga menyediakan layanan custom untuk menyesuaikan ukuran, model, dan warna
+              sesuai kebutuhan ruang. Setiap produk dikerjakan oleh pengrajin lokal dengan perhatian
+              pada detail agar hasilnya kuat, presisi, dan tetap hangat bagi rumah Anda.
             </p>
-            <ul className="list-item space-y-6 pt-8">
-              <li className="flex gap-5">
-                <div className="flex-none mt-1">
+
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="flex-none mt-1 text-km-brass">
                   <IoEyeOutline className="h-7 w-7" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold mb-1">Visi :</h4>
-                  <p className="text-gray-600 text-justify">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Visi</h3>
+                  <p className="mt-2 text-sm text-white/70 leading-relaxed">
                     Menjadi perusahaan mebel yang menghadirkan furnitur rumah yang kuat, rapi, dan
                     nyaman, dengan desain yang fungsional serta bernilai jangka panjang.
                   </p>
                 </div>
-              </li>
-              <li className="flex gap-5">
-                <div className="flex-none mt-1">
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-none mt-1 text-km-brass">
                   <IoLocateOutline className="h-7 w-7" />
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-lg font-semibold mb-1">Misi :</h4>
-                  <p className="text-gray-600">
-                    * Mengutamakan material berkualitas dan finishing yang rapi di setiap produk.
-                    * Menyediakan layanan custom agar ukuran, warna, dan model sesuai kebutuhan ruang.
-                    * Menjaga ketelitian produksi untuk hasil yang kuat, presisi, dan tahan lama.
-                    * Memberdayakan pengrajin lokal dengan standar kerja yang konsisten.
-                    * Memberikan layanan yang jelas dan responsif dari konsultasi hingga pengiriman.
-                  </p>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Misi</h3>
+                  <ul className="mt-2 space-y-2 text-sm text-white/70">
+                    <li className="flex gap-2">
+                      <span className="text-km-brass">-</span>
+                      Mengutamakan material berkualitas dan finishing yang rapi di setiap produk.
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-km-brass">-</span>
+                      Menyediakan layanan custom agar ukuran, warna, dan model sesuai kebutuhan ruang.
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-km-brass">-</span>
+                      Menjaga ketelitian produksi untuk hasil yang kuat, presisi, dan tahan lama.
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-km-brass">-</span>
+                      Memberdayakan pengrajin lokal dengan standar kerja yang konsisten.
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="text-km-brass">-</span>
+                      Memberikan layanan yang jelas dan responsif dari konsultasi hingga pengiriman.
+                    </li>
+                  </ul>
                 </div>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
-          {/* Contact Form */}
         </div>
-      </div>
+      </section>
     </div>
   );
 };

@@ -17,72 +17,74 @@ export default async function produkDetailPage({ params }: produkPageProps) {
   }
 
   return (
-    <div className="bg-transparent">
-      <div className="max-w-screen-xl mx-auto px-4 py-10 md:py-16 grid gap-10 md:grid-cols-[2fr,1.3fr]">
-        {/* Gambar utama */}
-        <div className="km-tile rounded-2xl overflow-hidden">
-          <div className="relative w-full h-80 md:h-[420px]">
+    <div className="bg-transparent text-white">
+      <section className="w-full py-16 lg:py-20">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6 grid gap-10 lg:grid-cols-[1.2fr,0.8fr]">
+          {/* Gambar utama */}
+          <div className="relative min-h-[320px] overflow-hidden border border-white/10">
             <Image
               src={resolveImageSrc(produk.image)}
               alt={produk.name}
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 60vw"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
           </div>
-        </div>
 
-        {/* Detail / info */}
-        <div className="km-tile rounded-2xl p-6 md:p-8 flex flex-col gap-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-km-ink/60">
-            produk Detail
-          </p>
+          {/* Detail / info */}
+          <div className="space-y-6">
+            <p className="text-xs uppercase tracking-[0.32em] text-white/55">
+              Produk Detail
+            </p>
 
-          <h1 className="text-3xl md:text-4xl font-semibold text-km-ink">
-            {produk.name}
-          </h1>
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white">
+              {produk.name}
+            </h1>
 
-          <p className="text-km-ink/70 leading-relaxed">
-            {produk.description}
-          </p>
+            <p className="text-sm text-white/70 leading-relaxed">
+              {produk.description}
+            </p>
 
-          <div className="mt-3 flex flex-wrap gap-6 text-sm text-km-ink/70">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-km-ink/50">
-                Harga
-              </p>
-              <p className="text-lg font-semibold text-km-brass">
-                Rp {produk.price.toLocaleString("id-ID")}
-              </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/55">
+                  Harga
+                </p>
+                <p className="mt-2 text-lg font-semibold text-km-brass">
+                  Rp {produk.price.toLocaleString("id-ID")}
+                </p>
+              </div>
+
+              <div className="border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/55">
+                  Stok
+                </p>
+                <p className="mt-2 text-lg font-semibold text-white">
+                  {produk.capacity} pcs
+                </p>
+              </div>
             </div>
 
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-km-ink/50">
-                Stok
-              </p>
-              <p className="text-lg font-semibold text-km-ink">
-                {produk.capacity} pcs
-              </p>
+            {/* CTA */}
+            <div className="flex flex-col gap-3">
+              <Link
+                href={`/checkout?produkId=${produk.id}`}
+                className="w-full text-center px-6 py-3 bg-km-brass text-km-wood ring-1 ring-white/20 font-semibold hover:opacity-90 transition no-underline"
+              >
+                Pesan Sekarang
+              </Link>
+
+              <Link
+                href="/"
+                className="w-full text-center px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition text-sm no-underline"
+              >
+                Kembali ke Beranda
+              </Link>
             </div>
           </div>
-
-          {/* CTA */}
-          <div className="mt-6 flex flex-col gap-3">
-            <Link
-              href={`/checkout?produkId=${produk.id}`}
-              className="w-full text-center px-6 py-3 rounded-2xl bg-km-brass text-km-wood ring-1 ring-km-line font-semibold hover:opacity-90 transition no-underline"
-            >
-              Pesan Sekarang
-            </Link>
-
-            <Link
-              href="/"
-              className="w-full text-center px-6 py-3 rounded-2xl border border-km-line text-km-ink hover:bg-km-cream transition text-sm no-underline"
-            >
-              Kembali ke Beranda
-            </Link>
-          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

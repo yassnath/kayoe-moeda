@@ -7,7 +7,7 @@ import clsx from "clsx";
 const ContactForm = () => {
   //   const [state, formAction] = useFormState(ContactMessage, null);
   return (
-    <div className="bg-white p-8 rounded-sm shadow-sm">
+    <div className="border border-white/10 bg-white/5 p-8">
       {/* Alert */}
       {/* {state?.message ? (
         <div
@@ -19,38 +19,41 @@ const ContactForm = () => {
       ) : null} */}
       {/* End Alert */}
       <form action="">
-        <div className="grid md:grid-cols-2 gap-7 mt-6">
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
           <div>
             <input
               type="text"
               name="name"
-              className="bg-gray-50 p-3 border border-gray-200 rounded-sm w-full font-light"
+              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
+                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="Name*"
             />
             <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-500 mt-2"></p>
+              <p className="text-sm text-red-300 mt-2"></p>
             </div>
           </div>
           <div>
             <input
               type="email"
               name="email"
-              className="bg-gray-50 p-3 border border-gray-200 rounded-sm w-full font-light"
+              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
+                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="johndoe@example.com*"
             />
             <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-500 mt-2"></p>
+              <p className="text-sm text-red-300 mt-2"></p>
             </div>
           </div>
           <div className="md:col-span-2">
             <input
               type="text"
               name="subject"
-              className="bg-gray-50 p-3 border border-gray-200 rounded-sm w-full font-light"
+              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
+                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="Subject*"
             />
             <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-500 mt-2">
+              <p className="text-sm text-red-300 mt-2">
                 {/* {state?.error?.subject} */}
               </p>
             </div>
@@ -59,11 +62,12 @@ const ContactForm = () => {
             <textarea
               name="message"
               rows={5}
-              className="bg-gray-50 p-3 border border-gray-200 rounded-sm w-full font-light"
+              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
+                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="Your message*"
             ></textarea>
             <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-500 mt-2">
+              <p className="text-sm text-red-300 mt-2">
                 {/* {state?.error?.message} */}
               </p>
             </div>
@@ -73,7 +77,8 @@ const ContactForm = () => {
         <button
           type="submit"
           className={clsx(
-            "px-10 py-4 text-center font-semibold text-white w-full bg-orange-400 rounded-sm hover:bg-orange-500 cursor-pointer"
+            "mt-6 w-full rounded-sm px-10 py-4 text-center text-sm font-semibold bg-km-brass text-km-wood",
+            "ring-1 ring-white/20 hover:opacity-90 transition"
             // {
             //   "opacity-50 cursor-progress animate-pulse": pending,
             // }
