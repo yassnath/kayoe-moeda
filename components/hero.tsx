@@ -15,6 +15,13 @@ const Hero = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#061610] via-[#0b2a22]/85 to-transparent" />
         <div
+          className="absolute inset-0 opacity-60"
+          style={{
+            backgroundImage:
+              "radial-gradient(45% 45% at 95% 10%, rgba(244,234,210,0.35), transparent 60%)",
+          }}
+        />
+        <div
           className="absolute inset-0 opacity-30"
           style={{
             backgroundImage:
@@ -24,7 +31,7 @@ const Hero = () => {
         />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 md:px-6 py-24 lg:py-32">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 md:px-6 pt-12 pb-12 lg:pt-16 lg:pb-16">
         <div className="max-w-2xl space-y-6 text-white">
           <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.35em] uppercase text-white/80 border border-white/15 bg-white/5">
             Kayoe Moeda

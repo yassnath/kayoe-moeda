@@ -21,7 +21,7 @@ export default async function produkDetailPage(
       <section className="w-full py-16 lg:py-20">
         <div className="mx-auto w-full max-w-6xl px-4 md:px-6 grid gap-10 lg:grid-cols-[1.2fr,0.8fr]">
           {/* Gambar Produk */}
-          <div className="relative min-h-[320px] overflow-hidden border border-white/10">
+          <div className="relative min-h-[320px] overflow-hidden rounded-3xl border border-white/10">
             <Image
               src={resolveImageSrc(produk.image)}
               alt={produk.name}
@@ -48,7 +48,7 @@ export default async function produkDetailPage(
 
             {/* Harga & Stok */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="border border-white/10 bg-white/5 p-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/55">
                   Harga
                 </p>
@@ -57,7 +57,7 @@ export default async function produkDetailPage(
                 </p>
               </div>
 
-              <div className="border border-white/10 bg-white/5 p-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/55">
                   Stok
                 </p>

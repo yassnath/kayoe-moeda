@@ -133,8 +133,15 @@ export default function ProdukPage() {
 
   return (
     <div className="min-h-screen bg-transparent text-white">
-      <section className="w-full py-16 lg:py-20">
-        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <section className="relative w-full py-16 lg:py-20">
+        <div
+          className="absolute inset-0 opacity-75"
+          style={{
+            backgroundImage:
+              "radial-gradient(50% 50% at 90% 10%, rgba(244,234,210,0.28), transparent 60%), radial-gradient(50% 50% at 10% 90%, rgba(244,234,210,0.22), transparent 65%)",
+          }}
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6">
           <div className="max-w-3xl">
             <p className="text-xs uppercase tracking-[0.32em] text-white/55">
               Katalog
@@ -189,15 +196,23 @@ export default function ProdukPage() {
                   return (
                     <article
                       key={produk.id}
-                      className="group relative min-h-[280px] overflow-hidden border border-white/10 bg-[#071a14]/60"
+                      className="group relative min-h-[280px] overflow-hidden rounded-3xl border border-white/15 bg-[#071a14]/60
+                                 shadow-[0_16px_46px_rgba(6,18,14,0.45)]"
                     >
                       <div className="absolute inset-0">
                         <Image
                           src={imageSrc}
                           alt={produk.name}
                           fill
-                          className="object-cover transition duration-300 group-hover:scale-[1.03]"
+                          className="object-cover transition duration-300 group-hover:scale-[1.04]"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                        <div
+                          className="absolute inset-0 opacity-80"
+                          style={{
+                            backgroundImage:
+                              "radial-gradient(45% 45% at 85% 0%, rgba(244,234,210,0.35), transparent 60%)",
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/80" />
                       </div>
@@ -207,17 +222,17 @@ export default function ProdukPage() {
                           <h3 className="text-base md:text-lg font-semibold text-white line-clamp-1">
                             {produk.name}
                           </h3>
-                          <span className="shrink-0 rounded-full border border-white/20 px-3 py-1 text-xs text-white/70">
-                            Stok {produk.capacity}
-                          </span>
-                        </div>
+                        <span className="shrink-0 rounded-full border border-white/20 px-3 py-1 text-xs text-white/75">
+                          Stok {produk.capacity}
+                        </span>
+                      </div>
 
                         <p className="mt-2 text-sm text-white/70 line-clamp-2 leading-relaxed">
                           {produk.description}
                         </p>
 
                         <div className="mt-3 flex items-center justify-between">
-                          <p className="text-base md:text-lg font-semibold text-white">
+                          <p className="text-base md:text-lg font-semibold text-[#f4ead2]">
                             Rp {produk.price.toLocaleString("id-ID")}
                           </p>
                           <p className="text-xs text-white/55">Ready stock</p>

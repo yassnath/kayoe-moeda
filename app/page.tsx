@@ -83,8 +83,15 @@ export default function Home() {
       </section>
 
       {/* FEATURED PRODUCTS */}
-      <section className="w-full border-t border-white/10 py-20 lg:py-28">
-        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+      <section className="relative w-full border-t border-white/10 py-20 lg:py-28">
+        <div
+          className="absolute inset-0 opacity-70"
+          style={{
+            backgroundImage:
+              "radial-gradient(55% 55% at 95% 0%, rgba(244,234,210,0.28), transparent 60%), radial-gradient(45% 45% at 5% 100%, rgba(244,234,210,0.18), transparent 65%)",
+          }}
+        />
+        <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6">
           <div className="max-w-3xl">
             <p className="text-xs uppercase tracking-[0.32em] text-white/55">
               Katalog Unggulan

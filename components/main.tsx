@@ -33,28 +33,38 @@ export default async function Main() {
             <Link
               key={produk.id}
               href={`/produk/${produk.id}`}
-              className="group relative min-h-[240px] sm:min-h-[320px] lg:min-h-[360px] overflow-hidden"
+              className="group relative min-h-[240px] sm:min-h-[320px] lg:min-h-[360px] overflow-hidden rounded-3xl
+                         ring-1 ring-white/15 shadow-[0_20px_60px_rgba(6,18,14,0.45)]"
             >
               <Image
                 src={imageSrc}
                 alt={produk.name}
                 fill
-                className="object-cover transition duration-300 group-hover:scale-[1.03]"
+                className="object-cover transition duration-300 group-hover:scale-[1.04]"
                 sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
               />
+              <div
+                className="absolute inset-0 opacity-80"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(45% 45% at 90% 0%, rgba(244,234,210,0.35), transparent 60%), radial-gradient(45% 45% at 10% 100%, rgba(244,234,210,0.22), transparent 65%)",
+                }}
+              />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/80" />
-              <div className="absolute inset-0 border border-white/10" />
+              <div className="absolute inset-0 border border-white/15" />
 
               <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-white/60">
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[#f4ead2]/80">
                   Kayoe Moeda
                 </p>
                 <h3 className="mt-2 text-lg font-semibold">{produk.name}</h3>
-                <div className="mt-1 flex items-center justify-between text-sm text-white/80">
-                  <span>Rp {produk.price.toLocaleString("id-ID")}</span>
-                  <span>Stok {produk.capacity}</span>
+                <div className="mt-1 flex items-center justify-between text-sm text-white/85">
+                  <span className="text-[#f4ead2]">
+                    Rp {produk.price.toLocaleString("id-ID")}
+                  </span>
+                  <span className="text-white/80">Stok {produk.capacity}</span>
                 </div>
-                <span className="mt-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-white/70">
+                <span className="mt-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#f4ead2]">
                   View Detail &gt;
                 </span>
               </div>
