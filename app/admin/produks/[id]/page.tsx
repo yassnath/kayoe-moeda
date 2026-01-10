@@ -1,5 +1,6 @@
 // app/admin/produks/[id]/page.tsx
 import { prisma } from "@/lib/prisma";
+import { resolveImageSrc } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,14 +25,12 @@ export default async function AdminProdukDetailPage(props: PageProps) {
     return notFound();
   }
 
-  const imageSrc = produk.image.startsWith("/")
-    ? produk.image
-    : `/${produk.image}`;
+  const imageSrc = resolveImageSrc(produk.image);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
       {/* BARIS ATAS: Kembali + Edit + Hapus */}
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
         <Link
           href="/admin/products"
           className="text-sm text-blue-600 hover:underline"
@@ -42,7 +41,7 @@ export default async function AdminProdukDetailPage(props: PageProps) {
         {/* 🔥 Edit ke /admin/products/[id] */}
         <Link
           href={`/admin/products/${id}`}
-          className="text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700"
+          className="w-full sm:w-auto text-sm px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 text-center"
         >
           Edit Produk
         </Link>
@@ -54,7 +53,7 @@ export default async function AdminProdukDetailPage(props: PageProps) {
         >
           <button
             type="submit"
-            className="text-sm px-3 py-1.5 rounded bg-red-600 text-white hover:bg-red-700"
+            className="w-full sm:w-auto text-sm px-3 py-1.5 rounded bg-red-600 text-white hover:bg-red-700"
           >
             Hapus Produk
           </button>

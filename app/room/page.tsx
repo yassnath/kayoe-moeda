@@ -1,4 +1,5 @@
 import { getprodukById } from "@/lib/data";
+import { resolveImageSrc } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -22,7 +23,7 @@ export default async function produkDetailPage(
         {/* Gambar Produk */}
         <div className="relative w-full h-80 md:h-full">
           <Image
-            src={produk.image}
+            src={resolveImageSrc(produk.image)}
             alt={produk.name}
             fill
             className="object-cover rounded-md"

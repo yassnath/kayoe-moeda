@@ -85,7 +85,7 @@ export default function AdminInsightPage() {
     `Rp ${value.toLocaleString("id-ID")}`;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-semibold mb-4">Admin - Insight Penjualan</h1>
 
       {error && (

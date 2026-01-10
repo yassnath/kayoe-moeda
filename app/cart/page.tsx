@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 import Link from "next/link";
 
 type Produk = {
@@ -166,9 +167,7 @@ export default function CartPage() {
             {/* List */}
             <div className="space-y-4">
               {cart.items.map((it) => {
-                const img = it.produk.image?.startsWith("/")
-                  ? it.produk.image
-                  : `/${it.produk.image}`;
+                const img = resolveImageSrc(it.produk.image);
 
                 const lineTotal = it.quantity * it.price;
 

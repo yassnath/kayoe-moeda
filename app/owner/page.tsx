@@ -100,7 +100,7 @@ export default function OwnerDashboardPage() {
   }, [data.monthly]);
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-6xl mx-auto px-4 md:px-6 pt-24 pb-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
         <div>
@@ -172,7 +172,7 @@ export default function OwnerDashboardPage() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Chart */}
-        <div className="rounded-2xl bg-km-cream/80 ring-1 ring-km-line shadow-sm p-6">
+        <div className="rounded-2xl bg-km-cream/80 ring-1 ring-km-line shadow-sm p-4 sm:p-6">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h2 className="text-lg font-semibold text-[#111827]">
@@ -222,7 +222,7 @@ export default function OwnerDashboardPage() {
         </div>
 
         {/* Top Products */}
-        <div className="rounded-2xl bg-km-cream/80 ring-1 ring-km-line shadow-sm p-6">
+        <div className="rounded-2xl bg-km-cream/80 ring-1 ring-km-line shadow-sm p-4 sm:p-6">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h2 className="text-lg font-semibold text-[#111827]">

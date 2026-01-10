@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
   id: string;
@@ -70,8 +71,8 @@ export default function ProductDetailPage() {
 
         setProduk(found);
 
-        const img = found.image;
-        setPreview(img.startsWith("/") ? img : `/${img}`);
+        const img = resolveImageSrc(found.image);
+        setPreview(img);
       } catch (err) {
         console.error(err);
         setError(
@@ -137,8 +138,8 @@ export default function ProductDetailPage() {
       if (data && typeof data === "object") {
         const updated = data as ProdukItem;
         setProduk(updated);
-        const img = updated.image;
-        setPreview(img.startsWith("/") ? img : `/${img}`);
+        const img = resolveImageSrc(updated.image);
+        setPreview(img);
       }
 
       setSuccess("Perubahan berhasil disimpan.");
@@ -199,7 +200,7 @@ export default function ProductDetailPage() {
 
   if (!id) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-red-600">
           ID produk tidak ditemukan di URL.
         </p>
@@ -215,7 +216,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-gray-600">Memuat detail produk...</p>
       </div>
     );
@@ -223,7 +224,7 @@ export default function ProductDetailPage() {
 
   if (error || !produk) {
     return (
-      <div className="p-6 space-y-2">
+      <div className="p-4 sm:p-6 space-y-2">
         <p className="text-sm text-red-600">
           {error ?? "Produk tidak ditemukan"}
         </p>
@@ -237,14 +238,10 @@ export default function ProductDetailPage() {
     );
   }
 
-  const imageSrc = preview
-    ? preview
-    : produk.image.startsWith("/")
-    ? produk.image
-    : `/${produk.image}`;
+  const imageSrc = preview ? preview : resolveImageSrc(produk.image);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
       <h1 className="text-xl font-semibold mb-2">
         Detail Produk Kayoe Moeda
       </h1>
@@ -309,7 +306,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Tombol aksi */}
-          <div className="flex gap-3 pt-3">
+          <div className="flex flex-col sm:flex-row gap-3 pt-3">
             <button
               type="button"
               onClick={() => {
@@ -317,7 +314,7 @@ export default function ProductDetailPage() {
                 setSuccess(null);
                 setError(null);
               }}
-              className="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
+              className="w-full sm:w-auto px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
             >
               {editMode ? "Batal Edit" : "Edit Produk"}
             </button>
@@ -325,7 +322,7 @@ export default function ProductDetailPage() {
               type="button"
               onClick={handleDelete}
               disabled={deleting}
-              className="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+              className="w-full sm:w-auto px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
             >
               {deleting ? "Menghapus..." : "Hapus Produk"}
             </button>
@@ -419,7 +416,7 @@ export default function ProductDetailPage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+              className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
             >
               {saving ? "Menyimpan..." : "Simpan Perubahan"}
             </button>

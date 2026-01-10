@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { reservationProps } from "@/types/reservation";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, resolveImageSrc } from "@/lib/utils";
 import { differenceInCalendarDays } from "date-fns";
 import Link from "next/link";
 
@@ -31,13 +31,11 @@ const MyReservationList = async ({
             key={item.id}
             className="flex flex-col mb-4 items-start bg-white rounded-sm md:flex-row md:w-full"
           >
-              <Image
+            <Image
               src={
                 item.produk?.image
-                  ? item.produk.image.startsWith("http")
-                    ? item.produk.image                          // untuk URL external
-                    : `/${item.produk.image}`                    // untuk local file
-                  : "/hero.jpg"                                // fallback default
+                  ? resolveImageSrc(item.produk.image)
+                  : "/hero.jpg"
               }
               width={500}
               height={300}

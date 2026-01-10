@@ -2,10 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
 export const runtime = "nodejs";
+
+async function uploadCustomOrderImage(file: File): Promise<string> {
+  const safeName = file.name.replace(/\s+/g, "-").toLowerCase();
+  const filename = `custom-orders/${Date.now()}-${safeName}`;
+  const blob = await put(filename, file, { access: "public" });
+  return blob.url;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,18 +54,15 @@ export async function POST(req: NextRequest) {
     let imagePath: string | null = null;
 
     if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const uploadsDir = path.join(process.cwd(), "public", "uploads", "custom-orders");
-      await mkdir(uploadsDir, { recursive: true });
-
-      const safeName = file.name.replace(/\s+/g, "-").toLowerCase();
-      const fileName = `${Date.now()}-${safeName}`;
-      const fullPath = path.join(uploadsDir, fileName);
-
-      await writeFile(fullPath, buffer);
-      imagePath = `/uploads/custom-orders/${fileName}`;
+      try {
+        imagePath = await uploadCustomOrderImage(file);
+      } catch (error) {
+        console.error("Upload custom order image error:", error);
+        return NextResponse.json(
+          { message: "Gagal mengunggah gambar. Pastikan Vercel Blob sudah aktif." },
+          { status: 500 }
+        );
+      }
     }
 
     // ✅ Pakai userId langsung (dan cast any untuk menghindari typings cache Prisma)

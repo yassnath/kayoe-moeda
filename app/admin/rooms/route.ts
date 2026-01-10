@@ -1,10 +1,17 @@
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import { promises as fs } from "fs";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { put } from "@vercel/blob";
+
+async function uploadRoomImage(file: File): Promise<string> {
+  const safeName = file.name.replace(/\s+/g, "-").toLowerCase();
+  const filename = `rooms/${Date.now()}-${safeName}`;
+  const blob = await put(filename, file, { access: "public" });
+  return blob.url;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,22 +37,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ------- SIMPAN GAMBAR -------
-    const bytes = await imageFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let imageUrl = "/uploads/default-produk.jpg";
 
-    const uploadsDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadsDir, { recursive: true });
-
-    const ext = path.extname(imageFile.name);
-    const base = path.basename(imageFile.name, ext).replace(/\s+/g, "-");
-    const filename = `${Date.now()}-${base}${ext}`;
-
-    const filepath = path.join(uploadsDir, filename);
-    await fs.writeFile(filepath, buffer);
-
-    const imageUrl = `/uploads/${filename}`;
-    // ------------------------------
+    try {
+      imageUrl = await uploadRoomImage(imageFile);
+    } catch (error) {
+      console.error("Upload room image error:", error);
+      return NextResponse.json(
+        { error: "Gagal mengunggah gambar. Pastikan Vercel Blob sudah aktif." },
+        { status: 500 }
+      );
+    }
 
     const produk = await prisma.produk.create({
       data: {

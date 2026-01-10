@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type CustomOrderDetail = {
   id: string;
@@ -194,7 +195,7 @@ export default function AdminCustomOrderDetailPage() {
 
   if (!id) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-red-600">
           ID custom order tidak ditemukan di URL.
         </p>
@@ -210,7 +211,7 @@ export default function AdminCustomOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-gray-600">Memuat detail custom order...</p>
       </div>
     );
@@ -218,7 +219,7 @@ export default function AdminCustomOrderDetailPage() {
 
   if (error || !order) {
     return (
-      <div className="p-6 space-y-2">
+      <div className="p-4 sm:p-6 space-y-2">
         <p className="text-sm text-red-600">
           {error ?? "Custom order tidak ditemukan"}
         </p>
@@ -242,7 +243,7 @@ export default function AdminCustomOrderDetailPage() {
   const waUrl = `https://wa.me/${waNumber}?text=${waMessage}`;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-4">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-4">
       <h1 className="text-xl font-semibold mb-2">
         Detail Custom Order Kayoe Moeda
       </h1>
@@ -318,7 +319,7 @@ export default function AdminCustomOrderDetailPage() {
               <span className="font-medium">Gambar referensi:</span>
               <div className="mt-1 relative w-40 h-40 border rounded overflow-hidden">
                 <Image
-                  src={order.image}
+                  src={resolveImageSrc(order.image)}
                   alt={order.orderName}
                   fill
                   className="object-cover"
@@ -333,7 +334,7 @@ export default function AdminCustomOrderDetailPage() {
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center px-3 py-2 rounded text-sm font-medium bg-green-500 text-white hover:bg-green-600"
+            className="inline-flex w-full sm:w-auto items-center justify-center px-3 py-2 rounded text-sm font-medium bg-green-500 text-white hover:bg-green-600"
           >
             Hubungi via WhatsApp
           </a>
@@ -352,7 +353,7 @@ export default function AdminCustomOrderDetailPage() {
             <select
               value={statusValue}
               onChange={(e) => setStatusValue(e.target.value)}
-              className="border rounded px-3 py-2 text-sm"
+              className="w-full sm:w-auto border rounded px-3 py-2 text-sm"
             >
               <option value="NEW">Baru</option>
               <option value="CONTACTED">Sudah dihubungi</option>
@@ -365,7 +366,7 @@ export default function AdminCustomOrderDetailPage() {
           <button
             type="submit"
             disabled={saving}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+            className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
           >
             {saving ? "Menyimpan..." : "Simpan Status"}
           </button>

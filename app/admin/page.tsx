@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
   id: string;
@@ -77,7 +78,7 @@ export default function AdminOverviewPage() {
   }, []);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-semibold mb-4">Admin - Overview Kayoe Moeda</h1>
 
       <p className="text-sm text-gray-600 mb-4">
@@ -116,9 +117,7 @@ export default function AdminOverviewPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {produks.map((produk) => {
-                const imageSrc = produk.image.startsWith("/")
-                  ? produk.image
-                  : `/${produk.image}`;
+                const imageSrc = resolveImageSrc(produk.image);
 
                 return (
                   <Link

@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { resolveImageSrc } from "@/lib/utils";
 
 type CustomOrderItem = {
   id: string;
@@ -369,7 +370,7 @@ export default function CustomOrderCustomerPage() {
 
                     {h.image && (
                       <a
-                        href={h.image}
+                        href={resolveImageSrc(h.image)}
                         target="_blank"
                         rel="noreferrer"
                         className="mt-3 inline-flex text-sm font-semibold text-km-ink hover:opacity-80 transition no-underline"

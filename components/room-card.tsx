@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukCardProps = {
   produk: {
@@ -10,11 +11,13 @@ type ProdukCardProps = {
 };
 
 export default function produkCard({ produk }: ProdukCardProps) {
+  const imageSrc = resolveImageSrc(produk.image);
+
   return (
     <div className="km-tile rounded-lg overflow-hidden">
       <div className="relative w-full h-56">
         <Image
-          src={produk.image}
+          src={imageSrc}
           alt={produk.name}
           fill
           className="object-cover"

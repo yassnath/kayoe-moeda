@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
   id: string;
@@ -23,7 +24,7 @@ export default function EditProdukClient({ produk }: Props) {
   const router = useRouter();
 
   const [preview, setPreview] = useState<string | null>(
-    produk.image.startsWith("/") ? produk.image : `/${produk.image}`
+    resolveImageSrc(produk.image)
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);

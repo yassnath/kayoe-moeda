@@ -14,3 +14,10 @@ export const formatCurrency = (amount: number) => {
   });
   return formatter.format(amount);
 };
+
+export const resolveImageSrc = (image?: string | null) => {
+  if (!image) return "/uploads/default-produk.jpg";
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  if (image.startsWith("/")) return image;
+  return `/${image}`;
+};

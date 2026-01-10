@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, resolveImageSrc } from "@/lib/utils";
 import { getReservationById } from "@/lib/data";
 import { differenceInCalendarDays } from "date-fns";
 import { PaymentButton } from "@/components/payment-button";
@@ -21,7 +21,7 @@ const CheckoutDetail = async ({ reservationId }: { reservationId: string }) => {
         <div className="flex flex-col mb-3 items-start bg-white border border-gray-200 rounded-sm md:flex-row md:w-full">
           <div className="aspect-video relative">
             <Image
-              src={reservation.produk.image}
+              src={resolveImageSrc(reservation.produk.image)}
               width={500}
               height={300}
               className="object-cover w-full rounded-t-sm aspect-video md:rounded-none md:rounded-s-sm"

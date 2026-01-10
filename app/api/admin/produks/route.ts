@@ -2,10 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
 export const runtime = "nodejs";
+
+async function uploadProdukImage(file: File): Promise<string> {
+  const safeName = file.name.replace(/\s+/g, "-").toLowerCase();
+  const filename = `produks/${Date.now()}-${safeName}`;
+  const blob = await put(filename, file, { access: "public" });
+  return blob.url;
+}
 
 // GET /api/admin/produks  → ambil semua produk
 export async function GET() {
@@ -68,19 +74,18 @@ export async function POST(req: NextRequest) {
     let imagePath = "/uploads/default-produk.jpg";
 
     if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const uploadsDir = path.join(process.cwd(), "public", "uploads");
-      await mkdir(uploadsDir, { recursive: true });
-
-      const safeName = file.name.replace(/\s+/g, "-").toLowerCase();
-      const filename = `${Date.now()}-${safeName}`;
-      const fullPath = path.join(uploadsDir, filename);
-
-      await writeFile(fullPath, buffer);
-
-      imagePath = `/uploads/${filename}`;
+      try {
+        imagePath = await uploadProdukImage(file);
+      } catch (error) {
+        console.error("Upload produk image error:", error);
+        return NextResponse.json(
+          {
+            message:
+              "Gagal mengunggah gambar. Pastikan Vercel Blob sudah aktif.",
+          },
+          { status: 500 }
+        );
+      }
     }
 
     const produk = await prisma.produk.create({

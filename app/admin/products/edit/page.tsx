@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
   id: string;
@@ -64,9 +65,7 @@ export default function EditProductPage() {
         }
 
         setProduk(found);
-        setPreview(
-          found.image.startsWith("/") ? found.image : `/${found.image}`
-        );
+        setPreview(resolveImageSrc(found.image));
       } catch (err) {
         console.error(err);
         if (err instanceof Error) {
@@ -144,7 +143,7 @@ export default function EditProductPage() {
 
   if (!id) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-red-600">
           ID produk tidak ditemukan di URL.
         </p>
@@ -154,7 +153,7 @@ export default function EditProductPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-gray-600">Memuat data produk...</p>
       </div>
     );
@@ -162,7 +161,7 @@ export default function EditProductPage() {
 
   if (error || !produk) {
     return (
-      <div className="p-6 space-y-2">
+      <div className="p-4 sm:p-6 space-y-2">
         <p className="text-sm text-red-600">{error ?? "Produk tidak ditemukan"}</p>
         <Link
           href="/admin/products"
@@ -175,7 +174,7 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       <h1 className="text-xl font-semibold mb-4">
         Edit Produk Kayoe Moeda
       </h1>
@@ -273,7 +272,7 @@ export default function EditProductPage() {
         <button
           type="submit"
           disabled={saving}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
         >
           {saving ? "Menyimpan..." : "Simpan Perubahan"}
         </button>

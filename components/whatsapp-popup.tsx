@@ -106,9 +106,6 @@ const WhatsAppPopup = () => {
               <p className="text-sm font-semibold text-km-ink">
                 Kayoe Moeda Assistant
               </p>
-              <p className="text-xs text-km-ink/60">
-                Tanyakan produk &amp; pemesanan.
-              </p>
             </div>
             <button
               aria-label="Tutup chatbot"
@@ -163,9 +160,6 @@ const WhatsAppPopup = () => {
                 {loading ? "..." : "Kirim"}
               </button>
             </div>
-            <p className="mt-2 text-[10px] text-km-ink/55">
-              Untuk respon cepat, gunakan WhatsApp.
-            </p>
           </div>
         </div>
       )}

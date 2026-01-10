@@ -2,15 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { IoPeopleOutline } from "react-icons/io5";
 import type { Produk } from "@prisma/client";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, resolveImageSrc } from "@/lib/utils";
 
 const Card = ({ produk }: { produk: Produk }) => {
+  const imageSrc = resolveImageSrc(produk.image);
+
   return (
     <div className="km-tile rounded-sm transition duration-150 hover:shadow-lg">
       {/* image waraper */}
       <div className="h-[260px] w-auto rounded-t-sm relative">
         <Image
-          src={produk.image}
+          src={imageSrc}
           width={384}
           height={256}
           alt="blog 1"

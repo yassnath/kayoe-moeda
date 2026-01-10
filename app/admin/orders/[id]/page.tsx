@@ -190,7 +190,7 @@ export default function AdminOrderDetailPage() {
 
   if (!id) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-red-600">
           ID pesanan tidak ditemukan di URL.
         </p>
@@ -206,7 +206,7 @@ export default function AdminOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="text-sm text-gray-600">Memuat detail pesanan...</p>
       </div>
     );
@@ -214,7 +214,7 @@ export default function AdminOrderDetailPage() {
 
   if (error || !order) {
     return (
-      <div className="p-6 space-y-2">
+      <div className="p-4 sm:p-6 space-y-2">
         <p className="text-sm text-red-600">
           {error ?? "Pesanan tidak ditemukan"}
         </p>
@@ -231,7 +231,7 @@ export default function AdminOrderDetailPage() {
   const total = order.grossAmount || 0;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-4">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-4">
       <h1 className="text-xl font-semibold mb-2">
         Detail Pesanan Kayoe Moeda
       </h1>
@@ -333,7 +333,7 @@ export default function AdminOrderDetailPage() {
             <select
               value={statusValue}
               onChange={(e) => setStatusValue(e.target.value)}
-              className="border rounded px-3 py-2 text-sm"
+              className="w-full sm:w-auto border rounded px-3 py-2 text-sm"
             >
               <option value="PENDING">Pending</option>
               <option value="PROCESSING">Diproses</option>
@@ -345,7 +345,7 @@ export default function AdminOrderDetailPage() {
           <button
             type="submit"
             disabled={saving}
-            className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+            className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
           >
             {saving ? "Menyimpan..." : "Simpan Status"}
           </button>

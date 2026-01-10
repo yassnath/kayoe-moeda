@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { getprodukDetailById, getReservationByprodukId } from "@/lib/data";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, resolveImageSrc } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import { IoCheckmark, IoPeopleOutline } from "react-icons/io5";
 import ReserveForm from "@/components/reserve-form";
@@ -17,7 +17,7 @@ const produkDetail = async ({ produkId }: { produkId: string }) => {
       {/* Left Grid */}
       <div className="md:col-span-8">
         <Image
-          src={produk.image}
+          src={resolveImageSrc(produk.image)}
           alt={produk.name}
           width={770}
           height={430}

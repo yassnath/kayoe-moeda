@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getprodukById } from "@/lib/data";
+import { resolveImageSrc } from "@/lib/utils";
 
 interface produkPageProps {
   params: { id: string };
@@ -22,7 +23,7 @@ export default async function produkDetailPage({ params }: produkPageProps) {
         <div className="km-tile rounded-2xl overflow-hidden">
           <div className="relative w-full h-80 md:h-[420px]">
             <Image
-              src={produk.image}
+              src={resolveImageSrc(produk.image)}
               alt={produk.name}
               fill
               className="object-cover"

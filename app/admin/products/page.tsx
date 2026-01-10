@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
   id: string;
@@ -132,7 +133,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-semibold mb-4">
         Admin - Produk Kayoe Moeda
       </h1>
@@ -215,7 +216,7 @@ export default function AdminProductsPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-black text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-60"
+          className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-60"
         >
           {isSubmitting ? "Menyimpan..." : "Simpan Produk"}
         </button>
@@ -229,9 +230,7 @@ export default function AdminProductsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {produks.map((produk) => {
-            const imageSrc = produk.image.startsWith("/")
-              ? produk.image
-              : `/${produk.image}`;
+            const imageSrc = resolveImageSrc(produk.image);
 
             return (
               <Link

@@ -59,7 +59,7 @@ const CreateForm = ({ amenities }: { amenities: Amenities[] }) => {
   return (
     <form action={formAction}>
       <div className="grid md:grid-cols-12 gap-5">
-        <div className="col-span-8 bg-white p-4">
+        <div className="md:col-span-8 bg-white p-4">
           {/* produk name */}
           <div className="mb-4">
             <input
@@ -111,7 +111,7 @@ const CreateForm = ({ amenities }: { amenities: Amenities[] }) => {
           </div>
           {/* End Amenities */}
         </div>
-        <div className="col-span-4 bg-white p-4">
+        <div className="md:col-span-4 bg-white p-4">
           {/* Image Upload */}
           <label
             htmlFor="input-file"

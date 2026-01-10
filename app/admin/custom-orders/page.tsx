@@ -116,7 +116,7 @@ export default function AdminCustomOrdersPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-semibold mb-4">
         Admin - Custom Order Kayoe Moeda
       </h1>
@@ -144,7 +144,7 @@ export default function AdminCustomOrdersPage() {
             </p>
           ) : (
             <div className="overflow-x-auto border rounded-lg bg-white">
-              <table className="min-w-full text-sm">
+              <table className="min-w-full text-xs sm:text-sm">
                 <thead className="bg-gray-50 border-b">
                   <tr>
                     <th className="px-3 py-2 text-left">Tanggal</th>
