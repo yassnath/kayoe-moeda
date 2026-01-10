@@ -55,7 +55,7 @@ export default async function Main() {
                   <span>Stok {produk.capacity}</span>
                 </div>
                 <span className="mt-3 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-white/70">
-                  View Detail >
+                  View Detail &gt;
                 </span>
               </div>
             </Link>
