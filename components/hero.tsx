@@ -11,9 +11,9 @@ const Hero = () => {
           </span>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] text-km-ink">
-            Furnitur kayu
+            Furniture Shop
             <br className="hidden sm:block" />
-            yang rapi dan tahan lama.
+            elegan looks cocok untuk pelengkap rumah anda
           </h1>
 
           <p className="text-sm sm:text-base font-medium leading-relaxed max-w-xl text-km-ink/80">
