@@ -10,9 +10,9 @@ export const metadata: Metadata = {
   title: "Kayoe Moeda",
   description: "Mebel kayu berkualitas untuk rumah Anda.",
   icons: {
-    icon: "/logo-kayoe.png",
-    shortcut: "/logo-kayoe.png",
-    apple: "/logo-kayoe.png",
+    icon: "public/logo-kayoe.png",
+    shortcut: "public/logo-kayoe.png",
+    apple: "public/logo-kayoe.png",
   },
 };
 
