@@ -60,8 +60,8 @@ export default async function Main() {
                   <span>Rp {produk.price.toLocaleString("id-ID")}</span>
                   <span>Stok {produk.capacity}</span>
                 </div>
-                <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-km-ink/60">
-                  View Detail &gt;
+                <span className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-km-ink transition group-hover:text-km-wood">
+                  View Detail <span className="transition-transform group-hover:translate-x-0.5">&gt;</span>
                 </span>
               </div>
             </Link>
