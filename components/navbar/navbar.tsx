@@ -73,9 +73,9 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-[#0b2a22]">
+    <header className="fixed inset-x-0 top-0 z-50 bg-white/90 backdrop-blur">
       {/* Bar */}
-      <div className="km-nav bg-[#0b2a22] border-b border-km-line shadow-md">
+      <div className="km-nav bg-white/90 border-b border-km-line shadow-sm">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
             <div className="h-auto min-h-[80px] py-2 flex flex-wrap items-center justify-between gap-3">
             {/* Left: Logo */}
@@ -104,8 +104,8 @@ export default function Navbar() {
                     className={[
                       "km-nav-link no-underline text-sm font-semibold tracking-widest uppercase",
                       isActive(it.href)
-                        ? "is-active text-white"
-                        : "text-white/85 hover:text-white",
+                        ? "is-active text-km-ink"
+                        : "text-km-ink/70 hover:text-km-ink",
                     ].join(" ")}
                   >
                     {it.label}
@@ -121,7 +121,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   className="md:hidden inline-flex items-center justify-center rounded-full w-10 h-10
-                             bg-km-moss ring-1 ring-km-line text-white hover:opacity-90 transition"
+                             bg-km-wood ring-1 ring-km-line text-white hover:opacity-90 transition"
                   onClick={() => setMobileOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
@@ -152,11 +152,11 @@ export default function Navbar() {
                     inline-flex items-center justify-center
                     w-11 h-11
                     rounded-full
-                    bg-km-brass
+                    bg-km-wood
                     text-white
                     ring-1 ring-km-line
                     shadow-sm
-                    hover:shadow-md
+                    hover:shadow-soft
                     hover:ring-km-ink/30
                     hover:opacity-90
                     transition-all
@@ -209,7 +209,7 @@ export default function Navbar() {
                         text-[10px]
                         font-bold
                         leading-none
-                        shadow-md
+                        shadow-soft
                         ring-2 ring-white
                       "
                     >
@@ -221,17 +221,17 @@ export default function Navbar() {
 
               {/* Profile chip (when logged in) */}
               {session && (
-                <div className="hidden sm:flex items-center gap-2 rounded-full bg-km-moss ring-1 ring-km-line px-2 py-1 max-w-[220px] text-white">
-                  <div className="w-9 h-9 rounded-full bg-km-brass flex items-center justify-center font-bold text-km-wood">
+                <div className="hidden sm:flex items-center gap-2 rounded-full bg-white ring-1 ring-km-line px-2 py-1 max-w-[220px] text-km-ink shadow-sm">
+                  <div className="w-9 h-9 rounded-full bg-km-brass flex items-center justify-center font-bold text-white">
                     {initials}
                   </div>
                   <div className="pr-2">
-                    <div className="text-xs font-semibold leading-tight text-white max-w-[120px] truncate">
+                    <div className="text-xs font-semibold leading-tight text-km-ink max-w-[120px] truncate">
                       {session.user?.name ??
                         (session.user as any)?.username ??
                         "User"}
                     </div>
-                    <div className="text-[10px] uppercase tracking-wider text-white/80">
+                    <div className="text-[10px] uppercase tracking-wider text-km-ink/60">
                       {role ?? "USER"}
                     </div>
                   </div>
@@ -243,7 +243,7 @@ export default function Navbar() {
                 <button
                   onClick={() => signOut({ callbackUrl: "/signin" })}
                   className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
-                             bg-km-brass text-white ring-1 ring-km-brass hover:opacity-90 transition shadow-sm"
+                             bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition shadow-sm"
                 >
                   Sign Out
                 </button>
@@ -251,7 +251,7 @@ export default function Navbar() {
                 <Link
                   href="/signin"
                   className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
-                             bg-km-brass text-white ring-1 ring-km-brass hover:opacity-90 transition shadow-sm no-underline"
+                             bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition shadow-sm no-underline"
                 >
                   Sign In
                 </Link>
@@ -263,7 +263,7 @@ export default function Navbar() {
 
       {/* Mobile drawer (customer only) */}
       {!isAdminLike && mobileOpen && (
-        <div className="md:hidden bg-[#0b2a22] border-b border-km-line">
+        <div className="md:hidden bg-white border-b border-km-line">
           <div className="mx-auto max-w-6xl px-4 py-3 space-y-2">
             {NAV.map((it) => (
               <Link
@@ -273,8 +273,8 @@ export default function Navbar() {
                 className={[
                   "block px-4 py-3 rounded-2xl text-sm font-semibold transition no-underline",
                   isActive(it.href)
-                    ? "bg-km-moss ring-1 ring-km-line text-white"
-                    : "text-white/85 hover:text-white hover:bg-km-moss",
+                    ? "bg-km-wood ring-1 ring-km-line text-white"
+                    : "text-km-ink/80 hover:text-km-ink hover:bg-km-sand",
                 ].join(" ")}
               >
                 {it.label}

@@ -105,10 +105,10 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-km-sand">
-        <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-10">
-          <div className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-md">
-            <p className="text-sm text-black/60">Memuat cart...</p>
+      <div className="min-h-screen bg-[var(--km-bg)]">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
+          <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+            <p className="text-sm text-km-ink/60">Memuat cart...</p>
           </div>
         </div>
       </div>
@@ -116,24 +116,24 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-km-sand">
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-10">
+    <div className="min-h-screen bg-[var(--km-bg)]">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
         {/* Header */}
         <div className="flex flex-col gap-2">
-          <p className="text-xs uppercase tracking-[0.32em] text-black/45">
+          <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
             Checkout
           </p>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#111827]">
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-km-ink">
             Keranjang
           </h1>
-          <p className="text-[#111827]/70 max-w-2xl">
+          <p className="text-km-ink/70 max-w-2xl">
             Periksa item sebelum lanjut ke checkout.
           </p>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-red-500/20 text-red-700 shadow-md">
+          <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-soft">
             <p className="text-sm font-semibold">Terjadi kesalahan</p>
             <p className="text-sm mt-1 text-red-700/90">{error}</p>
           </div>
@@ -141,24 +141,24 @@ export default function CartPage() {
 
         {/* Empty state */}
         {cart.items.length === 0 ? (
-          <div className="mt-8 rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-md">
-            <p className="text-xs uppercase tracking-[0.32em] text-black/40">
+          <div className="mt-8 rounded-3xl border border-km-line bg-white p-8 shadow-soft">
+            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/45">
               Keranjang kosong
             </p>
-            <h2 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-[#111827]">
+            <h2 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-km-ink">
               Keranjang Anda masih kosong
             </h2>
-            <p className="mt-2 text-sm text-[#111827]/70">
+            <p className="mt-2 text-sm text-km-ink/70">
               Mulai dari katalog untuk menambahkan produk ke keranjang.
             </p>
 
             <div className="mt-6">
               <Link
                 href="/produk"
-                className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
-                           bg-km-clay ring-1 ring-km-line hover:bg-km-cream transition shadow-md no-underline"
+                className="inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
+                           bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition shadow-soft no-underline"
               >
-                ← Belanja Produk
+                Belanja Produk
               </Link>
             </div>
           </div>
@@ -174,10 +174,10 @@ export default function CartPage() {
                 return (
                   <div
                     key={it.id}
-                    className="rounded-2xl bg-white p-4 md:p-5 ring-1 ring-black/5 shadow-md"
+                    className="rounded-3xl border border-km-line bg-white p-4 md:p-5 shadow-soft"
                   >
                     <div className="flex gap-4">
-                      <div className="relative h-20 w-24 md:h-24 md:w-28 overflow-hidden rounded-2xl bg-black/[0.04] ring-1 ring-black/5">
+                      <div className="relative h-20 w-24 md:h-24 md:w-28 overflow-hidden rounded-2xl bg-km-surface-alt ring-1 ring-km-line">
                         <Image
                           src={img}
                           alt={it.produk.name}
@@ -190,10 +190,10 @@ export default function CartPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="text-sm md:text-base font-semibold tracking-tight text-[#111827] line-clamp-1">
+                            <p className="text-sm md:text-base font-semibold tracking-tight text-km-ink line-clamp-1">
                               {it.produk.name}
                             </p>
-                            <p className="mt-1 text-xs md:text-sm text-[#111827]/65">
+                            <p className="mt-1 text-xs md:text-sm text-km-ink/65">
                               Rp {it.price.toLocaleString("id-ID")}
                             </p>
                           </div>
@@ -209,23 +209,23 @@ export default function CartPage() {
 
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {/* Qty control */}
-                          <div className="inline-flex items-center rounded-2xl bg-black/[0.03] ring-1 ring-black/10 overflow-hidden">
+                          <div className="inline-flex items-center rounded-2xl bg-km-surface-alt ring-1 ring-km-line overflow-hidden">
                             <button
                               onClick={() =>
                                 updateQty(it.id, Math.max(1, it.quantity - 1))
                               }
-                              className="h-9 w-10 text-km-ink hover:bg-km-clay transition"
+                              className="h-9 w-10 text-km-ink hover:bg-km-cream transition"
                               type="button"
                               aria-label="Kurangi jumlah"
                             >
                               −
                             </button>
-                            <div className="h-9 w-12 flex items-center justify-center text-sm font-semibold text-[#111827]">
+                            <div className="h-9 w-12 flex items-center justify-center text-sm font-semibold text-km-ink">
                               {it.quantity}
                             </div>
                             <button
                               onClick={() => updateQty(it.id, it.quantity + 1)}
-                              className="h-9 w-10 text-km-ink hover:bg-km-clay transition"
+                              className="h-9 w-10 text-km-ink hover:bg-km-cream transition"
                               type="button"
                               aria-label="Tambah jumlah"
                             >
@@ -234,9 +234,9 @@ export default function CartPage() {
                           </div>
 
                           {/* Line total */}
-                          <div className="text-sm text-[#111827]/70">
+                          <div className="text-sm text-km-ink/70">
                             Subtotal:{" "}
-                            <span className="font-semibold text-[#111827]">
+                            <span className="font-semibold text-km-ink">
                               Rp {lineTotal.toLocaleString("id-ID")}
                             </span>
                           </div>
@@ -249,32 +249,32 @@ export default function CartPage() {
             </div>
 
             {/* Summary */}
-            <div className="rounded-2xl bg-white p-5 md:p-6 ring-1 ring-black/5 shadow-md sticky top-24">
-              <h2 className="text-base md:text-lg font-semibold tracking-tight text-[#111827]">
+            <div className="rounded-3xl border border-km-line bg-white p-5 md:p-6 shadow-soft sticky top-24">
+              <h2 className="text-base md:text-lg font-semibold tracking-tight text-km-ink">
                 Ringkasan
               </h2>
 
-              <div className="mt-4 flex items-center justify-between text-sm text-[#111827]/80">
+              <div className="mt-4 flex items-center justify-between text-sm text-km-ink/70">
                 <span>Total</span>
                 <span className="text-base font-semibold text-km-ink">
                   Rp {total.toLocaleString("id-ID")}
                 </span>
               </div>
 
-              <div className="mt-5 h-px bg-black/10" />
+              <div className="mt-5 h-px bg-km-line" />
 
               {/* ✅ tombol navigasi ke checkout cart */}
               <Link href="/cart/checkout" className="block mt-5">
-              <button
-                className="w-full rounded-2xl bg-km-clay ring-1 ring-km-line px-4 py-3 text-sm font-semibold
-                           hover:bg-km-cream transition shadow-md"
-                type="button"
-              >
-                Pesan Sekarang
-              </button>
+                <button
+                  className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold
+                             text-white hover:opacity-90 transition shadow-soft"
+                  type="button"
+                >
+                  Pesan Sekarang
+                </button>
               </Link>
 
-              <p className="text-xs text-[#111827]/60 mt-3 leading-relaxed">
+              <p className="text-xs text-km-ink/60 mt-3 leading-relaxed">
                 * Anda akan diarahkan ke WhatsApp setelah checkout untuk konfirmasi pesanan.
               </p>
 
@@ -282,7 +282,7 @@ export default function CartPage() {
                 href="/produk"
                 className="mt-4 inline-flex text-sm font-semibold text-km-ink hover:opacity-80 transition no-underline"
               >
-                ← Tambah item lagi
+                Tambah item lagi
               </Link>
             </div>
           </div>

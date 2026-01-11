@@ -31,15 +31,15 @@ function badgeClass(label: string) {
   const v = (label || "").toUpperCase();
 
   if (v.includes("SELESAI")) {
-    return "bg-km-clay ring-1 ring-km-line";
+    return "bg-emerald-50 ring-1 ring-emerald-200 text-emerald-700";
   }
   if (v.includes("DIPROSES")) {
-    return "bg-km-sand ring-1 ring-km-line";
+    return "bg-km-sand ring-1 ring-km-line text-km-ink";
   }
   if (v.includes("BATAL")) {
-    return "bg-red-100 ring-1 ring-red-200";
+    return "bg-red-50 ring-1 ring-red-200 text-red-700";
   }
-  return "bg-black/[0.04] text-black/70 ring-1 ring-black/10";
+  return "bg-km-surface-alt text-km-ink ring-1 ring-km-line";
 }
 
 export default function HistoryOrderPage() {
@@ -78,8 +78,8 @@ export default function HistoryOrderPage() {
   const content = useMemo(() => {
     if (loading) {
       return (
-        <div className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-md">
-          <p className="text-sm text-black/60">Memuat riwayat pesanan...</p>
+        <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+          <p className="text-sm text-km-ink/60">Memuat riwayat pesanan...</p>
         </div>
       );
     }
@@ -87,27 +87,27 @@ export default function HistoryOrderPage() {
     if (error) {
       return (
         <>
-          <div className="rounded-2xl bg-white p-4 ring-1 ring-red-500/20 text-red-700 shadow-md">
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-soft">
             <p className="text-sm font-semibold">Terjadi kesalahan</p>
             <p className="text-sm mt-1 text-red-700/90">{error}</p>
           </div>
 
-          <div className="mt-6 rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-md">
-            <p className="text-xs uppercase tracking-[0.32em] text-black/40">
+          <div className="mt-6 rounded-3xl border border-km-line bg-white p-8 shadow-soft">
+            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/45">
               Empty state
             </p>
-            <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-[#111827]">
+            <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-km-ink">
               Belum ada order / gagal load
             </h3>
-            <p className="mt-2 text-sm text-[#111827]/70">
+            <p className="mt-2 text-sm text-km-ink/70">
               Belum ada pesanan atau gagal memuat data.
             </p>
             <Link
               href="/produk"
-              className="mt-6 inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
-                         bg-km-clay ring-1 ring-km-line hover:bg-km-cream transition shadow-md no-underline"
+              className="mt-6 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
+                         bg-km-wood ring-1 ring-km-wood text-white hover:opacity-90 transition shadow-soft no-underline"
             >
-              ← Belanja Produk
+              Belanja Produk
             </Link>
           </div>
         </>
@@ -116,22 +116,22 @@ export default function HistoryOrderPage() {
 
     if (orders.length === 0) {
       return (
-        <div className="rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-md">
-          <p className="text-xs uppercase tracking-[0.32em] text-black/40">
+        <div className="rounded-3xl border border-km-line bg-white p-8 shadow-soft">
+          <p className="text-xs uppercase tracking-[0.32em] text-km-ink/45">
             Empty state
           </p>
-          <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-[#111827]">
+          <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-km-ink">
             Belum ada pesanan
           </h3>
-          <p className="mt-2 text-sm text-[#111827]/70">
+          <p className="mt-2 text-sm text-km-ink/70">
             Setelah checkout, riwayat pesanan akan muncul di sini.
           </p>
           <Link
             href="/produk"
-            className="mt-6 inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold
-                       bg-km-clay ring-1 ring-km-line hover:bg-km-cream transition shadow-md no-underline"
+            className="mt-6 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
+                       bg-km-wood ring-1 ring-km-wood text-white hover:opacity-90 transition shadow-soft no-underline"
           >
-            ← Belanja Produk
+            Belanja Produk
           </Link>
         </div>
       );
@@ -152,15 +152,14 @@ export default function HistoryOrderPage() {
           return (
             <div
               key={o.id}
-              className="rounded-2xl bg-white p-5 md:p-6 ring-1 ring-black/5 shadow-md"
+              className="rounded-3xl border border-km-line bg-white p-5 md:p-6 shadow-soft"
             >
-              {/* Header */}
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-[#111827]">
-                    Order <span className="text-km-caramel">{o.orderCode}</span>
+                  <div className="text-sm font-semibold text-km-ink">
+                    Order <span className="text-km-brass">{o.orderCode}</span>
                   </div>
-                  <div className="mt-1 text-xs text-black/50">
+                  <div className="mt-1 text-xs text-km-ink/50">
                     {new Date(o.createdAt).toLocaleString("id-ID")}
                   </div>
                 </div>
@@ -177,21 +176,16 @@ export default function HistoryOrderPage() {
                 </div>
               </div>
 
-              {/* Total */}
-              <div className="mt-4 flex items-center justify-between rounded-2xl bg-black/[0.03] p-4 ring-1 ring-black/5">
-                <span className="text-sm text-[#111827]/75">Total Pembelian</span>
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-km-surface-alt p-4 ring-1 ring-km-line">
+                <span className="text-sm text-km-ink/75">Total Pembelian</span>
                 <span className="text-base font-semibold text-km-ink">
                   Rp {Number(o.grossAmount || 0).toLocaleString("id-ID")}
                 </span>
               </div>
 
-              {/* Body */}
               <div className="mt-6 grid gap-6 lg:grid-cols-2">
-                {/* Items */}
-                <div className="rounded-2xl bg-white ring-1 ring-black/5 p-4">
-                  <div className="text-sm font-semibold text-[#111827]">
-                    Produk
-                  </div>
+                <div className="rounded-2xl bg-white ring-1 ring-km-line p-4">
+                  <div className="text-sm font-semibold text-km-ink">Produk</div>
 
                   <div className="mt-3 space-y-3">
                     {o.items.map((it) => (
@@ -200,16 +194,16 @@ export default function HistoryOrderPage() {
                         className="flex items-start justify-between gap-3"
                       >
                         <div className="min-w-0">
-                          <div className="text-sm font-medium text-[#111827] line-clamp-1">
+                          <div className="text-sm font-medium text-km-ink line-clamp-1">
                             {it.name}
                           </div>
-                          <div className="text-xs text-black/55 mt-0.5">
+                          <div className="text-xs text-km-ink/55 mt-0.5">
                             {it.quantity} x Rp{" "}
                             {Number(it.price || 0).toLocaleString("id-ID")}
                           </div>
                         </div>
 
-                        <div className="text-sm font-semibold text-[#111827]">
+                        <div className="text-sm font-semibold text-km-ink">
                           Rp {(it.quantity * it.price).toLocaleString("id-ID")}
                         </div>
                       </div>
@@ -217,13 +211,12 @@ export default function HistoryOrderPage() {
                   </div>
                 </div>
 
-                {/* Shipping */}
                 <div className="space-y-4">
-                  <div className="rounded-2xl bg-white ring-1 ring-black/5 p-4">
-                    <div className="text-sm font-semibold text-[#111827]">
+                  <div className="rounded-2xl bg-white ring-1 ring-km-line p-4">
+                    <div className="text-sm font-semibold text-km-ink">
                       Pengiriman
                     </div>
-                    <div className="mt-3 text-sm text-[#111827]/75 space-y-1">
+                    <div className="mt-3 text-sm text-km-ink/75 space-y-1">
                       <div>{o.recipientName || "-"}</div>
                       <div>{o.recipientPhone || "-"}</div>
                       <div className="leading-relaxed">
@@ -234,7 +227,6 @@ export default function HistoryOrderPage() {
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
@@ -245,25 +237,25 @@ export default function HistoryOrderPage() {
   }, [loading, error, orders]);
 
   return (
-    <div className="min-h-screen bg-km-sand">
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-10">
+    <div className="min-h-screen bg-[var(--km-bg)]">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.32em] text-black/45">
+            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
               Pelanggan
             </p>
-            <h1 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight text-[#111827]">
+            <h1 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight text-km-ink">
               Riwayat Pesanan
             </h1>
-            <p className="mt-2 text-sm text-[#111827]/70">
+            <p className="mt-2 text-sm text-km-ink/70">
               Riwayat pesanan serta status pemrosesan dan pengiriman.
             </p>
           </div>
 
           <Link
             href="/produk"
-            className="inline-flex items-center justify-center rounded-2xl px-5 py-2.5 text-sm font-semibold
-                       bg-km-clay ring-1 ring-km-line hover:bg-km-cream transition shadow-md no-underline"
+            className="inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold
+                       bg-km-wood ring-1 ring-km-wood text-white hover:opacity-90 transition shadow-soft no-underline"
           >
             Belanja Lagi
           </Link>

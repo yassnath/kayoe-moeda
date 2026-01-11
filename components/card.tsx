@@ -8,23 +8,23 @@ const Card = ({ produk }: { produk: Produk }) => {
   const imageSrc = resolveImageSrc(produk.image);
 
   return (
-    <div className="km-tile rounded-sm transition duration-150 hover:shadow-lg">
+    <div className="km-tile rounded-3xl transition duration-150">
       {/* image waraper */}
-      <div className="h-[260px] w-auto rounded-t-sm relative">
+      <div className="h-[260px] w-auto rounded-t-3xl relative">
         <Image
           src={imageSrc}
           width={384}
           height={256}
           alt="blog 1"
-          className="w-full h-full object-cover rounded-t-sm"
+          className="w-full h-full object-cover rounded-t-3xl"
         />
       </div>
       {/* Icons Wraper */}
       <div className="p-8">
-        <h4 className="text-2xl font-medium text-km-ink">
+        <h4 className="text-2xl font-semibold text-km-ink">
           <Link
             href={`/produk/${produk.id}`}
-            className="hover:text-km-ink transition duration-150"
+            className="hover:opacity-80 transition duration-150"
           >
             {produk.name}
           </Link>
@@ -45,7 +45,8 @@ const Card = ({ produk }: { produk: Produk }) => {
           </div>
           <Link
             href={`/produk/${produk.id}`}
-            className="px-6 py-2.5 md:px-10 md:py-3 font-semibold text-km-wood bg-km-brass rounded-sm hover:opacity-90 transition duration-150"
+            className="rounded-full bg-km-wood px-6 py-2.5 md:px-10 md:py-3 text-sm font-semibold text-white
+                       ring-1 ring-km-wood hover:opacity-90 transition duration-150"
           >
             Book Now
           </Link>

@@ -1,87 +1,98 @@
 "use client";
+import { useState } from "react";
 import clsx from "clsx";
-// import { useFormState } from "react-dom";
-// import { ContactMessage } from "@/lib/actions";
-// import { ContactButton } from "@/components/button";
 
 const ContactForm = () => {
-  //   const [state, formAction] = useFormState(ContactMessage, null);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setStatus("idle");
+    setMessage(null);
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const requiredFields = ["name", "email", "subject", "message"];
+    const missing = requiredFields.some(
+      (key) => !String(data.get(key) || "").trim()
+    );
+
+    if (missing) {
+      setStatus("error");
+      setMessage("Mohon lengkapi semua field yang wajib diisi.");
+      return;
+    }
+
+    setStatus("success");
+    setMessage("Pesan berhasil dikirim. Kami akan segera menghubungi Anda.");
+    form.reset();
+  };
+
   return (
-    <div className="border border-white/10 bg-white/5 p-8">
-      {/* Alert */}
-      {/* {state?.message ? (
+    <div className="rounded-3xl border border-km-line bg-white p-8 shadow-soft">
+      {message && (
         <div
-          className="p-4 mb-4 text-sm text-gray-800 rounded-lg bg-green-50"
-          role="alert"
+          className={clsx(
+            "mb-5 rounded-2xl border px-4 py-3 text-sm",
+            status === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          )}
         >
-          <div className="font-medium">{state?.message}</div>
+          {message}
         </div>
-      ) : null} */}
-      {/* End Alert */}
-      <form action="">
-        <div className="grid md:grid-cols-2 gap-6 mt-6">
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
+            <label className="text-sm font-semibold text-km-ink">Name</label>
             <input
               type="text"
               name="name"
-              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
-                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              className="mt-2 w-full rounded-2xl border border-km-line bg-white p-3 text-sm text-km-ink
+                         placeholder:text-km-ink/50 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="Name*"
             />
-            <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-300 mt-2"></p>
-            </div>
           </div>
           <div>
+            <label className="text-sm font-semibold text-km-ink">Email</label>
             <input
               type="email"
               name="email"
-              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
-                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              className="mt-2 w-full rounded-2xl border border-km-line bg-white p-3 text-sm text-km-ink
+                         placeholder:text-km-ink/50 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="johndoe@example.com*"
             />
-            <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-300 mt-2"></p>
-            </div>
           </div>
           <div className="md:col-span-2">
+            <label className="text-sm font-semibold text-km-ink">Subject</label>
             <input
               type="text"
               name="subject"
-              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
-                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              className="mt-2 w-full rounded-2xl border border-km-line bg-white p-3 text-sm text-km-ink
+                         placeholder:text-km-ink/50 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="Subject*"
             />
-            <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-300 mt-2">
-                {/* {state?.error?.subject} */}
-              </p>
-            </div>
           </div>
           <div className="md:col-span-2">
+            <label className="text-sm font-semibold text-km-ink">Message</label>
             <textarea
               name="message"
               rows={5}
-              className="w-full rounded-sm bg-white/5 p-3 text-sm text-white placeholder:text-white/40
-                         border border-white/10 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              className="mt-2 w-full rounded-2xl border border-km-line bg-white p-3 text-sm text-km-ink
+                         placeholder:text-km-ink/50 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
               placeholder="Your message*"
             ></textarea>
-            <div aria-live="polite" aria-atomic="true">
-              <p className="text-sm text-red-300 mt-2">
-                {/* {state?.error?.message} */}
-              </p>
-            </div>
           </div>
         </div>
-        {/* button submit */}
+
         <button
           type="submit"
           className={clsx(
-            "mt-6 w-full rounded-sm px-10 py-4 text-center text-sm font-semibold bg-km-brass text-km-wood",
-            "ring-1 ring-white/20 hover:opacity-90 transition"
-            // {
-            //   "opacity-50 cursor-progress animate-pulse": pending,
-            // }
+            "mt-6 w-full rounded-2xl px-6 py-3 text-sm font-semibold",
+            "bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition"
           )}
         >
           Send Message

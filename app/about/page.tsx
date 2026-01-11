@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 const About = () => {
   return (
-    <div className="bg-transparent">
+    <div className="bg-[var(--km-bg)]">
       <TitleSection title="About Us" subTitle="Kayoe Moeda" />
 
       <section className="w-full py-16 lg:py-20">
         <div className="mx-auto w-full max-w-6xl px-4 md:px-6 grid gap-12 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="relative min-h-[320px] overflow-hidden border border-white/10">
+          <div className="relative min-h-[320px] overflow-hidden rounded-3xl border border-km-line shadow-soft">
             <Image
               src="/about-image.jpg"
               width={900}
@@ -23,14 +23,13 @@ const About = () => {
               alt="About Kayoe Moeda"
               className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
           </div>
 
-          <div className="space-y-6 text-white/80">
-            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-white">
+          <div className="space-y-6">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-km-ink">
               Siapa Kami - Kayoe Moeda
             </h2>
-            <p className="text-sm leading-relaxed text-white/70">
+            <p className="text-sm leading-relaxed text-km-ink/70">
               Kayoe Moeda adalah perusahaan mebel yang berfokus pada pembuatan kursi, meja, dan
               berbagai perabotan rumah berbahan kayu. Kami mengutamakan kualitas material, kerapian
               finishing, dan ketepatan ukuran agar setiap produk nyaman digunakan serta awet untuk
@@ -47,8 +46,8 @@ const About = () => {
                   <IoEyeOutline className="h-7 w-7" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Visi</h3>
-                  <p className="mt-2 text-sm text-white/70 leading-relaxed">
+                  <h3 className="text-lg font-semibold text-km-ink">Visi</h3>
+                  <p className="mt-2 text-sm text-km-ink/70 leading-relaxed">
                     Menjadi perusahaan mebel yang menghadirkan furnitur rumah yang kuat, rapi, dan
                     nyaman, dengan desain yang fungsional serta bernilai jangka panjang.
                   </p>
@@ -60,8 +59,8 @@ const About = () => {
                   <IoLocateOutline className="h-7 w-7" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Misi</h3>
-                  <ul className="mt-2 space-y-2 text-sm text-white/70">
+                  <h3 className="text-lg font-semibold text-km-ink">Misi</h3>
+                  <ul className="mt-2 space-y-2 text-sm text-km-ink/70">
                     <li className="flex gap-2">
                       <span className="text-km-brass">-</span>
                       Mengutamakan material berkualitas dan finishing yang rapi di setiap produk.

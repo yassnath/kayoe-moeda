@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import { getprodukById } from "@/lib/data";
 import { resolveImageSrc } from "@/lib/utils";
 
-interface produkPageProps {
+interface ProdukDetailProps {
   params: { id: string };
 }
 
-export default async function produkDetailPage({ params }: produkPageProps) {
+export default async function ProdukDetailPage({ params }: ProdukDetailProps) {
   const produk = await getprodukById(params.id);
 
   if (!produk) {
@@ -74,11 +74,11 @@ export default async function produkDetailPage({ params }: produkPageProps) {
               </Link>
 
               <Link
-                href="/"
+                href="/produk"
                 className="w-full text-center rounded-full border border-km-line bg-white px-6 py-3 text-sm font-semibold
                            text-km-ink hover:bg-km-surface-alt transition no-underline"
               >
-                Kembali ke Beranda
+                Kembali ke Produk
               </Link>
             </div>
           </div>

@@ -197,25 +197,25 @@ export default function CartCheckoutPage() {
   const payDisabled = loadingPay || loadingCart || cart.items.length === 0;
 
   return (
-    <div className="min-h-screen bg-km-sand">
+    <div className="min-h-screen bg-[var(--km-bg)]">
       {/* OPSI B: container per page */}
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-10">
+      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
         {/* Header */}
         <div className="flex flex-col gap-2">
-          <p className="text-xs uppercase tracking-[0.32em] text-black/45">
+          <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
             Checkout
           </p>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-[#111827]">
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-km-ink">
             Checkout Keranjang
           </h1>
-          <p className="text-sm text-[#111827]/70 max-w-2xl">
+          <p className="text-sm text-km-ink/70 max-w-2xl">
             Isi alamat pengiriman, lalu lanjutkan pemesanan via WhatsApp.
           </p>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mt-6 rounded-2xl bg-white p-4 ring-1 ring-red-500/20 text-red-700 shadow-md">
+          <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-soft">
             <p className="text-sm font-semibold">Terjadi kesalahan</p>
             <p className="text-sm mt-1 text-red-700/90">{error}</p>
           </div>
@@ -225,19 +225,19 @@ export default function CartCheckoutPage() {
           {/* Form */}
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl bg-white p-5 md:p-7 ring-1 ring-black/5 shadow-md space-y-4"
+            className="rounded-3xl border border-km-line bg-white p-5 md:p-7 shadow-soft space-y-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base md:text-lg font-semibold tracking-tight text-[#111827]">
+                <h2 className="text-base md:text-lg font-semibold tracking-tight text-km-ink">
                   Alamat Pengiriman
                 </h2>
-                <p className="mt-1 text-sm text-[#111827]/60">
+                <p className="mt-1 text-sm text-km-ink/60">
                   Pastikan data penerima dan alamat lengkap.
                 </p>
               </div>
 
-              <div className="hidden md:block text-xs text-black/45">
+              <div className="hidden md:block text-xs text-km-ink/45">
                 {loadingCart ? "Memuat ringkasan..." : `${itemCount} item`}
               </div>
             </div>
@@ -245,12 +245,12 @@ export default function CartCheckoutPage() {
             {/* Inputs */}
             <div className="grid gap-4">
               <div>
-                <label className="block text-sm font-semibold text-[#111827] mb-1">
+                <label className="block text-sm font-semibold text-km-ink mb-1">
                   Nama Penerima
                 </label>
                 <input
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-[#111827]
-                             ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                             ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                   value={form.recipientName}
                   onChange={(e) =>
                     setForm({ ...form, recipientName: e.target.value })
@@ -260,12 +260,12 @@ export default function CartCheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#111827] mb-1">
+                <label className="block text-sm font-semibold text-km-ink mb-1">
                   No. WhatsApp / HP
                 </label>
                 <input
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-[#111827]
-                             ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                             ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                   value={form.recipientPhone}
                   onChange={(e) =>
                     setForm({ ...form, recipientPhone: e.target.value })
@@ -275,12 +275,12 @@ export default function CartCheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#111827] mb-1">
+                <label className="block text-sm font-semibold text-km-ink mb-1">
                   Alamat Lengkap
                 </label>
                 <textarea
-                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-[#111827]
-                             ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                             ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                   rows={3}
                   value={form.addressLine}
                   onChange={(e) =>
@@ -292,12 +292,12 @@ export default function CartCheckoutPage() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-semibold text-[#111827] mb-1">
+                  <label className="block text-sm font-semibold text-km-ink mb-1">
                     Kota
                   </label>
                   <input
-                    className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-[#111827]
-                               ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                               ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                     value={form.city}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
                     required
@@ -305,12 +305,12 @@ export default function CartCheckoutPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#111827] mb-1">
+                  <label className="block text-sm font-semibold text-km-ink mb-1">
                     Provinsi
                   </label>
                   <input
-                    className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-[#111827]
-                               ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                               ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                     value={form.province}
                     onChange={(e) =>
                       setForm({ ...form, province: e.target.value })
@@ -320,12 +320,12 @@ export default function CartCheckoutPage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-[#111827] mb-1">
+                  <label className="block text-sm font-semibold text-km-ink mb-1">
                     Kode Pos
                   </label>
                   <input
-                    className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-[#111827]
-                               ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-km-caramel/70"
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                               ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                     value={form.postalCode}
                     onChange={(e) =>
                       setForm({ ...form, postalCode: e.target.value })
@@ -339,8 +339,8 @@ export default function CartCheckoutPage() {
             {/* Pay button */}
             <button
               disabled={payDisabled}
-              className="w-full rounded-2xl bg-km-clay ring-1 ring-km-line px-4 py-3 text-sm font-semibold
-                         hover:bg-km-cream transition shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold
+                         text-white hover:opacity-90 transition shadow-soft disabled:opacity-60 disabled:cursor-not-allowed"
               type="submit"
             >
               {loadingPay
@@ -348,21 +348,21 @@ export default function CartCheckoutPage() {
                 : "Pesan Sekarang"}
             </button>
 
-            <p className="text-xs text-[#111827]/55 leading-relaxed">
+            <p className="text-xs text-km-ink/55 leading-relaxed">
               Setelah klik pesan, Anda akan diarahkan ke WhatsApp untuk konfirmasi pesanan.
             </p>
           </form>
 
           {/* Summary */}
-          <aside className="rounded-2xl bg-white p-5 md:p-6 ring-1 ring-black/5 shadow-md sticky top-24">
-            <h2 className="text-base md:text-lg font-semibold tracking-tight text-[#111827]">
+          <aside className="rounded-3xl border border-km-line bg-white p-5 md:p-6 shadow-soft sticky top-24">
+            <h2 className="text-base md:text-lg font-semibold tracking-tight text-km-ink">
               Ringkasan
             </h2>
 
-            <div className="mt-4 space-y-2 text-sm text-[#111827]/75">
+            <div className="mt-4 space-y-2 text-sm text-km-ink/70">
               <div className="flex items-center justify-between">
                 <span>Item</span>
-                <span className="font-semibold text-[#111827]">
+                <span className="font-semibold text-km-ink">
                   {loadingCart ? "..." : itemCount}
                 </span>
               </div>
@@ -375,13 +375,13 @@ export default function CartCheckoutPage() {
               </div>
             </div>
 
-            <div className="mt-5 h-px bg-black/10" />
+            <div className="mt-5 h-px bg-km-line" />
 
-            <div className="mt-5 rounded-2xl bg-km-clay p-4 ring-1 ring-km-line">
-              <p className="text-sm font-semibold text-[#111827]">
+            <div className="mt-5 rounded-2xl bg-km-surface-alt p-4 ring-1 ring-km-line">
+              <p className="text-sm font-semibold text-km-ink">
                 Tips
               </p>
-              <p className="mt-1 text-sm text-[#111827]/70">
+              <p className="mt-1 text-sm text-km-ink/70">
                 Pastikan nomor WhatsApp aktif untuk update pengiriman dan konfirmasi.
               </p>
             </div>
@@ -390,8 +390,8 @@ export default function CartCheckoutPage() {
               <button
                 type="button"
                 onClick={() => router.push("/cart")}
-                className="w-full rounded-2xl bg-km-cream ring-1 ring-km-line px-4 py-3
-                           text-sm font-semibold hover:bg-km-clay transition"
+                className="w-full rounded-full bg-white ring-1 ring-km-line px-4 py-3
+                           text-sm font-semibold text-km-ink hover:bg-km-surface-alt transition"
               >
                 Kembali ke Keranjang
               </button>

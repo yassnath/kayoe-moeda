@@ -1,8 +1,9 @@
 // app/produk/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
@@ -14,6 +15,27 @@ type ProdukItem = {
   capacity: number;
 };
 
+const CATEGORIES = [
+  { id: "all", label: "Semua" },
+  { id: "kursi", label: "Kursi" },
+  { id: "meja", label: "Meja" },
+  { id: "lemari", label: "Lemari" },
+  { id: "rak", label: "Rak" },
+];
+
+const SORTS = [
+  { id: "default", label: "Urutan default" },
+  { id: "price-asc", label: "Harga terendah" },
+  { id: "price-desc", label: "Harga tertinggi" },
+];
+
+const categoryKeywords: Record<string, string[]> = {
+  kursi: ["kursi", "chair", "sofa"],
+  meja: ["meja", "table"],
+  lemari: ["lemari", "wardrobe", "cabinet"],
+  rak: ["rak", "shelf"],
+};
+
 export default function ProdukPage() {
   const [produks, setProduks] = useState<ProdukItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +43,11 @@ export default function ProdukPage() {
   const [info, setInfo] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
 
-  // Ambil daftar produk dari API
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState("default");
+  const [view, setView] = useState<"grid" | "list">("grid");
+
   useEffect(() => {
     const fetchProduks = async () => {
       try {
@@ -79,7 +105,6 @@ export default function ProdukPage() {
     fetchProduks();
   }, []);
 
-  // Tambah ke cart
   const handleAddToCart = async (produkId: string) => {
     try {
       setError(null);
@@ -131,124 +156,269 @@ export default function ProdukPage() {
     }
   };
 
+  const filteredProduks = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    let result = [...produks];
+
+    if (normalizedQuery) {
+      result = result.filter((p) => {
+        const haystack = `${p.name} ${p.description}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      });
+    }
+
+    if (category !== "all") {
+      const keys = categoryKeywords[category] || [];
+      result = result.filter((p) => {
+        const haystack = `${p.name} ${p.description}`.toLowerCase();
+        return keys.some((k) => haystack.includes(k));
+      });
+    }
+
+    if (sort === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sort === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    }
+
+    return result;
+  }, [produks, query, category, sort]);
+
   return (
-    <div className="min-h-screen bg-transparent text-white">
-      <section className="relative w-full py-16 lg:py-20">
-        <div
-          className="absolute inset-0 opacity-75"
-          style={{
-            backgroundImage:
-              "radial-gradient(50% 50% at 90% 10%, rgba(244,234,210,0.28), transparent 60%), radial-gradient(50% 50% at 10% 90%, rgba(244,234,210,0.22), transparent 65%)",
-          }}
-        />
-        <div className="relative mx-auto w-full max-w-6xl px-4 md:px-6">
+    <div className="min-h-screen bg-[var(--km-bg)]">
+      <section className="w-full py-16 lg:py-20">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
           <div className="max-w-3xl">
-            <p className="text-xs uppercase tracking-[0.32em] text-white/55">
+            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
               Katalog
             </p>
-            <h1 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-white">
+            <h1 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-km-ink">
               Produk Kayoe Moeda
             </h1>
-            <p className="mt-3 text-sm text-white/70">
+            <p className="mt-3 text-sm text-km-ink/70 max-w-2xl">
               Temukan kursi, meja, dan perabotan kayu lainnya. Gunakan layanan
               custom untuk ukuran dan model yang lebih sesuai kebutuhan ruang.
             </p>
           </div>
 
+          <div className="mt-8 rounded-3xl border border-km-line bg-white p-4 shadow-soft">
+            <div className="grid gap-4 md:grid-cols-[1.5fr,1fr,1fr,auto] md:items-end">
+              <div>
+                <label className="text-xs font-semibold text-km-ink/70">
+                  Search Produk
+                </label>
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Cari nama produk"
+                  className="mt-2 w-full rounded-2xl border border-km-line px-4 py-3 text-sm
+                             text-km-ink placeholder:text-km-ink/45 focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-km-ink/70">
+                  Kategori
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-km-line bg-white px-4 py-3 text-sm
+                             text-km-ink focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                >
+                  {CATEGORIES.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-km-ink/70">
+                  Sort
+                </label>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-km-line bg-white px-4 py-3 text-sm
+                             text-km-ink focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                >
+                  {SORTS.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setView("grid")}
+                  aria-pressed={view === "grid"}
+                  className={`rounded-2xl px-4 py-3 text-sm font-semibold ring-1 transition ${
+                    view === "grid"
+                      ? "bg-km-wood text-white ring-km-wood"
+                      : "bg-white text-km-ink ring-km-line"
+                  }`}
+                >
+                  Grid
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView("list")}
+                  aria-pressed={view === "list"}
+                  className={`rounded-2xl px-4 py-3 text-sm font-semibold ring-1 transition ${
+                    view === "list"
+                      ? "bg-km-wood text-white ring-km-wood"
+                      : "bg-white text-km-ink ring-km-line"
+                  }`}
+                >
+                  List
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Alerts */}
           {error && (
-            <div className="mt-6 border border-red-500/40 bg-red-500/10 p-4 text-red-100">
+            <div className="mt-6 rounded-3xl border border-red-200 bg-red-50 p-4 text-red-700 shadow-soft">
               <p className="text-sm font-semibold">Terjadi kesalahan</p>
-              <p className="text-sm mt-1 text-red-100/90">{error}</p>
+              <p className="text-sm mt-1 text-red-700/90">{error}</p>
             </div>
           )}
 
           {info && (
-            <div className="mt-6 border border-emerald-400/40 bg-emerald-400/10 p-4 text-emerald-100">
+            <div className="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 shadow-soft">
               <p className="text-sm font-semibold">Berhasil</p>
-              <p className="text-sm mt-1 text-emerald-100/90">{info}</p>
+              <p className="text-sm mt-1 text-emerald-700/90">{info}</p>
             </div>
           )}
 
           {/* Content */}
-          <div className="mt-10">
+          <div className="mt-8">
             {loading ? (
-              <div className="border border-white/10 bg-white/5 p-6 text-white/70">
-                <p className="text-sm">Memuat produk...</p>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: view === "grid" ? 6 : 4 }).map((_, idx) => (
+                  <div
+                    key={`loading-${idx}`}
+                    className="rounded-3xl border border-km-line bg-white p-4 shadow-soft animate-pulse"
+                  >
+                    <div className="h-36 rounded-2xl bg-km-surface-alt" />
+                    <div className="mt-4 h-4 w-3/4 rounded-full bg-km-surface-alt" />
+                    <div className="mt-2 h-3 w-1/2 rounded-full bg-km-surface-alt" />
+                  </div>
+                ))}
               </div>
-            ) : produks.length === 0 ? (
-              <div className="border border-white/10 bg-white/5 p-8 text-center">
-                <p className="text-xs uppercase tracking-[0.32em] text-white/50">
+            ) : filteredProduks.length === 0 ? (
+              <div className="rounded-3xl border border-km-line bg-white p-8 text-center shadow-soft">
+                <p className="text-xs uppercase tracking-[0.32em] text-km-ink/40">
                   Empty state
                 </p>
-                <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-white">
-                  Belum ada produk tersedia
+                <h3 className="mt-3 text-lg md:text-xl font-semibold tracking-tight text-km-ink">
+                  Produk tidak ditemukan
                 </h3>
-                <p className="mt-2 text-sm text-white/70">
-                  Silakan cek kembali nanti atau ajukan pesanan custom.
+                <p className="mt-2 text-sm text-km-ink/70 max-w-md mx-auto">
+                  Coba ubah pencarian atau gunakan layanan custom untuk kebutuhan
+                  khusus.
                 </p>
+                <Link
+                  href="/custom-order"
+                  className="mt-6 inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
+                             bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+                >
+                  Ajukan Custom Order
+                </Link>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {produks.map((produk) => {
+              <div
+                className={
+                  view === "grid"
+                    ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    : "space-y-4"
+                }
+              >
+                {filteredProduks.map((produk) => {
                   const imageSrc = resolveImageSrc(produk.image);
+                  const waMessage = encodeURIComponent(
+                    `Halo Kayoe Moeda, saya tertarik dengan produk ${produk.name}.`
+                  );
 
                   return (
                     <article
                       key={produk.id}
-                      className="group relative min-h-[280px] overflow-hidden rounded-3xl border border-white/15 bg-[#071a14]/60
-                                 shadow-[0_16px_46px_rgba(6,18,14,0.45)]"
+                      className={`rounded-3xl border border-km-line bg-white shadow-soft overflow-hidden ${
+                        view === "list" ? "flex flex-col md:flex-row" : ""
+                      }`}
                     >
-                      <div className="absolute inset-0">
+                      <div
+                        className={`relative ${
+                          view === "list"
+                            ? "h-48 md:h-auto md:w-64"
+                            : "h-44 w-full"
+                        }`}
+                      >
                         <Image
                           src={imageSrc}
                           alt={produk.name}
                           fill
-                          className="object-cover transition duration-300 group-hover:scale-[1.04]"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
-                        <div
-                          className="absolute inset-0 opacity-80"
-                          style={{
-                            backgroundImage:
-                              "radial-gradient(45% 45% at 85% 0%, rgba(244,234,210,0.35), transparent 60%)",
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/80" />
                       </div>
 
-                      <div className="relative z-10 flex h-full flex-col justify-end p-5">
+                      <div className="flex-1 p-5 flex flex-col gap-3">
                         <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-base md:text-lg font-semibold text-white line-clamp-1">
+                          <h3 className="text-lg font-semibold text-km-ink">
                             {produk.name}
                           </h3>
-                        <span className="shrink-0 rounded-full border border-white/20 px-3 py-1 text-xs text-white/75">
-                          Stok {produk.capacity}
-                        </span>
-                      </div>
+                          <span className="shrink-0 rounded-full border border-km-line bg-km-surface-alt px-3 py-1 text-xs text-km-ink/70">
+                            Stok {produk.capacity}
+                          </span>
+                        </div>
 
-                        <p className="mt-2 text-sm text-white/70 line-clamp-2 leading-relaxed">
+                        <p className="text-sm text-km-ink/70 line-clamp-3 leading-relaxed">
                           {produk.description}
                         </p>
 
-                        <div className="mt-3 flex items-center justify-between">
-                          <p className="text-base md:text-lg font-semibold text-[#f4ead2]">
+                        <div className="flex items-center justify-between">
+                          <p className="text-base font-semibold text-km-ink">
                             Rp {produk.price.toLocaleString("id-ID")}
                           </p>
-                          <p className="text-xs text-white/55">Ready stock</p>
+                          <p className="text-xs text-km-ink/50">Ready stock</p>
                         </div>
 
-                        <button
-                          onClick={() => handleAddToCart(produk.id)}
-                          disabled={addingId === produk.id}
-                          className="mt-4 inline-flex items-center justify-center px-4 py-2 text-sm font-semibold
-                                     bg-km-brass text-km-wood ring-1 ring-white/20 hover:opacity-90 transition
-                                     disabled:opacity-60 disabled:cursor-not-allowed"
-                        >
-                          {addingId === produk.id
-                            ? "Menambahkan..."
-                            : "Tambah ke keranjang"}
-                        </button>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          <Link
+                            href={`/produk/${produk.id}`}
+                            className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                       bg-white text-km-ink ring-1 ring-km-line hover:bg-km-surface-alt transition no-underline"
+                          >
+                            Detail
+                          </Link>
+                          <a
+                            href={`https://wa.me/6285771753354?text=${waMessage}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                       bg-km-brass text-white ring-1 ring-km-brass hover:opacity-90 transition"
+                          >
+                            WhatsApp
+                          </a>
+                          <button
+                            onClick={() => handleAddToCart(produk.id)}
+                            disabled={addingId === produk.id}
+                            className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                       bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition
+                                       disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {addingId === produk.id
+                              ? "Menambahkan..."
+                              : "Tambah ke keranjang"}
+                          </button>
+                        </div>
                       </div>
                     </article>
                   );
