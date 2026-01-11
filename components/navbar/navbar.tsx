@@ -243,7 +243,8 @@ export default function Navbar() {
                 <button
                   onClick={() => signOut({ callbackUrl: "/signin" })}
                   className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
-                             bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition shadow-sm"
+                             bg-km-brass text-km-wood ring-1 ring-km-brass hover:bg-km-wood hover:text-white
+                             transition shadow-sm"
                 >
                   Sign Out
                 </button>
@@ -251,7 +252,8 @@ export default function Navbar() {
                 <Link
                   href="/signin"
                   className="inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
-                             bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition shadow-sm no-underline"
+                             bg-km-brass text-km-wood ring-1 ring-km-brass hover:bg-km-wood hover:text-white
+                             transition shadow-sm no-underline"
                 >
                   Sign In
                 </Link>

@@ -34,7 +34,7 @@ const Hero = () => {
               <Link
                 href="/produk"
                 className="no-underline inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold
-                         bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition shadow-soft"
+                         bg-white text-km-ink ring-1 ring-km-line hover:bg-km-surface-alt transition"
               >
                 Lihat Produk
               </Link>
