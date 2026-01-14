@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getprodukById } from "@/lib/data";
 import { resolveImageSrc } from "@/lib/utils";
 
+export const runtime = "nodejs";
+
 interface ProdukDetailProps {
   params: { id: string };
 }

@@ -27,8 +27,7 @@ type CreateOrderResponse = {
   message?: string;
 };
 
-const ADMIN_WA_NUMBER =
-  process.env.NEXT_PUBLIC_ADMIN_WA || "085771753354";
+const ADMIN_WA_NUMBER = process.env.NEXT_PUBLIC_ADMIN_WA;
 
 export default function CartCheckoutPage() {
   const router = useRouter();
@@ -188,7 +187,9 @@ export default function CartCheckoutPage() {
         postalCode: form.postalCode,
       });
 
-      const waNumber = normalizePhoneForWa(ADMIN_WA_NUMBER);
+      const waNumber = ADMIN_WA_NUMBER
+        ? normalizePhoneForWa(ADMIN_WA_NUMBER)
+        : "";
       const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(
         message
       )}`;
@@ -197,7 +198,7 @@ export default function CartCheckoutPage() {
         orderId: orderData?.orderId,
         orderCode: orderData?.orderCode,
       });
-      setWaUrl(waUrl);
+      setWaUrl(waNumber ? waUrl : null);
     } catch (err) {
       console.error(err);
       setError("Terjadi kesalahan saat memproses pesanan.");
@@ -223,6 +224,11 @@ export default function CartCheckoutPage() {
               Setelah pembayaran, upload bukti pembayaran di halaman Riwayat
               Pesanan.
             </p>
+            {!waUrl && (
+              <p className="mt-2 text-xs text-red-600">
+                Nomor WhatsApp admin belum diatur.
+              </p>
+            )}
             <div className="mt-4 rounded-2xl bg-km-surface-alt p-3 text-sm text-km-ink/70">
               Order ID:{" "}
               <span className="font-mono text-km-ink">
@@ -234,9 +240,10 @@ export default function CartCheckoutPage() {
               <button
                 type="button"
                 onClick={() =>
-                  window.open(waUrl, "_blank", "noopener,noreferrer")
+                  waUrl && window.open(waUrl, "_blank", "noopener,noreferrer")
                 }
-                className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition"
+                disabled={!waUrl}
+                className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
               >
                 Buka WhatsApp
               </button>

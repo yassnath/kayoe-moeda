@@ -264,15 +264,26 @@ export default function CartPage() {
               <div className="mt-5 h-px bg-km-line" />
 
               {/* ✅ tombol navigasi ke checkout cart */}
-              <Link href="/cart/checkout" className="block mt-5">
-                <button
-                  className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold
-                             text-white hover:opacity-90 transition shadow-soft"
-                  type="button"
-                >
-                  Pesan Sekarang
-                </button>
-              </Link>
+              <div className="mt-5 space-y-3">
+                <Link href="/cart/checkout" className="block">
+                  <button
+                    className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold
+                               text-white hover:opacity-90 transition shadow-soft"
+                    type="button"
+                  >
+                    Lanjut ke Checkout
+                  </button>
+                </Link>
+                <Link href="/cart/checkout" className="block">
+                  <button
+                    className="w-full rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
+                               text-white hover:opacity-90 transition shadow-soft"
+                    type="button"
+                  >
+                    Pesan via WhatsApp
+                  </button>
+                </Link>
+              </div>
 
               <p className="text-xs text-km-ink/60 mt-3 leading-relaxed">
                 * Anda akan diarahkan ke WhatsApp setelah checkout untuk konfirmasi pesanan.

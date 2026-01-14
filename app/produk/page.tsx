@@ -42,6 +42,7 @@ export default function ProdukPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA ?? "";
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -345,6 +346,9 @@ export default function ProdukPage() {
                   const waMessage = encodeURIComponent(
                     `Halo Kayoe Moeda, saya tertarik dengan produk ${produk.name}.`
                   );
+                  const waNumber = adminWa
+                    ? adminWa.replace(/[^\d]/g, "").replace(/^0/, "62")
+                    : "";
 
                   return (
                     <article
@@ -406,15 +410,25 @@ export default function ProdukPage() {
                         >
                           Pesan sekarang
                         </Link>
-                        <a
-                          href={`https://wa.me/6285771753354?text=${waMessage}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
-                                     bg-km-brass text-white ring-1 ring-km-brass hover:opacity-90 transition"
-                        >
-                          WhatsApp
-                        </a>
+                        {waNumber ? (
+                          <a
+                            href={`https://wa.me/${waNumber}?text=${waMessage}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                       bg-km-brass text-white ring-1 ring-km-brass hover:opacity-90 transition"
+                          >
+                            WhatsApp
+                          </a>
+                        ) : (
+                          <span
+                            className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                       bg-km-surface-alt text-km-ink/60 ring-1 ring-km-line"
+                            title="Nomor WhatsApp admin belum diatur"
+                          >
+                            WhatsApp
+                          </span>
+                        )}
                         <button
                           onClick={() => handleAddToCart(produk.id)}
                           disabled={addingId === produk.id}
