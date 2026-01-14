@@ -28,7 +28,7 @@ async function uploadProof(file: File, orderId: string): Promise<string> {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -41,7 +41,7 @@ export async function POST(
       );
     }
 
-    const orderId = params?.id;
+    const { id: orderId } = await params;
     if (!orderId) {
       return NextResponse.json(
         { message: "Order tidak ditemukan." },

@@ -152,13 +152,13 @@ export default function Navbar() {
                     inline-flex items-center justify-center
                     w-11 h-11
                     rounded-full
-                    bg-km-wood
-                    text-white
+                    bg-km-surface-alt
+                    text-km-wood
                     ring-1 ring-km-line
                     shadow-sm
                     hover:shadow-soft
+                    hover:bg-km-sand
                     hover:ring-km-ink/30
-                    hover:opacity-90
                     transition-all
                     duration-200
                   "
@@ -173,7 +173,7 @@ export default function Navbar() {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                     className="
-                      text-white
+                      text-km-wood
                       transition-transform
                       duration-200
                       group-hover:scale-110

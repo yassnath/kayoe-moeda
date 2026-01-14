@@ -3,6 +3,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { resolveImageSrc } from "@/lib/utils";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 type CustomOrderItem = {
   id: string;
@@ -24,6 +26,8 @@ type FieldErrors = {
 };
 
 export default function CustomOrderCustomerPage() {
+  const { status } = useSession();
+  const isLoggedIn = status === "authenticated";
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -224,7 +228,7 @@ export default function CustomOrderCustomerPage() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[1fr,0.9fr] items-start">
             {/* FORM */}
-            <div className="rounded-3xl border border-km-line bg-white p-6 md:p-8 shadow-soft">
+            <div className="relative rounded-3xl border border-km-line bg-white p-6 md:p-8 shadow-soft">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-base md:text-lg font-semibold tracking-tight text-km-ink">
@@ -248,6 +252,7 @@ export default function CustomOrderCustomerPage() {
                     </label>
                     <input
                       name="customerName"
+                      disabled={!isLoggedIn}
                       className="w-full rounded-2xl px-4 py-3 text-sm text-km-ink
                                  ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                       placeholder="Nama lengkap"
@@ -269,6 +274,7 @@ export default function CustomOrderCustomerPage() {
                     <input
                       type="email"
                       name="email"
+                      disabled={!isLoggedIn}
                       className="w-full rounded-2xl px-4 py-3 text-sm text-km-ink
                                  ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                       placeholder="email@example.com"
@@ -289,6 +295,7 @@ export default function CustomOrderCustomerPage() {
                     </label>
                     <input
                       name="phone"
+                      disabled={!isLoggedIn}
                       className="w-full rounded-2xl px-4 py-3 text-sm text-km-ink
                                  ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                       placeholder="Contoh: 08123456789"
@@ -310,6 +317,7 @@ export default function CustomOrderCustomerPage() {
                   </label>
                   <input
                     name="orderName"
+                    disabled={!isLoggedIn}
                     className="w-full rounded-2xl px-4 py-3 text-sm text-km-ink
                              ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                     placeholder="Contoh: Set meja makan 4 kursi"
@@ -330,6 +338,7 @@ export default function CustomOrderCustomerPage() {
                   </label>
                   <select
                     name="orderType"
+                    disabled={!isLoggedIn}
                     className="w-full rounded-2xl px-4 py-3 text-sm text-km-ink
                              ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60 bg-white"
                     defaultValue=""
@@ -360,6 +369,7 @@ export default function CustomOrderCustomerPage() {
                   <textarea
                     name="description"
                     rows={4}
+                    disabled={!isLoggedIn}
                     className="w-full rounded-2xl px-4 py-3 text-sm text-km-ink
                              ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
                     placeholder="Tulis ukuran, material, warna, jumlah, dan referensi desain..."
@@ -410,6 +420,7 @@ export default function CustomOrderCustomerPage() {
                     name="image"
                     accept=".png,.jpg,.jpeg,.webp"
                     className="hidden"
+                    disabled={!isLoggedIn}
                     onChange={(e) => setFileName(e.target.files?.[0]?.name || null)}
                   />
                   <p className="mt-1 text-xs text-km-ink/50">
@@ -418,9 +429,9 @@ export default function CustomOrderCustomerPage() {
                 </div>
 
                 <button
-                  disabled={submitting}
-                  className="w-full rounded-2xl bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold
-                           text-white hover:opacity-90 transition shadow-soft disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={submitting || !isLoggedIn}
+                  className="w-full rounded-2xl bg-km-brass ring-1 ring-km-brass px-4 py-3 text-sm font-semibold
+                           text-km-wood hover:opacity-90 transition shadow-soft disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {submitting ? "Mengirim..." : "Kirim Permintaan Custom"}
                 </button>
@@ -435,6 +446,26 @@ export default function CustomOrderCustomerPage() {
                   </p>
                 </div>
               </form>
+
+              {!isLoggedIn && (
+                <div className="absolute inset-0 rounded-3xl bg-white/80 backdrop-blur-sm flex items-center justify-center p-6">
+                  <div className="max-w-sm rounded-2xl bg-white ring-1 ring-km-line p-5 text-center shadow-soft">
+                    <p className="text-sm font-semibold text-km-ink">
+                      Login diperlukan
+                    </p>
+                    <p className="mt-2 text-sm text-km-ink/70">
+                      Silakan login untuk mengisi dan mengirim custom order.
+                    </p>
+                    <Link
+                      href="/signin?callbackUrl=/custom-order"
+                      className="mt-4 inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
+                                 bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+                    >
+                      Login
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* RIWAYAT */}

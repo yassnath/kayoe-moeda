@@ -42,6 +42,7 @@ export default function ProdukPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA ?? "";
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -345,6 +346,9 @@ export default function ProdukPage() {
                   const waMessage = encodeURIComponent(
                     `Halo Kayoe Moeda, saya tertarik dengan produk ${produk.name}.`
                   );
+                  const waNumber = adminWa
+                    ? adminWa.replace(/[^\d]/g, "").replace(/^0/, "62")
+                    : "";
 
                   return (
                     <article
@@ -353,53 +357,62 @@ export default function ProdukPage() {
                         view === "list" ? "flex flex-col md:flex-row" : ""
                       }`}
                     >
-                      <div
-                        className={`relative ${
-                          view === "list"
-                            ? "h-48 md:h-auto md:w-64"
-                            : "h-44 w-full"
+                      <Link
+                        href={`/produk/${produk.id}`}
+                        className={`block ${
+                          view === "list" ? "md:flex md:w-full" : ""
                         }`}
                       >
-                        <Image
-                          src={imageSrc}
-                          alt={produk.name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                      </div>
-
-                      <div className="flex-1 p-5 flex flex-col gap-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-lg font-semibold text-km-ink">
-                            {produk.name}
-                          </h3>
-                          <span className="shrink-0 rounded-full border border-km-line bg-km-surface-alt px-3 py-1 text-xs text-km-ink/70">
-                            Stok {produk.capacity}
-                          </span>
+                        <div
+                          className={`relative ${
+                            view === "list"
+                              ? "h-48 md:h-auto md:w-64"
+                              : "h-44 w-full"
+                          }`}
+                        >
+                          <Image
+                            src={imageSrc}
+                            alt={produk.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          />
                         </div>
 
-                        <p className="text-sm text-km-ink/70 line-clamp-3 leading-relaxed">
-                          {produk.description}
-                        </p>
+                        <div className="flex-1 p-5 flex flex-col gap-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="text-lg font-semibold text-km-ink">
+                              {produk.name}
+                            </h3>
+                            <span className="shrink-0 rounded-full border border-km-line bg-km-surface-alt px-3 py-1 text-xs text-km-ink/70">
+                              Stok {produk.capacity}
+                            </span>
+                          </div>
 
-                        <div className="flex items-center justify-between">
-                          <p className="text-base font-semibold text-km-ink">
-                            Rp {produk.price.toLocaleString("id-ID")}
+                          <p className="text-sm text-km-ink/70 line-clamp-3 leading-relaxed">
+                            {produk.description}
                           </p>
-                          <p className="text-xs text-km-ink/50">Ready stock</p>
-                        </div>
 
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          <Link
-                            href={`/produk/${produk.id}`}
-                            className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
-                                       bg-white text-km-ink ring-1 ring-km-line hover:bg-km-surface-alt transition no-underline"
-                          >
-                            Detail
-                          </Link>
+                          <div className="flex items-center justify-between">
+                            <p className="text-base font-semibold text-km-ink">
+                              Rp {produk.price.toLocaleString("id-ID")}
+                            </p>
+                            <p className="text-xs text-km-ink/50">Ready stock</p>
+                          </div>
+                        </div>
+                      </Link>
+
+                      <div className="flex flex-wrap gap-2 px-5 pb-5 pt-2">
+                        <Link
+                          href={`/checkout?produkId=${produk.id}`}
+                          className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                     bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+                        >
+                          Pesan sekarang
+                        </Link>
+                        {waNumber ? (
                           <a
-                            href={`https://wa.me/6285771753354?text=${waMessage}`}
+                            href={`https://wa.me/${waNumber}?text=${waMessage}`}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
@@ -407,18 +420,26 @@ export default function ProdukPage() {
                           >
                             WhatsApp
                           </a>
-                          <button
-                            onClick={() => handleAddToCart(produk.id)}
-                            disabled={addingId === produk.id}
+                        ) : (
+                          <span
                             className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
-                                       bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition
-                                       disabled:opacity-60 disabled:cursor-not-allowed"
+                                       bg-km-surface-alt text-km-ink/60 ring-1 ring-km-line"
+                            title="Nomor WhatsApp admin belum diatur"
                           >
-                            {addingId === produk.id
-                              ? "Menambahkan..."
-                              : "Tambah ke keranjang"}
-                          </button>
-                        </div>
+                            WhatsApp
+                          </span>
+                        )}
+                        <button
+                          onClick={() => handleAddToCart(produk.id)}
+                          disabled={addingId === produk.id}
+                          className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                                     bg-white text-km-ink ring-1 ring-km-line hover:bg-km-surface-alt transition
+                                     disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {addingId === produk.id
+                            ? "Menambahkan..."
+                            : "Tambah ke keranjang"}
+                        </button>
                       </div>
                     </article>
                   );

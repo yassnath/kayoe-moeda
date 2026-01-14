@@ -5,8 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
-const ADMIN_WA_NUMBER =
-  process.env.NEXT_PUBLIC_ADMIN_WA || "085771753354";
+const ADMIN_WA_NUMBER = process.env.NEXT_PUBLIC_ADMIN_WA;
 
 const isAllowedImage = (file: File) =>
   ALLOWED_IMAGE_TYPES.includes(file.type?.toLowerCase());
@@ -182,20 +181,22 @@ export default function HistoryOrderPage() {
         )
       );
 
-      const waNumber = normalizePhoneForWa(ADMIN_WA_NUMBER);
+      const waNumber = ADMIN_WA_NUMBER
+        ? normalizePhoneForWa(ADMIN_WA_NUMBER)
+        : "";
       const waMessage = buildWhatsappMessage({
         orderCode: currentOrder?.orderCode,
       });
-      const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(
-        waMessage
-      )}`;
+      const waUrl = waNumber
+        ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`
+        : "";
 
       setSelectedFiles((prev) => ({ ...prev, [orderId]: null }));
       setUploadNotice({
         type: "success",
         message: "Bukti pembayaran berhasil diunggah.",
         orderId,
-        waUrl,
+        waUrl: waUrl || undefined,
       });
     } catch (e) {
       console.error(e);

@@ -151,7 +151,7 @@ export default function SignInPage() {
                 <div className="flex justify-end">
                   <Link
                     href="/forgot-password"
-                    className="text-sm font-semibold text-km-ink hover:opacity-80 transition"
+                    className="text-sm font-semibold text-km-brass hover:text-km-wood transition"
                   >
                     Lupa password?
                   </Link>
@@ -171,7 +171,7 @@ export default function SignInPage() {
                 Belum punya akun?{" "}
                 <Link
                   href="/signup"
-                  className="font-semibold text-km-ink hover:opacity-80 transition no-underline"
+                  className="font-semibold text-km-brass hover:text-km-wood transition no-underline"
                 >
                   Daftar
                 </Link>

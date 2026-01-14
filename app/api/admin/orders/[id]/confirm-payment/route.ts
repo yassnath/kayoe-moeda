@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -19,7 +19,7 @@ export async function POST(
       );
     }
 
-    const id = params?.id;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { message: "ID pesanan tidak ditemukan di URL" },
