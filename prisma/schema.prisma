@@ -308,6 +308,10 @@ model Order {
   province       String?
   postalCode     String?
 
+  // bukti pembayaran (upload oleh pelanggan)
+  paymentProofUrl        String?
+  paymentProofUploadedAt DateTime?
+
   items OrderItem[]
 
   createdAt DateTime @default(now())

@@ -27,6 +27,9 @@ type CreateOrderResponse = {
   message?: string;
 };
 
+const ADMIN_WA_NUMBER =
+  process.env.NEXT_PUBLIC_ADMIN_WA || "085771753354";
+
 export default function CartCheckoutPage() {
   const router = useRouter();
 
@@ -35,6 +38,11 @@ export default function CartCheckoutPage() {
 
   const [loadingPay, setLoadingPay] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checkoutResult, setCheckoutResult] = useState<{
+    orderId?: string;
+    orderCode?: string;
+  } | null>(null);
+  const [waUrl, setWaUrl] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     recipientName: "",
@@ -180,12 +188,16 @@ export default function CartCheckoutPage() {
         postalCode: form.postalCode,
       });
 
-      const waNumber = normalizePhoneForWa("085771753354");
+      const waNumber = normalizePhoneForWa(ADMIN_WA_NUMBER);
       const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(
         message
       )}`;
 
-      window.location.href = waUrl;
+      setCheckoutResult({
+        orderId: orderData?.orderId,
+        orderCode: orderData?.orderCode,
+      });
+      setWaUrl(waUrl);
     } catch (err) {
       console.error(err);
       setError("Terjadi kesalahan saat memproses pesanan.");
@@ -198,6 +210,57 @@ export default function CartCheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[var(--km-bg)]">
+      {checkoutResult && waUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-soft">
+            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
+              Pesanan dibuat
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-km-ink">
+              Silakan lanjutkan pembayaran
+            </h2>
+            <p className="mt-2 text-sm text-km-ink/70">
+              Setelah pembayaran, upload bukti pembayaran di halaman Riwayat
+              Pesanan.
+            </p>
+            <div className="mt-4 rounded-2xl bg-km-surface-alt p-3 text-sm text-km-ink/70">
+              Order ID:{" "}
+              <span className="font-mono text-km-ink">
+                {checkoutResult.orderId || "-"}
+              </span>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  window.open(waUrl, "_blank", "noopener,noreferrer")
+                }
+                className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition"
+              >
+                Buka WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/history-order")}
+                className="w-full rounded-full bg-white ring-1 ring-km-line px-4 py-3 text-sm font-semibold text-km-ink hover:bg-km-surface-alt transition"
+              >
+                Ke Riwayat Pesanan
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCheckoutResult(null);
+                  setWaUrl(null);
+                }}
+                className="text-xs text-km-ink/60 hover:text-km-ink"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* OPSI B: container per page */}
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
         {/* Header */}

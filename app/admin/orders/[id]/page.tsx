@@ -26,6 +26,8 @@ type OrderDetail = {
   paymentStatus: string;
   shippingStatus: string;
   createdAt: string;
+  paymentProofUrl: string | null;
+  paymentProofUploadedAt: string | null;
   recipientName: string | null;
   recipientPhone: string | null;
   addressLine: string | null;
@@ -46,6 +48,13 @@ export default function AdminOrderDetailPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [statusValue, setStatusValue] = useState<string>("PENDING");
+  const [confirmingPayment, setConfirmingPayment] = useState(false);
+  const [confirmPaymentError, setConfirmPaymentError] = useState<string | null>(
+    null
+  );
+  const [confirmPaymentSuccess, setConfirmPaymentSuccess] = useState<
+    string | null
+  >(null);
 
   const fetchDetail = async () => {
     if (!id) return;
@@ -188,6 +197,55 @@ export default function AdminOrderDetailPage() {
     }
   };
 
+  const handleConfirmPayment = async () => {
+    if (!id) return;
+    setConfirmingPayment(true);
+    setConfirmPaymentError(null);
+    setConfirmPaymentSuccess(null);
+
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/confirm-payment`, {
+        method: "POST",
+      });
+
+      let data: unknown = null;
+      try {
+        data = await res.json();
+      } catch {
+        console.error("Response POST /api/admin/orders/[id]/confirm-payment bukan JSON");
+      }
+
+      if (!res.ok) {
+        const message =
+          data &&
+          typeof data === "object" &&
+          data !== null &&
+          "message" in data &&
+          typeof (data as any).message === "string"
+            ? (data as any).message
+            : "Gagal konfirmasi pembayaran";
+        setConfirmPaymentError(message);
+        return;
+      }
+
+      if (data && typeof data === "object") {
+        const updated = data as OrderDetail;
+        setOrder(updated);
+      }
+
+      setConfirmPaymentSuccess("Pembayaran berhasil dikonfirmasi.");
+    } catch (err) {
+      console.error(err);
+      setConfirmPaymentError(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat konfirmasi pembayaran"
+      );
+    } finally {
+      setConfirmingPayment(false);
+    }
+  };
+
   if (!id) {
     return (
       <div className="p-4 sm:p-6">
@@ -257,6 +315,20 @@ export default function AdminOrderDetailPage() {
           )}
         </div>
       )}
+      {(confirmPaymentError || confirmPaymentSuccess) && (
+        <div className="mt-3 space-y-2">
+          {confirmPaymentError && (
+            <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded text-sm">
+              {confirmPaymentError}
+            </div>
+          )}
+          {confirmPaymentSuccess && (
+            <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded text-sm">
+              {confirmPaymentSuccess}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="border rounded-lg bg-white p-4 space-y-3">
         <div className="text-sm text-gray-700">
@@ -319,6 +391,32 @@ export default function AdminOrderDetailPage() {
               (order.postalCode ? `, ${order.postalCode}` : "")}
           </div>
         </div>
+
+        <div className="border-t pt-3 text-sm text-gray-700 space-y-1">
+          <div className="font-semibold">Bukti Pembayaran</div>
+          {order.paymentProofUrl ? (
+            <div className="space-y-1">
+              <a
+                href={order.paymentProofUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 hover:underline text-sm"
+              >
+                Lihat bukti pembayaran
+              </a>
+              <div className="text-xs text-gray-500">
+                Diunggah:{" "}
+                {order.paymentProofUploadedAt
+                  ? new Date(order.paymentProofUploadedAt).toLocaleString(
+                      "id-ID"
+                    )
+                  : "-"}
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">Belum ada bukti.</div>
+          )}
+        </div>
       </div>
 
       {/* Form ubah status */}
@@ -350,6 +448,30 @@ export default function AdminOrderDetailPage() {
             {saving ? "Menyimpan..." : "Simpan Status"}
           </button>
         </form>
+      </div>
+
+      {/* Konfirmasi pembayaran */}
+      <div className="border rounded-lg bg-white p-4 space-y-3">
+        <h2 className="text-sm font-semibold">Konfirmasi Pembayaran</h2>
+        <p className="text-xs text-gray-500">
+          Set pembayaran ke PAID tanpa mengubah status pengiriman.
+        </p>
+        <button
+          type="button"
+          onClick={handleConfirmPayment}
+          disabled={
+            confirmingPayment ||
+            order.paymentStatus === "PAID" ||
+            order.paymentStatus === "CANCELLED"
+          }
+          className="w-full sm:w-auto bg-emerald-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-emerald-700 disabled:opacity-60"
+        >
+          {confirmingPayment
+            ? "Mengonfirmasi..."
+            : order.paymentStatus === "PAID"
+            ? "Sudah PAID"
+            : "Konfirmasi Pembayaran"}
+        </button>
       </div>
     </div>
   );
