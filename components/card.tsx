@@ -23,7 +23,7 @@ const Card = ({ produk }: { produk: Produk }) => {
       <div className="p-8">
         <h4 className="text-2xl font-semibold text-km-ink">
           <Link
-            href={`/produk/${produk.id}`}
+            href={`/detail-produk/${produk.id}`}
             className="hover:opacity-80 transition duration-150"
           >
             {produk.name}
@@ -44,7 +44,7 @@ const Card = ({ produk }: { produk: Produk }) => {
             </span>
           </div>
           <Link
-            href={`/produk/${produk.id}`}
+            href={`/detail-produk/${produk.id}`}
             className="rounded-full bg-km-wood px-6 py-2.5 md:px-10 md:py-3 text-sm font-semibold text-white
                        ring-1 ring-km-wood hover:opacity-90 transition duration-150"
           >
