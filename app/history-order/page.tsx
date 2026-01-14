@@ -3,6 +3,29 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const ADMIN_WA_NUMBER =
+  process.env.NEXT_PUBLIC_ADMIN_WA || "085771753354";
+
+const isAllowedImage = (file: File) =>
+  ALLOWED_IMAGE_TYPES.includes(file.type?.toLowerCase());
+
+const normalizePhoneForWa = (phone: string) => {
+  const digits = phone.replace(/[^\d]/g, "");
+  if (digits.startsWith("0")) return `62${digits.slice(1)}`;
+  return digits;
+};
+
+const buildWhatsappMessage = (payload: { orderCode?: string }) =>
+  [
+    "Halo Admin Kayoe Moeda, saya sudah upload bukti pembayaran.",
+    payload.orderCode ? `Kode Pesanan: ${payload.orderCode}` : null,
+    "Mohon konfirmasi pembayaran ya. Terima kasih.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
 type OrderItem = {
   id: string;
   name: string;
@@ -18,6 +41,8 @@ type Order = {
   shippingStatus: string;
   grossAmount: number;
   createdAt: string;
+  paymentProofUrl: string | null;
+  paymentProofUploadedAt: string | null;
   recipientName: string | null;
   recipientPhone: string | null;
   addressLine: string | null;
@@ -46,6 +71,16 @@ export default function HistoryOrderPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [uploadNotice, setUploadNotice] = useState<{
+    type: "success" | "error";
+    message: string;
+    orderId: string;
+    waUrl?: string;
+  } | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<
+    Record<string, File | null>
+  >({});
 
   const fetchHistory = async () => {
     setLoading(true);
@@ -74,6 +109,105 @@ export default function HistoryOrderPage() {
   useEffect(() => {
     fetchHistory();
   }, []);
+
+  const handleUploadProof = async (orderId: string) => {
+    const file = selectedFiles[orderId] ?? null;
+    setUploadNotice(null);
+    const currentOrder = orders.find((o) => o.id === orderId);
+
+    if (!file) {
+      setUploadNotice({
+        type: "error",
+        message: "Pilih file bukti pembayaran terlebih dahulu.",
+        orderId,
+      });
+      return;
+    }
+
+    if (!isAllowedImage(file)) {
+      setUploadNotice({
+        type: "error",
+        message: "Format file tidak didukung (JPG/PNG/WEBP).",
+        orderId,
+      });
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setUploadNotice({
+        type: "error",
+        message: "Ukuran file maksimal 5MB.",
+        orderId,
+      });
+      return;
+    }
+
+    setUploadingId(orderId);
+
+    try {
+      const formData = new FormData();
+      formData.append("paymentProof", file);
+
+      const res = await fetch(`/api/orders/${orderId}/payment-proof`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setUploadNotice({
+          type: "error",
+          message: data?.message || "Gagal mengunggah bukti pembayaran.",
+          orderId,
+        });
+        return;
+      }
+
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === orderId
+            ? {
+                ...o,
+                paymentProofUrl:
+                  typeof data?.paymentProofUrl === "string"
+                    ? data.paymentProofUrl
+                    : o.paymentProofUrl,
+                paymentProofUploadedAt:
+                  typeof data?.paymentProofUploadedAt === "string"
+                    ? data.paymentProofUploadedAt
+                    : o.paymentProofUploadedAt,
+              }
+            : o
+        )
+      );
+
+      const waNumber = normalizePhoneForWa(ADMIN_WA_NUMBER);
+      const waMessage = buildWhatsappMessage({
+        orderCode: currentOrder?.orderCode,
+      });
+      const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(
+        waMessage
+      )}`;
+
+      setSelectedFiles((prev) => ({ ...prev, [orderId]: null }));
+      setUploadNotice({
+        type: "success",
+        message: "Bukti pembayaran berhasil diunggah.",
+        orderId,
+        waUrl,
+      });
+    } catch (e) {
+      console.error(e);
+      setUploadNotice({
+        type: "error",
+        message: "Terjadi kesalahan saat upload bukti pembayaran.",
+        orderId,
+      });
+    } finally {
+      setUploadingId(null);
+    }
+  };
 
   const content = useMemo(() => {
     if (loading) {
@@ -173,6 +307,9 @@ export default function HistoryOrderPage() {
                   >
                     Pesanan: {orderLabel}
                   </span>
+                  <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white ring-1 ring-km-line text-km-ink">
+                    Pembayaran: {o.paymentStatus}
+                  </span>
                 </div>
               </div>
 
@@ -226,6 +363,83 @@ export default function HistoryOrderPage() {
                           (o.postalCode ? `, ${o.postalCode}` : "")}
                       </div>
                     </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-white ring-1 ring-km-line p-4">
+                    <div className="text-sm font-semibold text-km-ink">
+                      Bukti Pembayaran
+                    </div>
+
+                    {o.paymentProofUrl ? (
+                      <div className="mt-3 space-y-1 text-sm text-km-ink/75">
+                        <a
+                          href={o.paymentProofUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-km-brass underline"
+                        >
+                          Lihat bukti pembayaran
+                        </a>
+                        <div className="text-xs text-km-ink/50">
+                          Diunggah:{" "}
+                          {o.paymentProofUploadedAt
+                            ? new Date(o.paymentProofUploadedAt).toLocaleString(
+                                "id-ID"
+                              )
+                            : "-"}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-3 space-y-2">
+                        <input
+                          type="file"
+                          accept={ALLOWED_IMAGE_TYPES.join(",")}
+                          className="block w-full text-sm text-km-ink/80"
+                          onChange={(e) =>
+                            setSelectedFiles((prev) => ({
+                              ...prev,
+                              [o.id]: e.target.files?.[0] ?? null,
+                            }))
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleUploadProof(o.id)}
+                          disabled={uploadingId === o.id}
+                          className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-2 text-xs font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
+                        >
+                          {uploadingId === o.id ? "Mengunggah..." : "Upload Bukti"}
+                        </button>
+                        <p className="text-xs text-km-ink/55">
+                          Format JPG/PNG/WEBP, maksimal 5MB.
+                        </p>
+                      </div>
+                    )}
+
+                    {uploadNotice?.orderId === o.id && (
+                      <div
+                        className={`mt-3 rounded-2xl px-3 py-2 text-xs ${
+                          uploadNotice.type === "success"
+                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                            : "bg-red-50 text-red-700 ring-1 ring-red-200"
+                        }`}
+                      >
+                        {uploadNotice.message}
+                        {uploadNotice.type === "success" &&
+                          uploadNotice.waUrl && (
+                            <div className="mt-2">
+                              <a
+                                href={uploadNotice.waUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="underline text-emerald-800"
+                              >
+                                Kirim notifikasi WhatsApp ke admin
+                              </a>
+                            </div>
+                          )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
