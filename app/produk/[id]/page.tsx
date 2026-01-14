@@ -5,6 +5,8 @@ import { getprodukById } from "@/lib/data";
 import { resolveImageSrc } from "@/lib/utils";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface ProdukDetailProps {
   params: { id: string };
