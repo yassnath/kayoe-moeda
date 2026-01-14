@@ -51,6 +51,14 @@ type Order = {
   items: OrderItem[];
 };
 
+const BANK_INFO = {
+  name: "BCA",
+  accountNumber: "1234 5678 90",
+  accountName: "Kayoe Moeda",
+};
+
+const PAYMENT_DEADLINE_MS = 24 * 60 * 60 * 1000;
+
 function badgeClass(label: string) {
   const v = (label || "").toUpperCase();
 
@@ -64,6 +72,30 @@ function badgeClass(label: string) {
     return "bg-red-50 ring-1 ring-red-200 text-red-700";
   }
   return "bg-km-surface-alt text-km-ink ring-1 ring-km-line";
+}
+
+function paymentLabel(status: string) {
+  const v = (status || "").toUpperCase();
+  if (v === "PAID") return "Sudah bayar";
+  if (v === "PENDING") return "Belum bayar";
+  if (v === "FAILED") return "Gagal";
+  if (v === "EXPIRED") return "Kadaluarsa";
+  if (v === "CANCELLED") return "Dibatalkan";
+  return status;
+}
+
+function formatTimeLeft(createdAt: string) {
+  const created = new Date(createdAt).getTime();
+  const deadline = created + PAYMENT_DEADLINE_MS;
+  const diff = deadline - Date.now();
+  if (Number.isNaN(created)) return null;
+  if (diff <= 0) return { expired: true, text: "Batas waktu pembayaran habis." };
+  const hours = Math.floor(diff / (60 * 60 * 1000));
+  const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+  return {
+    expired: false,
+    text: `Sisa waktu pembayaran: ${hours} jam ${minutes} menit`,
+  };
 }
 
 export default function HistoryOrderPage() {
@@ -309,7 +341,7 @@ export default function HistoryOrderPage() {
                     Pesanan: {orderLabel}
                   </span>
                   <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white ring-1 ring-km-line text-km-ink">
-                    Pembayaran: {o.paymentStatus}
+                    Pembayaran: {paymentLabel(o.paymentStatus)}
                   </span>
                 </div>
               </div>
@@ -442,6 +474,26 @@ export default function HistoryOrderPage() {
                       </div>
                     )}
                   </div>
+
+                  {o.paymentStatus === "PENDING" && (
+                    <div className="rounded-2xl bg-km-surface-alt ring-1 ring-km-line p-4 text-sm text-km-ink/80">
+                      <div className="font-semibold text-km-ink">
+                        Informasi Pembayaran
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <div>Bank: {BANK_INFO.name}</div>
+                        <div>No. Rekening: {BANK_INFO.accountNumber}</div>
+                        <div>Atas Nama: {BANK_INFO.accountName}</div>
+                      </div>
+                      <div className="mt-3 text-xs text-km-ink/60">
+                        {formatTimeLeft(o.createdAt)?.text ||
+                          "Batas waktu pembayaran 1x24 jam sejak order dibuat."}
+                      </div>
+                      <div className="mt-2 text-xs text-km-ink/60">
+                        Setelah transfer, upload bukti pembayaran di atas.
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
