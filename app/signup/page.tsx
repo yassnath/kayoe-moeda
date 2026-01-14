@@ -226,7 +226,7 @@ export default function SignUpPage() {
                 Sudah punya akun?{" "}
                 <Link
                   href="/signin"
-                  className="font-semibold text-km-ink hover:opacity-80 transition no-underline"
+                  className="font-semibold text-km-brass hover:text-km-wood transition no-underline"
                 >
                   Masuk
                 </Link>
