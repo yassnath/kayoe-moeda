@@ -358,7 +358,7 @@ export default function ProdukPage() {
                       }`}
                     >
                       <Link
-                        href={`/produk/${produk.id}`}
+                        href={`/detail-produk/${produk.id}`}
                         className={`block ${
                           view === "list" ? "md:flex md:w-full" : ""
                         }`}
@@ -404,7 +404,7 @@ export default function ProdukPage() {
 
                       <div className="flex flex-wrap gap-2 px-5 pb-5 pt-2">
                         <Link
-                          href={`/checkout?produkId=${produk.id}`}
+                          href={`/cart/checkout`}
                           className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
                                      bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
                         >

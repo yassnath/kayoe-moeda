@@ -32,7 +32,7 @@ export default async function Main() {
           return (
             <Link
               key={produk.id}
-              href={`/produk/${produk.id}`}
+              href={`/detail-produk/${produk.id}`}
               className="group relative min-h-[240px] sm:min-h-[320px] lg:min-h-[360px] overflow-hidden"
             >
               <Image
