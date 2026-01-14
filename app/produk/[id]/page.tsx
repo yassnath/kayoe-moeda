@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { getprodukById } from "@/lib/data";
 import { resolveImageSrc } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -13,7 +13,20 @@ interface ProdukDetailProps {
 }
 
 export default async function ProdukDetailPage({ params }: ProdukDetailProps) {
-  const produk = await getprodukById(params.id);
+  const host = headers().get("host");
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || (host ? `${protocol}://${host}` : "");
+
+  const res = await fetch(`${baseUrl}/api/produk/${params.id}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    return notFound();
+  }
+
+  const produk = await res.json();
 
   if (!produk) {
     return notFound();
