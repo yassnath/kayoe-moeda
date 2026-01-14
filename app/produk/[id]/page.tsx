@@ -1,41 +1,95 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import { resolveImageSrc } from "@/lib/utils";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+type ProdukDetail = {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+  capacity: number;
+};
 
 interface ProdukDetailProps {
   params: { id: string };
 }
 
-export default async function ProdukDetailPage({ params }: ProdukDetailProps) {
-  const hdrs = await headers();
-  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host");
-  const proto =
-    hdrs.get("x-forwarded-proto") ??
-    (process.env.NODE_ENV === "production" ? "https" : "http");
-  const baseUrl = host ? `${proto}://${host}` : "";
+export default function ProdukDetailPage({ params }: ProdukDetailProps) {
+  const [produk, setProduk] = useState<ProdukDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!baseUrl) {
-    return notFound();
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/produk/${params.id}`, {
+          cache: "no-store",
+        });
+
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          setError(
+            data?.message || "Produk tidak ditemukan atau gagal dimuat."
+          );
+          setProduk(null);
+          return;
+        }
+
+        setProduk(data as ProdukDetail);
+      } catch (e) {
+        console.error(e);
+        setError("Gagal memuat detail produk.");
+        setProduk(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--km-bg)]">
+        <section className="w-full py-12 lg:py-16">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+            <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+              <p className="text-sm text-km-ink/60">Memuat detail produk...</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
   }
 
-  const res = await fetch(`${baseUrl}/api/produk/${params.id}`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    return notFound();
-  }
-
-  const produk = await res.json();
-
-  if (!produk) {
-    return notFound();
+  if (!produk || error) {
+    return (
+      <div className="min-h-screen bg-[var(--km-bg)]">
+        <section className="w-full py-12 lg:py-16">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+            <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-soft">
+              <p className="text-sm font-semibold">Produk tidak ditemukan</p>
+              <p className="text-sm mt-1 text-red-700/90">
+                {error ?? "Produk tidak tersedia."}
+              </p>
+              <Link
+                href="/produk"
+                className="mt-4 inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
+                           bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+              >
+                Kembali ke Produk
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   return (
