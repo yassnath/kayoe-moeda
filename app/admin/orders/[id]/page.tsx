@@ -55,6 +55,8 @@ export default function AdminOrderDetailPage() {
   const [confirmPaymentSuccess, setConfirmPaymentSuccess] = useState<
     string | null
   >(null);
+  const [paymentStatusValue, setPaymentStatusValue] = useState<string>("PENDING");
+  const [savingPaymentStatus, setSavingPaymentStatus] = useState(false);
 
   const fetchDetail = async () => {
     if (!id) return;
@@ -94,6 +96,7 @@ export default function AdminOrderDetailPage() {
       const detail = data as OrderDetail;
       setOrder(detail);
       setStatusValue(deriveStatusValue(detail));
+      setPaymentStatusValue(detail.paymentStatus || "PENDING");
     } catch (err) {
       console.error(err);
       setError(
@@ -243,6 +246,59 @@ export default function AdminOrderDetailPage() {
       );
     } finally {
       setConfirmingPayment(false);
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    setSavingPaymentStatus(true);
+    setConfirmPaymentError(null);
+    setConfirmPaymentSuccess(null);
+
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/payment-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentStatus: paymentStatusValue }),
+      });
+
+      let data: unknown = null;
+      try {
+        data = await res.json();
+      } catch {
+        console.error("Response POST /api/admin/orders/[id]/payment-status bukan JSON");
+      }
+
+      if (!res.ok) {
+        const message =
+          data &&
+          typeof data === "object" &&
+          data !== null &&
+          "message" in data &&
+          typeof (data as any).message === "string"
+            ? (data as any).message
+            : "Gagal mengupdate status pembayaran";
+        setConfirmPaymentError(message);
+        return;
+      }
+
+      if (data && typeof data === "object") {
+        const updated = data as OrderDetail;
+        setOrder(updated);
+        setPaymentStatusValue(updated.paymentStatus || "PENDING");
+      }
+
+      setConfirmPaymentSuccess("Status pembayaran berhasil diupdate.");
+    } catch (err) {
+      console.error(err);
+      setConfirmPaymentError(
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat update pembayaran"
+      );
+    } finally {
+      setSavingPaymentStatus(false);
     }
   };
 
@@ -472,6 +528,37 @@ export default function AdminOrderDetailPage() {
             ? "Sudah PAID"
             : "Konfirmasi Pembayaran"}
         </button>
+      </div>
+
+      {/* Status pembayaran */}
+      <div className="border rounded-lg bg-white p-4 space-y-3">
+        <h2 className="text-sm font-semibold">Status Pembayaran</h2>
+        <form onSubmit={handleUpdatePaymentStatus} className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Status pembayaran
+            </label>
+            <select
+              value={paymentStatusValue}
+              onChange={(e) => setPaymentStatusValue(e.target.value)}
+              className="w-full sm:w-auto border rounded px-3 py-2 text-sm"
+            >
+              <option value="PENDING">Belum bayar</option>
+              <option value="PAID">Sudah bayar</option>
+              <option value="FAILED">Gagal</option>
+              <option value="EXPIRED">Kadaluarsa</option>
+              <option value="CANCELLED">Dibatalkan</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={savingPaymentStatus}
+            className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-black/90 disabled:opacity-60"
+          >
+            {savingPaymentStatus ? "Menyimpan..." : "Simpan Status Pembayaran"}
+          </button>
+        </form>
       </div>
     </div>
   );
