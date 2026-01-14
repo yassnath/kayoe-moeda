@@ -28,10 +28,32 @@ export default function CartPage() {
   const [cart, setCart] = useState<CartData>({ id: null, items: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA ?? "";
 
   const total = useMemo(() => {
     return cart.items.reduce((sum, it) => sum + it.quantity * it.price, 0);
   }, [cart.items]);
+
+  const waNumber = adminWa
+    ? adminWa.replace(/[^\d]/g, "").replace(/^0/, "62")
+    : "";
+
+  const waMessage = useMemo(() => {
+    if (!cart.items.length) return "";
+    const lines = cart.items.map((it, idx) => {
+      const lineTotal = it.quantity * it.price;
+      return `${idx + 1}. ${it.produk.name} (${it.quantity} x Rp ${it.price.toLocaleString(
+        "id-ID"
+      )}) = Rp ${lineTotal.toLocaleString("id-ID")}`;
+    });
+    return [
+      "Halo Admin Kayoe Moeda, saya ingin memesan produk berikut:",
+      "",
+      ...lines,
+      "",
+      `Total: Rp ${total.toLocaleString("id-ID")}`,
+    ].join("\n");
+  }, [cart.items, total]);
 
   const loadCart = async () => {
     setLoading(true);
@@ -274,19 +296,32 @@ export default function CartPage() {
                     Lanjut ke Checkout
                   </button>
                 </Link>
-                <Link href="/cart/checkout" className="block">
+                {waNumber ? (
+                  <a
+                    href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
+                      waMessage
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
+                               text-white hover:opacity-90 transition shadow-soft no-underline"
+                  >
+                    Pesan via WhatsApp
+                  </a>
+                ) : (
                   <button
                     className="w-full rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
-                               text-white hover:opacity-90 transition shadow-soft"
+                               text-white opacity-60 cursor-not-allowed"
                     type="button"
+                    disabled
                   >
                     Pesan via WhatsApp
                   </button>
-                </Link>
+                )}
               </div>
 
               <p className="text-xs text-km-ink/60 mt-3 leading-relaxed">
-                * Anda akan diarahkan ke WhatsApp setelah checkout untuk konfirmasi pesanan.
+                * Tombol WhatsApp akan mengirim ringkasan keranjang ke admin.
               </p>
 
               <Link
