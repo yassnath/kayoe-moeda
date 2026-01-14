@@ -13,10 +13,16 @@ interface ProdukDetailProps {
 }
 
 export default async function ProdukDetailPage({ params }: ProdukDetailProps) {
-  const host = (await headers()).get("host");
-  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || (host ? `${protocol}://${host}` : "");
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") ?? hdrs.get("host");
+  const proto =
+    hdrs.get("x-forwarded-proto") ??
+    (process.env.NODE_ENV === "production" ? "https" : "http");
+  const baseUrl = host ? `${proto}://${host}` : "";
+
+  if (!baseUrl) {
+    return notFound();
+  }
 
   const res = await fetch(`${baseUrl}/api/produk/${params.id}`, {
     cache: "no-store",
