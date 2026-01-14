@@ -28,7 +28,7 @@ export default function DetailProdukPage({ params }: ProdukDetailProps) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/produk/${params.id}`, {
+        const res = await fetch(`/api/admin/produks/${params.id}`, {
           cache: "no-store",
         });
 
