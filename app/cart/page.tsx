@@ -29,6 +29,18 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const adminWa = process.env.NEXT_PUBLIC_ADMIN_WA ?? "";
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+
+  const [form, setForm] = useState({
+    recipientName: "",
+    recipientPhone: "",
+    addressLine: "",
+    city: "",
+    province: "",
+    postalCode: "",
+  });
 
   const total = useMemo(() => {
     return cart.items.reduce((sum, it) => sum + it.quantity * it.price, 0);
@@ -54,6 +66,47 @@ export default function CartPage() {
       `Total: Rp ${total.toLocaleString("id-ID")}`,
     ].join("\n");
   }, [cart.items, total]);
+
+  const handleSubmitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOrderError(null);
+
+    if (!cart.items.length) {
+      setOrderError("Keranjang kosong.");
+      return;
+    }
+
+    setSubmittingOrder(true);
+    try {
+      const res = await fetch("/api/orders/from-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setOrderError(data?.message || "Gagal membuat pesanan.");
+        return;
+      }
+
+      const orderCode = data?.orderCode ? `Kode Pesanan: ${data.orderCode}` : "";
+      const waText = [waMessage, orderCode].filter(Boolean).join("\n");
+      const waUrl = waNumber
+        ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`
+        : "";
+
+      setShowCheckout(false);
+      if (waUrl) {
+        window.open(waUrl, "_blank", "noopener,noreferrer");
+      }
+    } catch (e) {
+      console.error(e);
+      setOrderError("Terjadi kesalahan saat membuat pesanan.");
+    } finally {
+      setSubmittingOrder(false);
+    }
+  };
 
   const loadCart = async () => {
     setLoading(true);
@@ -296,32 +349,18 @@ export default function CartPage() {
                     Lanjut ke Checkout
                   </button>
                 </Link>
-                {waNumber ? (
-                  <a
-                    href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
-                      waMessage
-                    )}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
-                               text-white hover:opacity-90 transition shadow-soft no-underline"
-                  >
-                    Pesan via WhatsApp
-                  </a>
-                ) : (
-                  <button
-                    className="w-full rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
-                               text-white opacity-60 cursor-not-allowed"
-                    type="button"
-                    disabled
-                  >
-                    Pesan via WhatsApp
-                  </button>
-                )}
+                <button
+                  className="w-full rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
+                             text-white hover:opacity-90 transition shadow-soft"
+                  type="button"
+                  onClick={() => setShowCheckout(true)}
+                >
+                  Pesan via WhatsApp
+                </button>
               </div>
 
               <p className="text-xs text-km-ink/60 mt-3 leading-relaxed">
-                * Tombol WhatsApp akan mengirim ringkasan keranjang ke admin.
+                * Isi data penerima terlebih dahulu sebelum pesan via WhatsApp.
               </p>
 
               <Link
@@ -335,5 +374,150 @@ export default function CartPage() {
         )}
       </div>
     </div>
+    {showCheckout && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+        <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-soft">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
+                Checkout
+              </p>
+              <h2 className="mt-2 text-lg font-semibold text-km-ink">
+                Data Penerima
+              </h2>
+              <p className="mt-1 text-sm text-km-ink/70">
+                Isi alamat untuk membuat pesanan dan masuk ke dashboard admin.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCheckout(false)}
+              className="text-sm text-km-ink/60 hover:text-km-ink"
+            >
+              Tutup
+            </button>
+          </div>
+
+          {orderError && (
+            <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+              <p className="text-sm font-semibold">Terjadi kesalahan</p>
+              <p className="text-sm mt-1 text-red-700/90">{orderError}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmitOrder} className="mt-5 space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-km-ink mb-1">
+                Nama Penerima
+              </label>
+              <input
+                className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                           ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                value={form.recipientName}
+                onChange={(e) =>
+                  setForm({ ...form, recipientName: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-km-ink mb-1">
+                No. WhatsApp / HP
+              </label>
+              <input
+                className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                           ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                value={form.recipientPhone}
+                onChange={(e) =>
+                  setForm({ ...form, recipientPhone: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-km-ink mb-1">
+                Alamat Lengkap
+              </label>
+              <textarea
+                className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                           ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                rows={3}
+                value={form.addressLine}
+                onChange={(e) =>
+                  setForm({ ...form, addressLine: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="block text-sm font-semibold text-km-ink mb-1">
+                  Kota
+                </label>
+                <input
+                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                             ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-km-ink mb-1">
+                  Provinsi
+                </label>
+                <input
+                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                             ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                  value={form.province}
+                  onChange={(e) =>
+                    setForm({ ...form, province: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-km-ink mb-1">
+                  Kode Pos
+                </label>
+                <input
+                  className="w-full rounded-2xl bg-white px-4 py-3 text-sm text-km-ink
+                             ring-1 ring-km-line focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+                  value={form.postalCode}
+                  onChange={(e) =>
+                    setForm({ ...form, postalCode: e.target.value })
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 flex flex-col gap-3">
+              <button
+                type="submit"
+                disabled={submittingOrder}
+                className="w-full rounded-full bg-emerald-600 ring-1 ring-emerald-600 px-4 py-3 text-sm font-semibold
+                           text-white hover:opacity-90 transition shadow-soft disabled:opacity-60"
+              >
+                {submittingOrder ? "Memproses..." : "Buat Pesanan & Buka WhatsApp"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCheckout(false)}
+                className="w-full rounded-full bg-white ring-1 ring-km-line px-4 py-3 text-sm font-semibold
+                           text-km-ink hover:bg-km-surface-alt transition"
+              >
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
   );
 }
