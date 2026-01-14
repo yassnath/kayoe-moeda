@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { resolveImageSrc } from "@/lib/utils";
@@ -19,6 +20,7 @@ interface ProdukDetailProps {
 }
 
 export default function ProdukDetailPage({ params }: ProdukDetailProps) {
+  const router = useRouter();
   const [produk, setProduk] = useState<ProdukDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,20 @@ export default function ProdukDetailPage({ params }: ProdukDetailProps) {
 
         const data = await res.json().catch(() => null);
         if (!res.ok) {
+          // Fallback: fetch list produk lalu cari ID (pakai endpoint yang sudah dipakai katalog).
+          const listRes = await fetch("/api/admin/produks", {
+            cache: "no-store",
+          });
+          const listData = await listRes.json().catch(() => null);
+          const found = Array.isArray(listData)
+            ? (listData as ProdukDetail[]).find((p) => p.id === params.id)
+            : null;
+
+          if (found) {
+            setProduk(found);
+            return;
+          }
+
           setError(
             data?.message || "Produk tidak ditemukan atau gagal dimuat."
           );
@@ -69,6 +85,7 @@ export default function ProdukDetailPage({ params }: ProdukDetailProps) {
   }
 
   if (!produk || error) {
+    router.replace("/produk");
     return (
       <div className="min-h-screen bg-[var(--km-bg)]">
         <section className="w-full py-12 lg:py-16">
