@@ -191,8 +191,9 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--km-bg)]">
-      <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
+    <>
+      <div className="min-h-screen bg-[var(--km-bg)]">
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-6 py-12">
         {/* Header */}
         <div className="flex flex-col gap-2">
           <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
@@ -372,10 +373,10 @@ export default function CartPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
-    {showCheckout && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      {showCheckout && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
         <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-soft">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -517,7 +518,8 @@ export default function CartPage() {
             </div>
           </form>
         </div>
-      </div>
-    )}
+        </div>
+      )}
+    </>
   );
 }
