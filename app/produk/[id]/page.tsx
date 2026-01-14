@@ -13,7 +13,7 @@ interface ProdukDetailProps {
 }
 
 export default async function ProdukDetailPage({ params }: ProdukDetailProps) {
-  const host = headers().get("host");
+  const host = (await headers()).get("host");
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || (host ? `${protocol}://${host}` : "");
