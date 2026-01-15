@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <Link
                 href="/signin"
-                className="text-sm font-semibold text-km-ink hover:opacity-80 transition no-underline"
+                className="text-sm font-semibold text-km-brass hover:text-km-wood transition no-underline"
               >
                 Kembali ke Sign In
               </Link>

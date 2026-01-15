@@ -112,6 +112,7 @@ export default function HistoryOrderPage() {
   const [selectedFiles, setSelectedFiles] = useState<
     Record<string, File | null>
   >({});
+  const [confirmOrderId, setConfirmOrderId] = useState<string | null>(null);
 
   const fetchHistory = async () => {
     setLoading(true);
@@ -398,6 +399,26 @@ export default function HistoryOrderPage() {
                     </div>
                   </div>
 
+                  {o.paymentStatus === "PENDING" && (
+                    <div className="rounded-2xl bg-km-surface-alt ring-1 ring-km-line p-4 text-sm text-km-ink/80">
+                      <div className="font-semibold text-km-ink">
+                        Informasi Pembayaran
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <div>Bank: {BANK_INFO.name}</div>
+                        <div>No. Rekening: {BANK_INFO.accountNumber}</div>
+                        <div>Atas Nama: {BANK_INFO.accountName}</div>
+                      </div>
+                      <div className="mt-3 text-xs text-km-ink/60">
+                        {formatTimeLeft(o.createdAt)?.text ||
+                          "Batas waktu pembayaran 1x24 jam sejak order dibuat."}
+                      </div>
+                      <div className="mt-2 text-xs text-km-ink/60">
+                        Setelah transfer, upload bukti pembayaran di bawah.
+                      </div>
+                    </div>
+                  )}
+
                   <div className="rounded-2xl bg-white ring-1 ring-km-line p-4">
                     <div className="text-sm font-semibold text-km-ink">
                       Bukti Pembayaran
@@ -437,11 +458,11 @@ export default function HistoryOrderPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => handleUploadProof(o.id)}
-                          disabled={uploadingId === o.id}
-                          className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-2 text-xs font-semibold text-white hover:opacity-90 transition disabled:opacity-60"
+                          onClick={() => setConfirmOrderId(o.id)}
+                          disabled={uploadingId === o.id || !selectedFiles[o.id]}
+                          className="w-full rounded-full bg-km-brass ring-1 ring-km-brass px-4 py-2 text-xs font-semibold text-km-wood hover:opacity-90 transition disabled:opacity-60"
                         >
-                          {uploadingId === o.id ? "Mengunggah..." : "Upload Bukti"}
+                          {uploadingId === o.id ? "Mengunggah..." : "Konfirmasi & Upload"}
                         </button>
                         <p className="text-xs text-km-ink/55">
                           Format JPG/PNG/WEBP, maksimal 5MB.
@@ -475,25 +496,6 @@ export default function HistoryOrderPage() {
                     )}
                   </div>
 
-                  {o.paymentStatus === "PENDING" && (
-                    <div className="rounded-2xl bg-km-surface-alt ring-1 ring-km-line p-4 text-sm text-km-ink/80">
-                      <div className="font-semibold text-km-ink">
-                        Informasi Pembayaran
-                      </div>
-                      <div className="mt-2 space-y-1">
-                        <div>Bank: {BANK_INFO.name}</div>
-                        <div>No. Rekening: {BANK_INFO.accountNumber}</div>
-                        <div>Atas Nama: {BANK_INFO.accountName}</div>
-                      </div>
-                      <div className="mt-3 text-xs text-km-ink/60">
-                        {formatTimeLeft(o.createdAt)?.text ||
-                          "Batas waktu pembayaran 1x24 jam sejak order dibuat."}
-                      </div>
-                      <div className="mt-2 text-xs text-km-ink/60">
-                        Setelah transfer, upload bukti pembayaran di atas.
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -530,6 +532,46 @@ export default function HistoryOrderPage() {
 
         <div className="mt-8">{content}</div>
       </div>
+      {confirmOrderId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-soft">
+            <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
+              Konfirmasi Upload
+            </p>
+            <h3 className="mt-2 text-lg font-semibold text-km-ink">
+              Pastikan bukti pembayaran sudah benar
+            </h3>
+            <p className="mt-2 text-sm text-km-ink/70">
+              File yang dipilih:{" "}
+              <span className="font-semibold text-km-ink">
+                {selectedFiles[confirmOrderId]?.name || "-"}
+              </span>
+            </p>
+            <div className="mt-5 flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  const id = confirmOrderId;
+                  setConfirmOrderId(null);
+                  if (id) {
+                    handleUploadProof(id);
+                  }
+                }}
+                className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition"
+              >
+                Upload Sekarang
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmOrderId(null)}
+                className="w-full rounded-full bg-white ring-1 ring-km-line px-4 py-3 text-sm font-semibold text-km-ink hover:bg-km-surface-alt transition"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
