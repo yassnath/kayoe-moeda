@@ -160,8 +160,8 @@ export default function SignInPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-2xl bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold
-                             text-white hover:opacity-90 transition shadow-soft disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full rounded-2xl bg-km-brass ring-1 ring-km-brass px-4 py-3 text-sm font-semibold
+                             text-km-wood hover:opacity-90 transition shadow-soft disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loading ? "Memproses..." : "Masuk"}
                 </button>

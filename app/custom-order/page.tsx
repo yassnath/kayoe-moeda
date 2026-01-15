@@ -459,7 +459,7 @@ export default function CustomOrderCustomerPage() {
                     <Link
                       href="/signin?callbackUrl=/custom-order"
                       className="mt-4 inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
-                                 bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+                                 bg-km-brass text-km-wood ring-1 ring-km-brass hover:opacity-90 transition no-underline"
                     >
                       Login
                     </Link>
