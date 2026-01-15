@@ -353,13 +353,13 @@ export default function ProdukPage() {
                   return (
                     <article
                       key={produk.id}
-                      className={`rounded-3xl border border-km-line bg-white shadow-soft overflow-hidden ${
+                      className={`h-full rounded-3xl border border-km-line bg-white shadow-soft overflow-hidden flex flex-col ${
                         view === "list" ? "flex flex-col md:flex-row" : ""
                       }`}
                     >
                       <Link
                         href={`/detail-produk/${produk.id}`}
-                        className={`block ${
+                        className={`block flex-1 ${
                           view === "list" ? "md:flex md:w-full" : ""
                         }`}
                       >
@@ -389,7 +389,7 @@ export default function ProdukPage() {
                             </span>
                           </div>
 
-                          <p className="text-sm text-km-ink/70 line-clamp-3 leading-relaxed">
+                          <p className="text-sm text-km-ink/70 line-clamp-3 leading-relaxed min-h-[4rem]">
                             {produk.description}
                           </p>
 
@@ -402,7 +402,7 @@ export default function ProdukPage() {
                         </div>
                       </Link>
 
-                      <div className="flex flex-wrap gap-2 px-5 pb-5 pt-2">
+                      <div className="flex flex-wrap gap-2 px-5 pb-5 pt-2 mt-auto">
                         <Link
                           href={`/cart/checkout`}
                           className="inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
