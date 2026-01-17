@@ -470,6 +470,9 @@ export default function HistoryOrderPage() {
                         <button
                           type="button"
                           onClick={() => {
+                            if (uploadingId === o.id) {
+                              return;
+                            }
                             if (!selectedFiles[o.id]) {
                               setUploadNotice({
                                 type: "error",
@@ -481,8 +484,12 @@ export default function HistoryOrderPage() {
                             }
                             setConfirmOrderId(o.id);
                           }}
-                          disabled={uploadingId === o.id}
-                          className="w-full rounded-full bg-km-brass ring-1 ring-km-brass px-4 py-2 text-xs font-semibold text-km-wood hover:opacity-90 transition disabled:opacity-60"
+                          aria-disabled={uploadingId === o.id}
+                          className={`w-full rounded-full px-4 py-2 text-xs font-semibold ring-1 transition ${
+                            uploadingId === o.id
+                              ? "bg-km-surface-alt text-km-ink/50 ring-km-line cursor-not-allowed"
+                              : "bg-km-brass text-km-wood ring-km-brass hover:opacity-90"
+                          }`}
                         >
                           {uploadingId === o.id ? "Mengunggah..." : "Konfirmasi & Upload"}
                         </button>
