@@ -114,6 +114,14 @@ export default function HistoryOrderPage() {
   >({});
   const [confirmOrderId, setConfirmOrderId] = useState<string | null>(null);
 
+  const handleFileSelect = (orderId: string, file?: File | null) => {
+    setUploadNotice(null);
+    setSelectedFiles((prev) => ({
+      ...prev,
+      [orderId]: file ?? null,
+    }));
+  };
+
   const fetchHistory = async () => {
     setLoading(true);
     setError(null);
@@ -450,16 +458,30 @@ export default function HistoryOrderPage() {
                           accept={ALLOWED_IMAGE_TYPES.join(",")}
                           className="block w-full text-sm text-km-ink/80"
                           onChange={(e) =>
-                            setSelectedFiles((prev) => ({
-                              ...prev,
-                              [o.id]: e.target.files?.[0] ?? null,
-                            }))
+                            handleFileSelect(o.id, e.target.files?.[0])
+                          }
+                          onInput={(e) =>
+                            handleFileSelect(
+                              o.id,
+                              (e.target as HTMLInputElement).files?.[0]
+                            )
                           }
                         />
                         <button
                           type="button"
-                          onClick={() => setConfirmOrderId(o.id)}
-                          disabled={uploadingId === o.id || !selectedFiles[o.id]}
+                          onClick={() => {
+                            if (!selectedFiles[o.id]) {
+                              setUploadNotice({
+                                type: "error",
+                                message:
+                                  "Pilih file bukti pembayaran terlebih dahulu.",
+                                orderId: o.id,
+                              });
+                              return;
+                            }
+                            setConfirmOrderId(o.id);
+                          }}
+                          disabled={uploadingId === o.id}
                           className="w-full rounded-full bg-km-brass ring-1 ring-km-brass px-4 py-2 text-xs font-semibold text-km-wood hover:opacity-90 transition disabled:opacity-60"
                         >
                           {uploadingId === o.id ? "Mengunggah..." : "Konfirmasi & Upload"}
