@@ -532,7 +532,7 @@ export default function HistoryOrderPage() {
         })}
       </div>
     );
-  }, [loading, error, orders]);
+  }, [loading, error, orders, selectedFiles, uploadingId, uploadNotice]);
 
   return (
     <div className="min-h-screen bg-[var(--km-bg)]">
