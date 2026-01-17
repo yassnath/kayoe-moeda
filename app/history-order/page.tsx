@@ -112,7 +112,7 @@ export default function HistoryOrderPage() {
   const [selectedFiles, setSelectedFiles] = useState<
     Record<string, File | null>
   >({});
-  const [confirmOrderId, setConfirmOrderId] = useState<string | null>(null);
+  const [successOrderId, setSuccessOrderId] = useState<string | null>(null);
 
   const handleFileSelect = (orderId: string, file?: File | null) => {
     setUploadNotice(null);
@@ -239,6 +239,7 @@ export default function HistoryOrderPage() {
         orderId,
         waUrl: waUrl || undefined,
       });
+      setSuccessOrderId(orderId);
     } catch (e) {
       console.error(e);
       setUploadNotice({
@@ -470,9 +471,7 @@ export default function HistoryOrderPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            if (uploadingId === o.id) {
-                              return;
-                            }
+                            if (uploadingId === o.id) return;
                             if (!selectedFiles[o.id]) {
                               setUploadNotice({
                                 type: "error",
@@ -482,7 +481,7 @@ export default function HistoryOrderPage() {
                               });
                               return;
                             }
-                            setConfirmOrderId(o.id);
+                            handleUploadProof(o.id);
                           }}
                           data-disabled={uploadingId === o.id}
                           className={`w-full rounded-full px-4 py-2 text-xs font-semibold ring-1 transition pointer-events-auto cursor-pointer ${
@@ -561,41 +560,37 @@ export default function HistoryOrderPage() {
 
         <div className="mt-8">{content}</div>
       </div>
-      {confirmOrderId && (
+      {successOrderId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-soft">
             <p className="text-xs uppercase tracking-[0.32em] text-km-ink/50">
-              Konfirmasi Upload
+              Pembayaran
             </p>
             <h3 className="mt-2 text-lg font-semibold text-km-ink">
-              Pastikan bukti pembayaran sudah benar
+              Bukti pembayaran berhasil dikirim
             </h3>
             <p className="mt-2 text-sm text-km-ink/70">
-              File yang dipilih:{" "}
-              <span className="font-semibold text-km-ink">
-                {selectedFiles[confirmOrderId]?.name || "-"}
-              </span>
+              Admin akan memverifikasi pembayaran Anda. Status akan diperbarui
+              di halaman ini.
             </p>
             <div className="mt-5 flex flex-col gap-3">
+              {uploadNotice?.orderId === successOrderId &&
+                uploadNotice.waUrl && (
+                  <a
+                    href={uploadNotice.waUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full rounded-full bg-km-brass ring-1 ring-km-brass px-4 py-3 text-sm font-semibold text-km-wood text-center hover:opacity-90 transition"
+                  >
+                    Kirim Notifikasi WhatsApp
+                  </a>
+                )}
               <button
                 type="button"
-                onClick={() => {
-                  const id = confirmOrderId;
-                  setConfirmOrderId(null);
-                  if (id) {
-                    handleUploadProof(id);
-                  }
-                }}
+                onClick={() => setSuccessOrderId(null)}
                 className="w-full rounded-full bg-km-wood ring-1 ring-km-wood px-4 py-3 text-sm font-semibold text-white hover:opacity-90 transition"
               >
-                Upload Sekarang
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmOrderId(null)}
-                className="w-full rounded-full bg-white ring-1 ring-km-line px-4 py-3 text-sm font-semibold text-km-ink hover:bg-km-surface-alt transition"
-              >
-                Batal
+                Tutup
               </button>
             </div>
           </div>
