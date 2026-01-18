@@ -250,7 +250,7 @@ export default function AdminProductsPage() {
       <div className="flex justify-end">
         <Link
           href="/admin/products/new"
-          className="rounded-full bg-km-wood px-4 py-2 text-xs font-semibold text-white ring-1 ring-km-wood no-underline hover:opacity-90"
+          className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white ring-1 ring-emerald-600 no-underline hover:brightness-95"
         >
           Tambah Produk
         </Link>
