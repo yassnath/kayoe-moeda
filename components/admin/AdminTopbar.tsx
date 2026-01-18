@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { debounce } from "./utils";
 
 type AdminTopbarProps = {
@@ -25,10 +25,23 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams?.get("q") || "";
   const [query, setQuery] = useState(initialQuery);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setQuery(initialQuery);
   }, [initialQuery]);
+
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      if (!menuRef.current) return;
+      if (!menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const handleSearch = useMemo(
     () =>
@@ -59,7 +72,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               <div className="text-xs text-km-ink/55">Dashboard</div>
             </div>
           </Link>
-          <div className="hidden lg:flex items-center gap-5">
+          <div className="hidden lg:flex items-center gap-4">
             {tabs.map((tab) => {
               const active =
                 pathname === tab.href ||
@@ -68,18 +81,13 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`text-xs font-semibold tracking-wide no-underline transition ${
+                  className={`whitespace-nowrap border-b-2 pb-1 text-xs font-semibold tracking-wide no-underline transition ${
                     active
-                      ? "text-km-wood"
-                      : "text-km-ink/70 hover:text-km-ink"
+                      ? "border-km-wood text-km-wood"
+                      : "border-transparent text-km-ink/70 hover:text-km-ink"
                   }`}
                 >
-                  <span className="pb-1 border-b-2 border-transparent">
-                    {tab.label}
-                  </span>
-                  {active && (
-                    <span className="block h-0.5 w-full bg-km-wood mt-1 rounded-full" />
-                  )}
+                  {tab.label}
                 </Link>
               );
             })}
@@ -98,16 +106,34 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               className="w-full bg-transparent text-xs text-km-ink placeholder:text-km-ink/40 focus:outline-none"
             />
           </div>
-          <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 ring-1 ring-km-line">
-            <div className="text-xs font-semibold text-km-ink">
-              {name || "Admin"}
-            </div>
-            <Link
-              href="/api/auth/signout"
-              className="rounded-full px-3 py-1 text-xs font-semibold text-km-ink ring-1 ring-km-line hover:bg-km-surface-alt no-underline"
+          <div
+            ref={menuRef}
+            className="relative flex items-center rounded-full bg-white px-3 py-1.5 ring-1 ring-km-line"
+          >
+            <button
+              type="button"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="flex items-center gap-2 text-xs font-semibold text-km-ink"
             >
-              Sign Out
-            </Link>
+              <span>Super Admin Kayoe Moeda</span>
+              <span className="text-km-ink/40">▾</span>
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-11 w-44 rounded-2xl border border-km-line bg-white p-2 shadow-soft">
+                <Link
+                  href="/admin"
+                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-km-ink hover:bg-km-surface-alt no-underline"
+                >
+                  Kelola Admin
+                </Link>
+                <Link
+                  href="/api/auth/signout"
+                  className="mt-1 block rounded-xl px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 no-underline"
+                >
+                  Sign Out
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
