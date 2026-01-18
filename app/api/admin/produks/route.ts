@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
     const description = formData.get("description") as string | null;
     const priceRaw = formData.get("price") as string | null;
     const capacityRaw = formData.get("capacity") as string | null;
+    const statusRaw = formData.get("status") as string | null;
     const file = formData.get("image") as File | null;
 
     if (!name || !priceRaw) {
@@ -83,6 +84,7 @@ export async function POST(req: NextRequest) {
     const capacity = capacityRaw
       ? Math.max(1, Number.parseInt(capacityRaw, 10) || 1)
       : 1;
+    const status = statusRaw?.toUpperCase() === "INACTIVE" ? "INACTIVE" : "ACTIVE";
 
     let imagePath = "/uploads/default-produk.jpg";
 
@@ -119,6 +121,7 @@ export async function POST(req: NextRequest) {
         image: imagePath,
         price,
         capacity,
+        status,
       },
     });
 

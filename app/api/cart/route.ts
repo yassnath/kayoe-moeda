@@ -52,7 +52,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const produk = await prisma.produk.findUnique({ where: { id: produkId } });
+  const produk = await prisma.produk.findFirst({
+    where: { id: produkId, status: "ACTIVE" },
+  });
   if (!produk) {
     return NextResponse.json({ message: "Produk tidak ditemukan" }, { status: 404 });
   }

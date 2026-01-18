@@ -17,6 +17,7 @@ type ProdukItem = {
   image: string;
   price: number;
   capacity: number;
+  status: "ACTIVE" | "INACTIVE";
 };
 
 export default function AdminProductEditPage() {
@@ -146,9 +147,10 @@ export default function AdminProductEditPage() {
             <SelectField
               label="Status"
               name="status"
+              defaultValue={produk.status}
               options={[
-                { label: "Aktif", value: "active" },
-                { label: "Nonaktif", value: "inactive" },
+                { label: "Aktif", value: "ACTIVE" },
+                { label: "Nonaktif", value: "INACTIVE" },
               ]}
             />
             <FileUpload
