@@ -83,6 +83,7 @@ export async function PATCH(req: NextRequest) {
     const description = formData.get("description") as string | null;
     const priceRaw = formData.get("price") as string | null;
     const capacityRaw = formData.get("capacity") as string | null;
+    const statusRaw = formData.get("status") as string | null;
     const file = formData.get("image") as File | null;
 
     // parsing harga
@@ -103,6 +104,13 @@ export async function PATCH(req: NextRequest) {
         capacity = parsed;
       }
     }
+
+    const status =
+      statusRaw === null
+        ? undefined
+        : statusRaw.toUpperCase() === "INACTIVE"
+        ? "INACTIVE"
+        : "ACTIVE";
 
     // upload gambar baru (opsional)
     let imagePath: string | undefined;
@@ -140,6 +148,7 @@ export async function PATCH(req: NextRequest) {
         ...(price !== undefined && { price }),
         ...(capacity !== undefined && { capacity }),
         ...(imagePath && { image: imagePath }),
+        ...(status && { status }),
       },
     });
 

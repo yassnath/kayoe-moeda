@@ -29,6 +29,7 @@ async function uploadRoomImage(file: File): Promise<string> {
 export async function GET() {
   try {
     const produks = await prisma.produk.findMany({
+      where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
     });
 

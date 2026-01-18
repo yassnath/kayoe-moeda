@@ -13,6 +13,7 @@ type ProdukItem = {
   image: string;
   price: number;
   capacity: number;
+  status?: "ACTIVE" | "INACTIVE";
 };
 
 const CATEGORIES = [
@@ -56,7 +57,7 @@ export default function ProdukPage() {
         setInfo(null);
         setLoading(true);
 
-        const res = await fetch("/api/admin/produks", {
+        const res = await fetch("/api/rooms", {
           method: "GET",
           cache: "no-store",
         });
@@ -90,7 +91,8 @@ export default function ProdukPage() {
           return;
         }
 
-        setProduks(data as ProdukItem[]);
+        const items = data as ProdukItem[];
+        setProduks(items.filter((item) => item.status !== "INACTIVE"));
       } catch (err) {
         console.error(err);
         setError(

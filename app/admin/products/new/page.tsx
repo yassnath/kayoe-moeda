@@ -97,9 +97,10 @@ export default function AdminProductCreatePage() {
             <SelectField
               label="Status"
               name="status"
+              defaultValue="ACTIVE"
               options={[
-                { label: "Aktif", value: "active" },
-                { label: "Nonaktif", value: "inactive" },
+                { label: "Aktif", value: "ACTIVE" },
+                { label: "Nonaktif", value: "INACTIVE" },
               ]}
             />
             <FileUpload

@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     const quantity = body.quantity && body.quantity > 0 ? body.quantity : 1;
 
     // Pastikan produk ada
-    const produk = await prisma.produk.findUnique({
-      where: { id: body.produkId },
+    const produk = await prisma.produk.findFirst({
+      where: { id: body.produkId, status: "ACTIVE" },
     });
 
     if (!produk) {

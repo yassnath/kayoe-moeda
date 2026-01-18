@@ -12,6 +12,7 @@ type ProdukDetail = {
   image: string;
   price: number;
   capacity: number;
+  status?: "ACTIVE" | "INACTIVE";
 };
 
 interface ProdukDetailProps {
@@ -28,13 +29,13 @@ export default function DetailProdukPage({ params }: ProdukDetailProps) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/admin/produks/${params.id}`, {
+        const res = await fetch(`/api/produk/${params.id}`, {
           cache: "no-store",
         });
 
         const data = await res.json().catch(() => null);
         if (!res.ok) {
-          const listRes = await fetch("/api/admin/produks", {
+          const listRes = await fetch("/api/rooms", {
             cache: "no-store",
           });
           const listData = await listRes.json().catch(() => null);

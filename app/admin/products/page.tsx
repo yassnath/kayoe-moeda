@@ -19,6 +19,7 @@ type ProdukItem = {
   image: string;
   price: number;
   capacity: number;
+  status: "ACTIVE" | "INACTIVE";
   updatedAt: string;
 };
 
@@ -167,11 +168,16 @@ export default function AdminProductsPage() {
     {
       key: "status",
       header: "Status",
-      render: () => (
-        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
-          Aktif
-        </span>
-      ),
+      render: (row: ProdukItem) =>
+        row.status === "INACTIVE" ? (
+          <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600 ring-1 ring-gray-200">
+            Nonaktif
+          </span>
+        ) : (
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+            Aktif
+          </span>
+        ),
     },
     {
       key: "updatedAt",
