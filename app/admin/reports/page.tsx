@@ -183,7 +183,7 @@ export default function AdminReportsPage() {
           <button
             type="button"
             onClick={handleGenerate}
-            className="rounded-full bg-km-wood px-5 py-2 text-sm font-semibold text-white ring-1 ring-km-wood shadow-soft hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-w-[160px] items-center justify-center rounded-full bg-km-wood px-5 py-2 text-sm font-semibold text-white shadow-soft ring-1 ring-km-wood hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isGenerating}
           >
             {isGenerating ? "Menyiapkan..." : "Generate Preview"}
@@ -197,7 +197,7 @@ export default function AdminReportsPage() {
               a.download = downloadName || `report.${format}`;
               a.click();
             }}
-            className="rounded-full bg-km-ink px-5 py-2 text-sm font-semibold text-white ring-1 ring-km-ink hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-w-[160px] items-center justify-center rounded-full bg-km-ink px-5 py-2 text-sm font-semibold text-white shadow-soft ring-1 ring-km-ink hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={!downloadUrl}
           >
             Download File

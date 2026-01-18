@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { utils, write } from "xlsx";
-import { Document, Page, StyleSheet, Text, pdf } from "@react-pdf/renderer";
+import { Document, Page, StyleSheet, Text, renderToBuffer } from "@react-pdf/renderer";
 
 export type ReportRow = Record<string, string | number | null>;
 
@@ -19,16 +19,6 @@ export const toXlsx = (rows: ReportRow[], sheetName = "Report") => {
   utils.book_append_sheet(wb, ws, sheetName);
   return write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 };
-
-const bufferFromStream = async (stream: any): Promise<Buffer> =>
-  new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    stream.on("data", (chunk: Buffer | Uint8Array) => {
-      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-    });
-    stream.on("end", () => resolve(Buffer.concat(chunks)));
-    stream.on("error", reject);
-  });
 
 export const toPdf = async (
   rows: ReportRow[],
@@ -55,23 +45,7 @@ export const toPdf = async (
       </Page>
     </Document>
   );
-
-  const instance = pdf(doc) as any;
-  if (typeof instance.toBuffer === "function") {
-    const result = await instance.toBuffer();
-    if (Buffer.isBuffer(result)) return result;
-    if (result instanceof Uint8Array) return Buffer.from(result);
-    if (result && typeof result.on === "function") {
-      return bufferFromStream(result);
-    }
-    return Buffer.from(result);
-  }
-  if (typeof instance.toBlob === "function") {
-    const blob = await instance.toBlob();
-    const arrayBuffer = await blob.arrayBuffer();
-    return Buffer.from(arrayBuffer);
-  }
-  throw new Error("PDF generator tidak mendukung output buffer.");
+  return renderToBuffer(doc);
 };
 
 export const buildResponse = ({
