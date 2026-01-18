@@ -109,35 +109,49 @@ export const toPdf = async (
         ) : (
           <View style={styles.table}>
             <View style={styles.headerRow}>
-              {headers.map((header) => (
+              {headers.map((header) => {
+                const alignStyle =
+                  headerAlign[header] === "right"
+                    ? styles.cellRight
+                    : headerAlign[header] === "center"
+                    ? styles.cellCenter
+                    : undefined;
+                return (
                 <Text
                   key={header}
                   style={[
                     styles.headerCell,
                     { width: getColumnWidth(header) },
-                    headerAlign[header] === "right" && styles.cellRight,
-                    headerAlign[header] === "center" && styles.cellCenter,
-                  ]}
+                    alignStyle,
+                  ].filter(Boolean)}
                 >
                   {headerLabels[header] ?? header}
                 </Text>
-              ))}
+                );
+              })}
             </View>
             {rows.map((row, idx) => (
               <View key={idx} style={styles.row}>
-                {headers.map((header) => (
+                {headers.map((header) => {
+                  const alignStyle =
+                    headerAlign[header] === "right"
+                      ? styles.cellRight
+                      : headerAlign[header] === "center"
+                      ? styles.cellCenter
+                      : undefined;
+                  return (
                   <Text
                     key={header}
                     style={[
                       styles.cell,
                       { width: getColumnWidth(header) },
-                      headerAlign[header] === "right" && styles.cellRight,
-                      headerAlign[header] === "center" && styles.cellCenter,
-                    ]}
+                      alignStyle,
+                    ].filter(Boolean)}
                   >
                     {row[header] ?? "-"}
                   </Text>
-                ))}
+                  );
+                })}
               </View>
             ))}
           </View>
