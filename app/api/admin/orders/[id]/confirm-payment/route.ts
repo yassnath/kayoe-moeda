@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { adjustOrderStock } from "../../stock";
 
 export const runtime = "nodejs";
 
@@ -50,6 +51,15 @@ export async function POST(
       data: { paymentStatus: "PAID" },
       include: { user: true, items: true },
     });
+
+    try {
+      await adjustOrderStock(id, "deduct");
+    } catch (err: any) {
+      return NextResponse.json(
+        { message: err?.message || "Gagal mengurangi stok produk." },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json(updated, { status: 200 });
   } catch (error: any) {

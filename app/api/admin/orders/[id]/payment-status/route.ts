@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { adjustOrderStock } from "../../stock";
 
 export const runtime = "nodejs";
 
@@ -46,6 +47,24 @@ export async function POST(
       data: { paymentStatus: paymentStatus as any },
       include: { user: true, items: true },
     });
+
+    if (paymentStatus === "PAID") {
+      try {
+        await adjustOrderStock(id, "deduct");
+      } catch (err: any) {
+        return NextResponse.json(
+          { message: err?.message || "Gagal mengurangi stok produk." },
+          { status: 400 }
+        );
+      }
+    } else if (
+      paymentStatus === "PENDING" ||
+      paymentStatus === "FAILED" ||
+      paymentStatus === "EXPIRED" ||
+      paymentStatus === "CANCELLED"
+    ) {
+      await adjustOrderStock(id, "restore");
+    }
 
     return NextResponse.json(updated, { status: 200 });
   } catch (error: any) {
