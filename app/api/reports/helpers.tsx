@@ -20,7 +20,23 @@ export const toXlsx = (rows: ReportRow[], sheetName = "Report") => {
   return write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 };
 
-export const toPdf = async (rows: ReportRow[], title: string): Promise<Buffer> => {
+const bufferFromStream = async (stream: any): Promise<Buffer> =>
+  new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on("data", (chunk: Buffer | Uint8Array) => {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    });
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+    if (typeof stream.end === "function") {
+      stream.end();
+    }
+  });
+
+export const toPdf = async (
+  rows: ReportRow[],
+  title: string
+): Promise<Buffer> => {
   const styles = StyleSheet.create({
     page: { padding: 24, fontSize: 10 },
     title: { fontSize: 14, marginBottom: 12 },
@@ -46,7 +62,12 @@ export const toPdf = async (rows: ReportRow[], title: string): Promise<Buffer> =
   const instance = pdf(doc) as any;
   if (typeof instance.toBuffer === "function") {
     const result = await instance.toBuffer();
-    return Buffer.isBuffer(result) ? result : Buffer.from(result);
+    if (Buffer.isBuffer(result)) return result;
+    if (result instanceof Uint8Array) return Buffer.from(result);
+    if (result && typeof result.on === "function") {
+      return bufferFromStream(result);
+    }
+    return Buffer.from(result);
   }
   if (typeof instance.toBlob === "function") {
     const blob = await instance.toBlob();
