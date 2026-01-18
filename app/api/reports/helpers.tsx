@@ -29,12 +29,12 @@ export const toXlsx = (rows: ReportRow[], sheetName = "Report") => {
 
 const headerLabels: Record<string, string> = {
   orderCode: "Order",
-  customer: "Customer",
+  customer: "Cust",
   email: "Email",
   phone: "Phone",
   total: "Total",
-  paymentStatus: "Payment",
-  shippingStatus: "Status",
+  paymentStatus: "Pay",
+  shippingStatus: "Ship",
   createdAt: "Created",
 };
 
@@ -83,6 +83,10 @@ export const toPdf = async (
       borderBottomWidth: 1,
       borderBottomColor: "#EFE8DF",
     },
+    cellBase: {
+      flexGrow: 0,
+      flexShrink: 0,
+    },
     cell: {
       paddingVertical: 6,
       paddingHorizontal: 8,
@@ -117,8 +121,17 @@ export const toPdf = async (
                     ? styles.cellCenter
                     : null;
                 const cellStyle = alignStyle
-                  ? [styles.headerCell, { width: getColumnWidth(header) }, alignStyle]
-                  : [styles.headerCell, { width: getColumnWidth(header) }];
+                  ? [
+                      styles.cellBase,
+                      styles.headerCell,
+                      { width: getColumnWidth(header) },
+                      alignStyle,
+                    ]
+                  : [
+                      styles.cellBase,
+                      styles.headerCell,
+                      { width: getColumnWidth(header) },
+                    ];
                 return (
                   <Text key={header} style={cellStyle}>
                     {headerLabels[header] ?? header}
@@ -136,8 +149,17 @@ export const toPdf = async (
                       ? styles.cellCenter
                       : null;
                   const cellStyle = alignStyle
-                    ? [styles.cell, { width: getColumnWidth(header) }, alignStyle]
-                    : [styles.cell, { width: getColumnWidth(header) }];
+                    ? [
+                        styles.cellBase,
+                        styles.cell,
+                        { width: getColumnWidth(header) },
+                        alignStyle,
+                      ]
+                    : [
+                        styles.cellBase,
+                        styles.cell,
+                        { width: getColumnWidth(header) },
+                      ];
                   return (
                     <Text key={header} style={cellStyle}>
                       {row[header] ?? "-"}
