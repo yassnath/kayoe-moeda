@@ -115,18 +115,14 @@ export const toPdf = async (
                     ? styles.cellRight
                     : headerAlign[header] === "center"
                     ? styles.cellCenter
-                    : undefined;
+                    : null;
+                const cellStyle = alignStyle
+                  ? [styles.headerCell, { width: getColumnWidth(header) }, alignStyle]
+                  : [styles.headerCell, { width: getColumnWidth(header) }];
                 return (
-                <Text
-                  key={header}
-                  style={[
-                    styles.headerCell,
-                    { width: getColumnWidth(header) },
-                    alignStyle,
-                  ].filter(Boolean)}
-                >
-                  {headerLabels[header] ?? header}
-                </Text>
+                  <Text key={header} style={cellStyle}>
+                    {headerLabels[header] ?? header}
+                  </Text>
                 );
               })}
             </View>
@@ -138,18 +134,14 @@ export const toPdf = async (
                       ? styles.cellRight
                       : headerAlign[header] === "center"
                       ? styles.cellCenter
-                      : undefined;
+                      : null;
+                  const cellStyle = alignStyle
+                    ? [styles.cell, { width: getColumnWidth(header) }, alignStyle]
+                    : [styles.cell, { width: getColumnWidth(header) }];
                   return (
-                  <Text
-                    key={header}
-                    style={[
-                      styles.cell,
-                      { width: getColumnWidth(header) },
-                      alignStyle,
-                    ].filter(Boolean)}
-                  >
-                    {row[header] ?? "-"}
-                  </Text>
+                    <Text key={header} style={cellStyle}>
+                      {row[header] ?? "-"}
+                    </Text>
                   );
                 })}
               </View>
