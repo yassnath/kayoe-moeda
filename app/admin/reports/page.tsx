@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "@/components/admin/PageHeader";
 import Alert from "@/components/admin/Alert";
 
@@ -19,10 +19,27 @@ export default function AdminReportsPage() {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadName, setDownloadName] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (downloadUrl) {
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+    };
+  }, [downloadUrl]);
 
   const handleGenerate = async () => {
+    if (downloadUrl) {
+      window.URL.revokeObjectURL(downloadUrl);
+      setDownloadUrl(null);
+      setDownloadName(null);
+    }
     setError(null);
     setPreview(null);
+    setIsGenerating(true);
     try {
       const params = new URLSearchParams();
       if (startDate) params.set("startDate", startDate);
@@ -37,22 +54,22 @@ export default function AdminReportsPage() {
       }
 
       const meta = res.headers.get("x-report-meta");
-      if (meta) {
-        setPreview(meta);
-      } else {
-        setPreview("Laporan siap diunduh.");
-      }
+      setPreview(meta || "Laporan siap diunduh.");
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = res.headers.get("content-disposition")?.split("filename=")[1]?.replace(/\"/g, "") || `report.${format}`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const filename =
+        res.headers
+          .get("content-disposition")
+          ?.split("filename=")[1]
+          ?.replace(/\"/g, "") || `report.${format}`;
+      setDownloadUrl(url);
+      setDownloadName(filename);
     } catch (err) {
       console.error(err);
       setError("Terjadi kesalahan saat generate laporan.");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -64,7 +81,6 @@ export default function AdminReportsPage() {
       />
 
       {error && <Alert variant="error" title="Error" message={error} />}
-      {preview && <Alert variant="success" title="Laporan" message={preview} />}
 
       <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
         <div className="grid gap-4 md:grid-cols-2">
@@ -120,12 +136,72 @@ export default function AdminReportsPage() {
         <button
           type="button"
           onClick={handleGenerate}
-          className="mt-6 rounded-full bg-km-wood px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90"
+          className="mt-6 rounded-full bg-km-wood px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isGenerating}
         >
-          Generate & Download
+          {isGenerating ? "Menyiapkan..." : "Generate Preview"}
         </button>
+      </div>
+
+      <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+        <div className="text-sm font-semibold text-km-ink">Preview Laporan</div>
+        <div className="mt-3 grid gap-3 text-sm text-km-ink/70 md:grid-cols-2">
+          <div>
+            <div className="text-xs uppercase tracking-wide text-km-ink/50">
+              Tipe
+            </div>
+            <div className="font-semibold text-km-ink">
+              {reportTypes.find((opt) => opt.value === reportType)?.label}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wide text-km-ink/50">
+              Format
+            </div>
+            <div className="font-semibold text-km-ink">
+              {format.toUpperCase()}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wide text-km-ink/50">
+              Rentang Tanggal
+            </div>
+            <div className="font-semibold text-km-ink">
+              {startDate || "Semua"} - {endDate || "Semua"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wide text-km-ink/50">
+              Ringkasan
+            </div>
+            <div className="font-semibold text-km-ink">
+              {preview || "Belum ada preview."}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (!downloadUrl) return;
+              const a = document.createElement("a");
+              a.href = downloadUrl;
+              a.download = downloadName || `report.${format}`;
+              a.click();
+            }}
+            className="rounded-full bg-km-wood px-5 py-2 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={!downloadUrl}
+          >
+            Download File
+          </button>
+          {!downloadUrl && (
+            <span className="text-xs text-km-ink/50">
+              Klik Generate Preview dulu untuk menyiapkan file.
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
