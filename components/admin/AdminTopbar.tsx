@@ -59,7 +59,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               <div className="text-xs text-km-ink/55">Dashboard</div>
             </div>
           </Link>
-          <div className="hidden lg:flex items-center gap-2">
+          <div className="hidden lg:flex items-center gap-5">
             {tabs.map((tab) => {
               const active =
                 pathname === tab.href ||
@@ -68,13 +68,18 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                 <Link
                   key={tab.href}
                   href={tab.href}
-                  className={`rounded-full px-3 py-1.5 text-xs font-semibold no-underline ring-1 transition ${
+                  className={`text-xs font-semibold tracking-wide no-underline transition ${
                     active
-                      ? "bg-km-wood text-white ring-km-wood shadow-soft"
-                      : "bg-white text-km-ink/75 ring-km-line hover:bg-km-surface-alt"
+                      ? "text-km-wood"
+                      : "text-km-ink/70 hover:text-km-ink"
                   }`}
                 >
-                  {tab.label}
+                  <span className="pb-1 border-b-2 border-transparent">
+                    {tab.label}
+                  </span>
+                  {active && (
+                    <span className="block h-0.5 w-full bg-km-wood mt-1 rounded-full" />
+                  )}
                 </Link>
               );
             })}
@@ -82,7 +87,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
         </div>
 
         <div className="flex items-center justify-end gap-2">
-          <div className="hidden md:flex w-full max-w-xs items-center gap-2 rounded-full bg-white px-3 py-2 ring-1 ring-km-line">
+          <div className="hidden md:flex w-full max-w-xs items-center gap-2 rounded-full bg-white/80 px-3 py-2 ring-1 ring-km-line">
             <input
               value={query}
               onChange={(e) => {
@@ -94,13 +99,8 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
             />
           </div>
           <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 ring-1 ring-km-line">
-            <div className="text-xs">
-              <div className="font-semibold text-km-ink">
-                {name || "Admin"}
-              </div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-km-ink/50">
-                {role || "ADMIN"}
-              </div>
+            <div className="text-xs font-semibold text-km-ink">
+              {name || "Admin"}
             </div>
             <Link
               href="/api/auth/signout"
@@ -122,10 +122,10 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`rounded-full px-3 py-1 text-[11px] font-semibold no-underline ring-1 transition ${
+                className={`rounded-full px-3 py-1 text-[11px] font-semibold no-underline transition ${
                   active
-                    ? "bg-km-wood text-white ring-km-wood shadow-soft"
-                    : "bg-white text-km-ink/80 ring-km-line hover:bg-km-surface-alt"
+                    ? "bg-km-wood/10 text-km-wood"
+                    : "text-km-ink/80 hover:text-km-ink"
                 }`}
               >
                 {tab.label}
