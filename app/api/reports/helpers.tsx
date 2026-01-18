@@ -20,7 +20,7 @@ export const toXlsx = (rows: ReportRow[], sheetName = "Report") => {
   return write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 };
 
-export const toPdf = async (rows: ReportRow[], title: string) => {
+export const toPdf = async (rows: ReportRow[], title: string): Promise<Buffer> => {
   const styles = StyleSheet.create({
     page: { padding: 24, fontSize: 10 },
     title: { fontSize: 14, marginBottom: 12 },
@@ -43,7 +43,17 @@ export const toPdf = async (rows: ReportRow[], title: string) => {
     </Document>
   );
 
-  return pdf(doc).toBuffer();
+  const instance = pdf(doc) as any;
+  if (typeof instance.toBuffer === "function") {
+    const result = await instance.toBuffer();
+    return Buffer.isBuffer(result) ? result : Buffer.from(result);
+  }
+  if (typeof instance.toBlob === "function") {
+    const blob = await instance.toBlob();
+    const arrayBuffer = await blob.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+  }
+  throw new Error("PDF generator tidak mendukung output buffer.");
 };
 
 export const buildResponse = ({
@@ -72,4 +82,3 @@ export const buildResponse = ({
     },
   });
 };
-
