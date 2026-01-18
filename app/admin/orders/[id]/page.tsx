@@ -1,9 +1,13 @@
-// app/admin/orders/[id]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import PageHeader from "@/components/admin/PageHeader";
+import StatusBadge from "@/components/admin/StatusBadge";
+import Alert from "@/components/admin/Alert";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
+import { formatCurrency, formatDate } from "@/components/admin/utils";
 
 type UserInfo = {
   id: string;
@@ -38,25 +42,47 @@ type OrderDetail = {
   items: OrderItemInfo[];
 };
 
+const mapOrderStatus = (order: OrderDetail) => {
+  if (order.paymentStatus === "CANCELLED") return "BATAL";
+  if (order.shippingStatus === "DELIVERED") return "SELESAI";
+  if (order.shippingStatus === "PACKED" || order.shippingStatus === "SHIPPED") {
+    return "PROSES";
+  }
+  return "BARU";
+};
+
+const mapPaymentStatus = (value: string) => {
+  if (value === "PAID") return "PAID";
+  return "UNPAID";
+};
+
+const orderStatusToApi = (value: string) => {
+  switch (value) {
+    case "PROSES":
+      return "PROCESSING";
+    case "SELESAI":
+      return "DONE";
+    case "BATAL":
+      return "CANCELLED";
+    default:
+      return "PENDING";
+  }
+};
+
 export default function AdminOrderDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string;
 
   const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [statusValue, setStatusValue] = useState<string>("PENDING");
-  const [confirmingPayment, setConfirmingPayment] = useState(false);
-  const [confirmPaymentError, setConfirmPaymentError] = useState<string | null>(
-    null
-  );
-  const [confirmPaymentSuccess, setConfirmPaymentSuccess] = useState<
-    string | null
-  >(null);
-  const [paymentStatusValue, setPaymentStatusValue] = useState<string>("PENDING");
-  const [savingPaymentStatus, setSavingPaymentStatus] = useState(false);
+  const [paymentSaving, setPaymentSaving] = useState(false);
+  const [confirmingPaid, setConfirmingPaid] = useState(false);
+  const [orderStatus, setOrderStatus] = useState("BARU");
+  const [paymentStatus, setPaymentStatus] = useState("UNPAID");
+  const [confirmFinish, setConfirmFinish] = useState(false);
 
   const fetchDetail = async () => {
     if (!id) return;
@@ -68,42 +94,19 @@ export default function AdminOrderDetailPage() {
         method: "GET",
         cache: "no-store",
       });
-
-      let data: unknown = null;
-
-      try {
-        data = await res.json();
-      } catch {
-        console.error("Response GET /api/admin/orders/[id] bukan JSON");
-        setError("Response server tidak valid");
-        return;
-      }
-
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const message =
-          data &&
-          typeof data === "object" &&
-          data !== null &&
-          "message" in data &&
-          typeof (data as any).message === "string"
-            ? (data as any).message
-            : "Gagal mengambil detail pesanan";
-
-        setError(message);
+        setError(data?.message || "Pesanan tidak ditemukan.");
+        setOrder(null);
         return;
       }
-
       const detail = data as OrderDetail;
       setOrder(detail);
-      setStatusValue(deriveStatusValue(detail));
-      setPaymentStatusValue(detail.paymentStatus || "PENDING");
+      setOrderStatus(mapOrderStatus(detail));
+      setPaymentStatus(mapPaymentStatus(detail.paymentStatus));
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat mengambil detail pesanan"
-      );
+      setError("Gagal memuat detail pesanan.");
     } finally {
       setLoading(false);
     }
@@ -111,455 +114,326 @@ export default function AdminOrderDetailPage() {
 
   useEffect(() => {
     fetchDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const formatTanggal = (value: string) =>
-    new Date(value).toLocaleString("id-ID");
-
-  const translateStatus = (value: string) => {
-    switch (value) {
-      case "PROCESSING":
-        return "Diproses";
-      case "DONE":
-        return "Selesai";
-      case "CANCELLED":
-        return "Dibatalkan";
-      default:
-        return "Pending";
+  const handleUpdateStatus = async (force = false) => {
+    if (!order) return;
+    if (!force && orderStatus === "SELESAI" && paymentStatus === "UNPAID") {
+      setConfirmFinish(true);
+      return;
     }
-  };
-
-  const deriveStatusValue = (detail: OrderDetail) => {
-    if (detail.paymentStatus === "CANCELLED") return "CANCELLED";
-    if (detail.shippingStatus === "DELIVERED") return "DONE";
-    if (
-      detail.shippingStatus === "PACKED" ||
-      detail.shippingStatus === "SHIPPED"
-    ) {
-      return "PROCESSING";
-    }
-    return "PENDING";
-  };
-
-  const handleUpdateStatus = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-
     setSaving(true);
     setError(null);
-    setSuccess(null);
-
     try {
-      const res = await fetch(`/api/admin/orders/${id}`, {
+      const res = await fetch(`/api/admin/orders/${order.id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: statusValue }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: orderStatusToApi(orderStatus) }),
       });
-
-      let data: unknown = null;
-
-      try {
-        data = await res.json();
-      } catch {
-        console.error("Response PATCH /api/admin/orders/[id] bukan JSON");
-      }
-
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const message =
-          data &&
-          typeof data === "object" &&
-          data !== null &&
-          "message" in data &&
-          typeof (data as any).message === "string"
-            ? (data as any).message
-            : "Gagal mengupdate status pesanan";
-
-        setError(message);
+        setError(data?.message || "Gagal mengupdate status pesanan.");
         return;
       }
-
-      if (data && typeof data === "object") {
-        const updated = data as OrderDetail;
-        setOrder(updated);
-        setStatusValue(deriveStatusValue(updated));
-      }
-
-      setSuccess("Status pesanan berhasil diupdate.");
+      const updated = data as OrderDetail;
+      setOrder(updated);
+      setOrderStatus(mapOrderStatus(updated));
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat mengupdate status pesanan"
-      );
+      setError("Terjadi kesalahan saat update status pesanan.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleConfirmPayment = async () => {
-    if (!id) return;
-    setConfirmingPayment(true);
-    setConfirmPaymentError(null);
-    setConfirmPaymentSuccess(null);
-
+  const handleUpdatePayment = async () => {
+    if (!order) return;
+    setPaymentSaving(true);
+    setError(null);
     try {
-      const res = await fetch(`/api/admin/orders/${id}/confirm-payment`, {
-        method: "POST",
-      });
-
-      let data: unknown = null;
-      try {
-        data = await res.json();
-      } catch {
-        console.error("Response POST /api/admin/orders/[id]/confirm-payment bukan JSON");
-      }
-
-      if (!res.ok) {
-        const message =
-          data &&
-          typeof data === "object" &&
-          data !== null &&
-          "message" in data &&
-          typeof (data as any).message === "string"
-            ? (data as any).message
-            : "Gagal konfirmasi pembayaran";
-        setConfirmPaymentError(message);
-        return;
-      }
-
-      if (data && typeof data === "object") {
-        const updated = data as OrderDetail;
-        setOrder(updated);
-      }
-
-      setConfirmPaymentSuccess("Pembayaran berhasil dikonfirmasi.");
-    } catch (err) {
-      console.error(err);
-      setConfirmPaymentError(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat konfirmasi pembayaran"
-      );
-    } finally {
-      setConfirmingPayment(false);
-    }
-  };
-
-  const handleUpdatePaymentStatus = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
-    setSavingPaymentStatus(true);
-    setConfirmPaymentError(null);
-    setConfirmPaymentSuccess(null);
-
-    try {
-      const res = await fetch(`/api/admin/orders/${id}/payment-status`, {
+      const res = await fetch(`/api/admin/orders/${order.id}/payment-status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentStatus: paymentStatusValue }),
+        body: JSON.stringify({
+          paymentStatus: paymentStatus === "PAID" ? "PAID" : "PENDING",
+        }),
       });
-
-      let data: unknown = null;
-      try {
-        data = await res.json();
-      } catch {
-        console.error("Response POST /api/admin/orders/[id]/payment-status bukan JSON");
-      }
-
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const message =
-          data &&
-          typeof data === "object" &&
-          data !== null &&
-          "message" in data &&
-          typeof (data as any).message === "string"
-            ? (data as any).message
-            : "Gagal mengupdate status pembayaran";
-        setConfirmPaymentError(message);
+        setError(data?.message || "Gagal update pembayaran.");
         return;
       }
-
-      if (data && typeof data === "object") {
-        const updated = data as OrderDetail;
-        setOrder(updated);
-        setPaymentStatusValue(updated.paymentStatus || "PENDING");
-      }
-
-      setConfirmPaymentSuccess("Status pembayaran berhasil diupdate.");
+      const updated = data as OrderDetail;
+      setOrder(updated);
+      setPaymentStatus(mapPaymentStatus(updated.paymentStatus));
     } catch (err) {
       console.error(err);
-      setConfirmPaymentError(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat update pembayaran"
-      );
+      setError("Terjadi kesalahan saat update pembayaran.");
     } finally {
-      setSavingPaymentStatus(false);
+      setPaymentSaving(false);
     }
   };
 
-  if (!id) {
-    return (
-      <div className="p-4 sm:p-6">
-        <p className="text-sm text-red-600">
-          ID pesanan tidak ditemukan di URL.
-        </p>
-        <Link
-          href="/admin/orders"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          ← Kembali ke daftar pesanan
-        </Link>
-      </div>
-    );
-  }
+  const handleSetPaid = async () => {
+    if (!order) return;
+    setConfirmingPaid(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/confirm-payment`, {
+        method: "POST",
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.message || "Gagal mengkonfirmasi pembayaran.");
+        return;
+      }
+      const updated = data as OrderDetail;
+      setOrder(updated);
+      setPaymentStatus(mapPaymentStatus(updated.paymentStatus));
+    } catch (err) {
+      console.error(err);
+      setError("Terjadi kesalahan saat konfirmasi pembayaran.");
+    } finally {
+      setConfirmingPaid(false);
+    }
+  };
 
   if (loading) {
     return (
-      <div className="p-4 sm:p-6">
-        <p className="text-sm text-gray-600">Memuat detail pesanan...</p>
+      <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+        <p className="text-sm text-km-ink/60">Memuat detail pesanan...</p>
       </div>
     );
   }
 
-  if (error || !order) {
+  if (!order) {
     return (
-      <div className="p-4 sm:p-6 space-y-2">
-        <p className="text-sm text-red-600">
-          {error ?? "Pesanan tidak ditemukan"}
-        </p>
-        <Link
-          href="/admin/orders"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          ← Kembali ke daftar pesanan
-        </Link>
-      </div>
-    );
-  }
-
-  const total = order.grossAmount || 0;
-
-  return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto space-y-4">
-      <h1 className="text-xl font-semibold mb-2">
-        Detail Pesanan Kayoe Moeda
-      </h1>
-
-      <Link
-        href="/admin/orders"
-        className="text-sm text-blue-600 hover:underline"
-      >
-        ← Kembali ke daftar pesanan
-      </Link>
-
-      {(error || success) && (
-        <div className="mt-3 space-y-2">
-          {error && (
-            <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded text-sm">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded text-sm">
-              {success}
-            </div>
-          )}
-        </div>
-      )}
-      {(confirmPaymentError || confirmPaymentSuccess) && (
-        <div className="mt-3 space-y-2">
-          {confirmPaymentError && (
-            <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded text-sm">
-              {confirmPaymentError}
-            </div>
-          )}
-          {confirmPaymentSuccess && (
-            <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded text-sm">
-              {confirmPaymentSuccess}
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="border rounded-lg bg-white p-4 space-y-3">
-        <div className="text-sm text-gray-700">
-          <div>
-            <span className="font-medium">ID Pesanan:</span> {order.id}
-          </div>
-          <div>
-            <span className="font-medium">Kode Pesanan:</span> {order.orderCode}
-          </div>
-          <div>
-            <span className="font-medium">Tanggal dibuat:</span>{" "}
-            {formatTanggal(order.createdAt)}
-          </div>
-          <div>
-            <span className="font-medium">Customer:</span>{" "}
-            {order.user?.name ?? "Tanpa nama"}
-          </div>
-          {order.user?.email && (
-            <div>
-              <span className="font-medium">Email:</span> {order.user.email}
-            </div>
-          )}
-          {order.user?.phone && (
-            <div>
-              <span className="font-medium">Telepon:</span> {order.user.phone}
-            </div>
-          )}
-        </div>
-
-        <div className="border-t pt-3 text-sm text-gray-700 space-y-1">
-          <div className="font-semibold">Detail Pesanan</div>
-          {order.items.length === 0 ? (
-            <div>-</div>
-          ) : (
-            order.items.map((item) => (
-              <div key={item.id}>
-                {item.name} ({item.quantity} x Rp{" "}
-                {Number(item.price || 0).toLocaleString("id-ID")})
-              </div>
-            ))
-          )}
-          <div>
-            <span className="font-medium">Total harga:</span> Rp{" "}
-            {total.toLocaleString("id-ID")}
-          </div>
-          <div>
-            <span className="font-medium">Status saat ini:</span>{" "}
-            {translateStatus(statusValue)}
-          </div>
-        </div>
-
-        <div className="border-t pt-3 text-sm text-gray-700 space-y-1">
-          <div className="font-semibold">Alamat Pengiriman</div>
-          <div>{order.recipientName || "-"}</div>
-          <div>{order.recipientPhone || "-"}</div>
-          <div>
-            {(order.addressLine || "-") +
-              (order.city ? `, ${order.city}` : "") +
-              (order.province ? `, ${order.province}` : "") +
-              (order.postalCode ? `, ${order.postalCode}` : "")}
-          </div>
-        </div>
-
-        <div className="border-t pt-3 text-sm text-gray-700 space-y-1">
-          <div className="font-semibold">Bukti Pembayaran</div>
-          {order.paymentProofUrl ? (
-            <div className="space-y-1">
-              <a
-                href={order.paymentProofUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 hover:underline text-sm"
-              >
-                Lihat bukti pembayaran
-              </a>
-              <div className="text-xs text-gray-500">
-                Diunggah:{" "}
-                {order.paymentProofUploadedAt
-                  ? new Date(order.paymentProofUploadedAt).toLocaleString(
-                      "id-ID"
-                    )
-                  : "-"}
-              </div>
-            </div>
-          ) : (
-            <div className="text-sm text-gray-500">Belum ada bukti.</div>
-          )}
-        </div>
-      </div>
-
-      {/* Form ubah status */}
-      <div className="border rounded-lg bg-white p-4 space-y-3">
-        <h2 className="text-sm font-semibold">Ubah Status Pesanan</h2>
-
-        <form onSubmit={handleUpdateStatus} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Status pesanan
-            </label>
-            <select
-              value={statusValue}
-              onChange={(e) => setStatusValue(e.target.value)}
-              className="w-full sm:w-auto border rounded px-3 py-2 text-sm"
-            >
-              <option value="PENDING">Pending</option>
-              <option value="PROCESSING">Diproses</option>
-              <option value="DONE">Selesai</option>
-              <option value="CANCELLED">Dibatalkan</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
-          >
-            {saving ? "Menyimpan..." : "Simpan Status"}
-          </button>
-        </form>
-      </div>
-
-      {/* Konfirmasi pembayaran */}
-      <div className="border rounded-lg bg-white p-4 space-y-3">
-        <h2 className="text-sm font-semibold">Konfirmasi Pembayaran</h2>
-        <p className="text-xs text-gray-500">
-          Set pembayaran ke PAID tanpa mengubah status pengiriman.
-        </p>
+      <div className="space-y-3">
+        {error && <Alert variant="error" title="Error" message={error} />}
         <button
           type="button"
-          onClick={handleConfirmPayment}
-          disabled={
-            confirmingPayment ||
-            order.paymentStatus === "PAID" ||
-            order.paymentStatus === "CANCELLED"
-          }
-          className="w-full sm:w-auto bg-emerald-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-emerald-700 disabled:opacity-60"
+          onClick={() => router.push("/admin/orders")}
+          className="rounded-full border border-km-line px-4 py-2 text-xs font-semibold text-km-ink"
         >
-          {confirmingPayment
-            ? "Mengonfirmasi..."
-            : order.paymentStatus === "PAID"
-            ? "Sudah PAID"
-            : "Konfirmasi Pembayaran"}
+          Kembali ke Pesanan
         </button>
       </div>
+    );
+  }
 
-      {/* Status pembayaran */}
-      <div className="border rounded-lg bg-white p-4 space-y-3">
-        <h2 className="text-sm font-semibold">Status Pembayaran</h2>
-        <form onSubmit={handleUpdatePaymentStatus} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Status pembayaran
-            </label>
-            <select
-              value={paymentStatusValue}
-              onChange={(e) => setPaymentStatusValue(e.target.value)}
-              className="w-full sm:w-auto border rounded px-3 py-2 text-sm"
-            >
-              <option value="PENDING">Belum bayar</option>
-              <option value="PAID">Sudah bayar</option>
-              <option value="FAILED">Gagal</option>
-              <option value="EXPIRED">Kadaluarsa</option>
-              <option value="CANCELLED">Dibatalkan</option>
-            </select>
+  const waNumber = order.user?.phone
+    ? order.user.phone.replace(/[^\d]/g, "")
+    : "";
+  const waUrl = waNumber
+    ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
+        `Halo ${order.user?.name || ""}, kami dari Kayoe Moeda.`
+      )}`
+    : "";
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Detail Pesanan"
+        description={`Order ${order.orderCode}`}
+        actions={
+          <button
+            type="button"
+            onClick={() => router.push("/admin/orders")}
+            className="rounded-full border border-km-line px-4 py-2 text-xs font-semibold text-km-ink"
+          >
+            Kembali
+          </button>
+        }
+      />
+
+      {error && <Alert variant="error" title="Error" message={error} />}
+
+      <div className="grid gap-6 lg:grid-cols-[1.3fr,0.7fr]">
+        <div className="space-y-4">
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="text-xs uppercase tracking-[0.3em] text-km-ink/50">
+                  Order Info
+                </div>
+                <div className="mt-2 text-xl font-semibold text-km-ink">
+                  {order.orderCode}
+                </div>
+                <div className="text-sm text-km-ink/60">
+                  {formatDate(order.createdAt)}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <StatusBadge type="order" value={orderStatus} />
+                <StatusBadge type="payment" value={paymentStatus} />
+              </div>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={savingPaymentStatus}
-            className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-black/90 disabled:opacity-60"
-          >
-            {savingPaymentStatus ? "Menyimpan..." : "Simpan Status Pembayaran"}
-          </button>
-        </form>
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">Customer</div>
+            <div className="mt-2 space-y-1 text-sm text-km-ink/70">
+              <div>{order.user?.name || "-"}</div>
+              <div>{order.user?.email || "-"}</div>
+              <div>{order.user?.phone || "-"}</div>
+            </div>
+            {waUrl && (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center rounded-full bg-km-brass px-4 py-2 text-xs font-semibold text-km-wood ring-1 ring-km-brass hover:opacity-90"
+              >
+                WhatsApp
+              </a>
+            )}
+          </div>
+
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Alamat Pengiriman
+            </div>
+            <div className="mt-2 text-sm text-km-ink/70">
+              {order.recipientName || "-"}
+              <br />
+              {order.recipientPhone || "-"}
+              <br />
+              {(order.addressLine || "-") +
+                (order.city ? `, ${order.city}` : "") +
+                (order.province ? `, ${order.province}` : "") +
+                (order.postalCode ? `, ${order.postalCode}` : "")}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">Items</div>
+            <div className="mt-3 space-y-3">
+              {order.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between text-sm text-km-ink"
+                >
+                  <div>
+                    {item.name} ({item.quantity}x)
+                  </div>
+                  <div className="font-semibold">
+                    {formatCurrency(item.price * item.quantity)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex items-center justify-between text-sm text-km-ink">
+              <span>Total</span>
+              <span className="text-base font-semibold">
+                {formatCurrency(order.grossAmount)}
+              </span>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Bukti Pembayaran
+            </div>
+            {order.paymentProofUrl ? (
+              <div className="mt-3 space-y-2 text-sm">
+                <div className="relative h-48 w-full overflow-hidden rounded-2xl border border-km-line">
+                  <Image
+                    src={order.paymentProofUrl}
+                    alt="Bukti pembayaran"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <a
+                  href={order.paymentProofUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-km-wood underline"
+                >
+                  Lihat bukti pembayaran
+                </a>
+                <div className="text-xs text-km-ink/50">
+                  Diunggah: {formatDate(order.paymentProofUploadedAt)}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 text-sm text-km-ink/60">
+                Belum ada bukti pembayaran.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Update Status Pesanan
+            </div>
+            <select
+              value={orderStatus}
+              onChange={(e) => setOrderStatus(e.target.value)}
+              className="mt-3 w-full rounded-2xl border border-km-line px-4 py-2 text-sm text-km-ink"
+            >
+              <option value="BARU">Baru</option>
+              <option value="PROSES">Proses</option>
+              <option value="SELESAI">Selesai</option>
+              <option value="BATAL">Batal</option>
+            </select>
+            <button
+              type="button"
+              onClick={handleUpdateStatus}
+              disabled={saving}
+              className="mt-4 w-full rounded-full bg-km-wood px-4 py-2 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:opacity-60"
+            >
+              {saving ? "Menyimpan..." : "Simpan Status"}
+            </button>
+          </div>
+
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Payment Status
+            </div>
+            <select
+              value={paymentStatus}
+              onChange={(e) => setPaymentStatus(e.target.value)}
+              className="mt-3 w-full rounded-2xl border border-km-line px-4 py-2 text-sm text-km-ink"
+            >
+              <option value="UNPAID">Unpaid</option>
+              <option value="PAID">Paid</option>
+            </select>
+            <div className="mt-4 grid gap-2">
+              <button
+                type="button"
+                onClick={handleUpdatePayment}
+                disabled={paymentSaving}
+                className="w-full rounded-full bg-km-brass px-4 py-2 text-sm font-semibold text-km-wood ring-1 ring-km-brass hover:opacity-90 disabled:opacity-60"
+              >
+                {paymentSaving ? "Menyimpan..." : "Simpan Pembayaran"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSetPaid}
+                disabled={confirmingPaid || paymentStatus === "PAID"}
+                className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white ring-1 ring-emerald-600 hover:opacity-90 disabled:opacity-60"
+              >
+                {confirmingPaid ? "Mengonfirmasi..." : "Set Paid"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmFinish}
+        title="Status selesai tapi belum bayar"
+        description="Pesanan masih UNPAID. Lanjutkan set status SELESAI?"
+        confirmLabel="Tetap Selesaikan"
+        onConfirm={() => {
+      setConfirmFinish(false);
+      handleUpdateStatus(true);
+    }}
+        onCancel={() => setConfirmFinish(false)}
+      />
     </div>
   );
 }

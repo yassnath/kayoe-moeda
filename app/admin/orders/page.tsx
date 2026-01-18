@@ -1,8 +1,15 @@
-// app/admin/orders/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import PageHeader from "@/components/admin/PageHeader";
+import SubTabs from "@/components/admin/SubTabs";
+import FilterBar from "@/components/admin/FilterBar";
+import DataTable from "@/components/admin/DataTable";
+import StatusBadge from "@/components/admin/StatusBadge";
+import Alert from "@/components/admin/Alert";
+import { formatCurrency, formatDate } from "@/components/admin/utils";
 
 type UserInfo = {
   id: string;
@@ -18,7 +25,7 @@ type OrderItem = {
   price: number;
 };
 
-type OrderItemRow = {
+type OrderRow = {
   id: string;
   orderCode: string;
   grossAmount: number;
@@ -29,10 +36,52 @@ type OrderItemRow = {
   items: OrderItem[];
 };
 
+const statusTabs = [
+  { label: "Semua", value: "all" },
+  { label: "Baru", value: "BARU" },
+  { label: "Proses", value: "PROSES" },
+  { label: "Selesai", value: "SELESAI" },
+  { label: "Batal", value: "BATAL" },
+];
+
+const paymentOptions = [
+  { label: "Semua", value: "all" },
+  { label: "Unpaid", value: "UNPAID" },
+  { label: "Paid", value: "PAID" },
+];
+
+const mapOrderStatus = (order: OrderRow) => {
+  if (order.paymentStatus === "CANCELLED") return "BATAL";
+  if (order.shippingStatus === "DELIVERED") return "SELESAI";
+  if (order.shippingStatus === "PACKED" || order.shippingStatus === "SHIPPED") {
+    return "PROSES";
+  }
+  return "BARU";
+};
+
+const mapPaymentStatus = (value: string) => {
+  if (value === "PAID") return "PAID";
+  if (value === "CANCELLED") return "UNPAID";
+  return "UNPAID";
+};
+
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<OrderItemRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/admin/orders";
+  const query = searchParams?.get("q")?.toLowerCase() ?? "";
+  const statusFilter = searchParams?.get("status") ?? "all";
+  const paymentFilter = searchParams?.get("payment") ?? "all";
+  const startDate = searchParams?.get("start") ?? "";
+  const endDate = searchParams?.get("end") ?? "";
+
+  const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [exportFormat, setExportFormat] = useState("csv");
+  const [searchValue, setSearchValue] = useState(query);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -45,43 +94,16 @@ export default function AdminOrdersPage() {
           cache: "no-store",
         });
 
-        let data: unknown = null;
-
-        try {
-          data = await res.json();
-        } catch {
-          console.error("Response GET /api/admin/orders bukan JSON valid");
-          setError("Response server tidak valid");
-          return;
-        }
-
+        const data = await res.json().catch(() => null);
         if (!res.ok) {
-          const message =
-            data &&
-            typeof data === "object" &&
-            data !== null &&
-            "message" in data &&
-            typeof (data as any).message === "string"
-              ? (data as any).message
-              : "Gagal mengambil data pesanan";
-
-          setError(message);
+          setError(data?.message || "Gagal mengambil data pesanan.");
+          setOrders([]);
           return;
         }
-
-        if (!Array.isArray(data)) {
-          setError("Format data pesanan tidak sesuai");
-          return;
-        }
-
-        setOrders(data as OrderItemRow[]);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Terjadi kesalahan saat mengambil data pesanan"
-        );
+        setError("Terjadi kesalahan saat mengambil data pesanan.");
       } finally {
         setLoading(false);
       }
@@ -90,120 +112,266 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, []);
 
-  const formatTanggal = (value: string) =>
-    new Date(value).toLocaleString("id-ID");
+  useEffect(() => {
+    setSearchValue(query);
+  }, [query]);
 
-  const getStatusLabel = (order: OrderItemRow) => {
-    if (order.paymentStatus === "CANCELLED") return "Dibatalkan";
-    if (order.shippingStatus === "DELIVERED") return "Selesai";
-    if (order.shippingStatus === "PACKED" || order.shippingStatus === "SHIPPED") {
-      return "Diproses";
+  const filteredOrders = useMemo(() => {
+    let result = [...orders];
+
+    if (query) {
+      result = result.filter((order) => {
+        const haystack = [
+          order.orderCode,
+          order.user?.name,
+          order.user?.email,
+          order.items.map((item) => item.name).join(" "),
+        ]
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(query);
+      });
     }
-    return "Pending";
+
+    if (statusFilter !== "all") {
+      result = result.filter((order) => mapOrderStatus(order) === statusFilter);
+    }
+
+    if (paymentFilter !== "all") {
+      result = result.filter(
+        (order) => mapPaymentStatus(order.paymentStatus) === paymentFilter
+      );
+    }
+
+    if (startDate) {
+      result = result.filter(
+        (order) => new Date(order.createdAt) >= new Date(startDate)
+      );
+    }
+    if (endDate) {
+      result = result.filter(
+        (order) => new Date(order.createdAt) <= new Date(endDate)
+      );
+    }
+
+    return result;
+  }, [orders, query, statusFilter, paymentFilter, startDate, endDate]);
+
+  const paginatedOrders = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredOrders.slice(start, start + pageSize);
+  }, [filteredOrders, page, pageSize]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, statusFilter, paymentFilter, startDate, endDate]);
+
+  const handleExport = async () => {
+    const params = new URLSearchParams();
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    params.set("format", exportFormat);
+    if (query) params.set("q", query);
+    if (statusFilter !== "all") params.set("status", statusFilter);
+    if (paymentFilter !== "all") params.set("payment", paymentFilter);
+
+    const url = `/api/reports/orders?${params.toString()}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const getOrderSummary = (items: OrderItem[]) => {
-    if (!items || items.length === 0) return "-";
-    const first = items[0];
-    if (items.length === 1) return first.name;
-    return `${first.name} (+${items.length - 1} item)`;
-  };
+  const columns = [
+    {
+      key: "createdAt",
+      header: "Tanggal",
+      render: (row: OrderRow) => (
+        <div className="text-xs text-km-ink/70">{formatDate(row.createdAt)}</div>
+      ),
+    },
+    {
+      key: "orderCode",
+      header: "Order",
+      render: (row: OrderRow) => (
+        <div>
+          <div className="font-semibold text-km-ink">{row.orderCode}</div>
+          <div className="text-xs text-km-ink/50">{row.id}</div>
+        </div>
+      ),
+    },
+    {
+      key: "customer",
+      header: "Customer",
+      render: (row: OrderRow) => (
+        <div>
+          <div className="font-semibold text-km-ink">
+            {row.user?.name ?? "Tanpa nama"}
+          </div>
+          <div className="text-xs text-km-ink/50">{row.user?.email}</div>
+        </div>
+      ),
+    },
+    {
+      key: "grossAmount",
+      header: "Total",
+      render: (row: OrderRow) => (
+        <div className="font-semibold text-km-ink">
+          {formatCurrency(row.grossAmount)}
+        </div>
+      ),
+    },
+    {
+      key: "paymentStatus",
+      header: "Payment",
+      render: (row: OrderRow) => (
+        <StatusBadge type="payment" value={mapPaymentStatus(row.paymentStatus)} />
+      ),
+    },
+    {
+      key: "orderStatus",
+      header: "Status",
+      render: (row: OrderRow) => (
+        <StatusBadge type="order" value={mapOrderStatus(row)} />
+      ),
+    },
+    {
+      key: "action",
+      header: "Aksi",
+      render: (row: OrderRow) => (
+        <Link
+          href={`/admin/orders/${row.id}`}
+          className="text-xs font-semibold text-km-wood underline"
+        >
+          Detail
+        </Link>
+      ),
+    },
+  ];
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">
-        Admin - Pesanan Kayoe Moeda
-      </h1>
+    <div className="space-y-6">
+      <PageHeader
+        title="Pesanan"
+        description="Kelola status pesanan dan pembayaran pelanggan."
+        actions={
+          <Link
+            href="/admin/reports"
+            className="rounded-full bg-km-wood px-4 py-2 text-xs font-semibold text-white ring-1 ring-km-wood no-underline hover:opacity-90"
+          >
+            Reports
+          </Link>
+        }
+      />
 
-      {error && (
-        <div className="mb-4 bg-red-50 text-red-700 border border-red-300 px-4 py-2 rounded text-sm">
-          {error}
+      <div className="rounded-3xl border border-km-line bg-white p-4 shadow-soft">
+        <SubTabs paramKey="status" tabs={statusTabs} />
+      </div>
+
+      <FilterBar>
+        <div className="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <label className="text-xs font-semibold text-km-ink/70">
+            Search
+            <input
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              placeholder="Order / customer / produk"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("q", e.target.value);
+                else params.delete("q");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+            />
+          </label>
+
+          <label className="text-xs font-semibold text-km-ink/70">
+            Payment
+            <select
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink"
+              value={paymentFilter}
+              onChange={(e) => {
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value === "all") params.delete("payment");
+                else params.set("payment", e.target.value);
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+            >
+              {paymentOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="text-xs font-semibold text-km-ink/70">
+            Start date
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("start", e.target.value);
+                else params.delete("start");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink"
+            />
+          </label>
+
+          <label className="text-xs font-semibold text-km-ink/70">
+            End date
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("end", e.target.value);
+                else params.delete("end");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink"
+            />
+          </label>
         </div>
-      )}
 
-      {loading && !error && (
-        <p className="text-sm text-gray-600">Memuat daftar pesanan...</p>
-      )}
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={exportFormat}
+            onChange={(e) => setExportFormat(e.target.value)}
+            className="rounded-full border border-km-line bg-white px-4 py-2 text-xs font-semibold text-km-ink"
+          >
+            <option value="csv">CSV</option>
+            <option value="xlsx">XLSX</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button
+            type="button"
+            onClick={handleExport}
+            className="rounded-full bg-km-brass px-4 py-2 text-xs font-semibold text-km-wood ring-1 ring-km-brass hover:opacity-90"
+          >
+            Export
+          </button>
+        </div>
+      </FilterBar>
 
-      {!loading && !error && (
-        <>
-          <p className="text-sm text-gray-600 mb-3">
-            Total pesanan: <span className="font-semibold">{orders.length}</span>
-          </p>
+      {error && <Alert variant="error" title="Error" message={error} />}
 
-          {orders.length === 0 ? (
-            <p className="text-sm text-gray-500">
-              Belum ada pesanan dari pelanggan Kayoe Moeda.
-            </p>
-          ) : (
-            <div className="overflow-x-auto border rounded-lg bg-white">
-              <table className="min-w-full text-xs sm:text-sm">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Tanggal</th>
-                    <th className="px-3 py-2 text-left">Customer</th>
-                    <th className="px-3 py-2 text-left">Produk</th>
-                    <th className="px-3 py-2 text-left">Total</th>
-                    <th className="px-3 py-2 text-left">Status</th>
-                    <th className="px-3 py-2 text-left">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => {
-                    const status = getStatusLabel(order);
-
-                    return (
-                      <tr
-                        key={order.id}
-                        className="border-b last:border-b-0 hover:bg-gray-50"
-                      >
-                        <td className="px-3 py-2 whitespace-nowrap">
-                          {formatTanggal(order.createdAt)}
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="font-medium">
-                            {order.user?.name ?? "Tanpa nama"}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {order.user?.email}
-                          </div>
-                          {order.user?.phone && (
-                            <div className="text-xs text-gray-500">
-                              {order.user.phone}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="font-medium">
-                            {getOrderSummary(order.items)}
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap">
-                          Rp{" "}
-                          {Number(order.grossAmount || 0).toLocaleString("id-ID")}
-                        </td>
-                        <td className="px-3 py-2">
-                          <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                            {status}
-                          </span>
-                        </td>
-                        <td className="px-3 py-2">
-                          <Link
-                            href={`/admin/orders/${order.id}`}
-                            className="text-xs text-blue-600 hover:underline"
-                          >
-                            Lihat detail
-                          </Link>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
+      <DataTable
+        columns={columns}
+        data={paginatedOrders}
+        loading={loading}
+        pagination={{
+          page,
+          pageSize,
+          total: filteredOrders.length,
+          onPageChange: setPage,
+        }}
+        emptyState={
+          <div className="text-center text-sm text-km-ink/60">
+            Tidak ada pesanan yang sesuai filter.
+          </div>
+        }
+      />
     </div>
   );
 }

@@ -1,9 +1,15 @@
-// app/admin/products/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import PageHeader from "@/components/admin/PageHeader";
+import FilterBar from "@/components/admin/FilterBar";
+import DataTable from "@/components/admin/DataTable";
+import Alert from "@/components/admin/Alert";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
+import { formatCurrency, formatDate } from "@/components/admin/utils";
 import { resolveImageSrc } from "@/lib/utils";
 
 type ProdukItem = {
@@ -13,17 +19,27 @@ type ProdukItem = {
   image: string;
   price: number;
   capacity: number;
+  updatedAt: string;
 };
 
 export default function AdminProductsPage() {
-  const [produks, setProduks] = useState<ProdukItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/admin/products";
+  const query = searchParams?.get("q")?.toLowerCase() ?? "";
+  const sort = searchParams?.get("sort") ?? "updated";
 
-  // GET: ambil semua produk
+  const [produks, setProduks] = useState<ProdukItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [searchValue, setSearchValue] = useState(query);
+
   useEffect(() => {
     const fetchProduks = async () => {
+      setLoading(true);
       setError(null);
 
       try {
@@ -32,235 +48,246 @@ export default function AdminProductsPage() {
           cache: "no-store",
         });
 
-        let data: unknown = null;
-
-        try {
-          data = await res.json();
-        } catch {
-          console.error("Response GET /api/admin/produks bukan JSON valid");
-          setError("Response server tidak valid");
-          return;
-        }
-
+        const data = await res.json().catch(() => null);
         if (!res.ok) {
-          const message =
-            data &&
-            typeof data === "object" &&
-            data !== null &&
-            "message" in data &&
-            typeof (data as any).message === "string"
-              ? (data as any).message
-              : "Gagal mengambil data produk";
-
-          // ❗ DI SINI TIDAK ADA throw, hanya setError
-          setError(message);
+          setError(data?.message || "Gagal mengambil data produk.");
+          setProduks([]);
           return;
         }
-
-        if (!Array.isArray(data)) {
-          setError("Format data produk tidak sesuai");
-          return;
-        }
-
-        setProduks(data as ProdukItem[]);
+        setProduks(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Terjadi kesalahan saat mengambil produk"
-        );
+        setError("Terjadi kesalahan saat mengambil data produk.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProduks();
   }, []);
 
-  // POST: tambah produk baru
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setIsSubmitting(true);
+  useEffect(() => {
+    setSearchValue(query);
+  }, [query]);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+  const filteredProduks = useMemo(() => {
+    let result = [...produks];
+    if (query) {
+      result = result.filter((p) =>
+        `${p.name} ${p.description}`.toLowerCase().includes(query)
+      );
+    }
 
+    if (sort === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sort === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sort === "stock") {
+      result.sort((a, b) => a.capacity - b.capacity);
+    } else {
+      result.sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+    }
+    return result;
+  }, [produks, query, sort]);
+
+  const paginatedProduks = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredProduks.slice(start, start + pageSize);
+  }, [filteredProduks, page, pageSize]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, sort]);
+
+  const handleDelete = async (id: string) => {
     try {
-      const res = await fetch("/api/admin/produks", {
-        method: "POST",
-        body: formData,
+      const res = await fetch(`/api/admin/produks/${id}/delete`, {
+        method: "DELETE",
       });
-
-      let data: unknown = null;
-
-      try {
-        data = await res.json();
-      } catch {
-        console.error("Response POST /api/admin/produks bukan JSON valid");
-      }
-
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const message =
-          data &&
-          typeof data === "object" &&
-          data !== null &&
-          "message" in data &&
-          typeof (data as any).message === "string"
-            ? (data as any).message
-            : "Gagal menyimpan produk";
-
-        setError(message);
+        setError(data?.message || "Gagal menghapus produk.");
         return;
       }
-
-      if (data && typeof data === "object") {
-        setProduks((prev) => [data as ProdukItem, ...prev]);
-      }
-
-      form.reset();
-      setSuccess("Produk berhasil disimpan.");
+      setProduks((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat menyimpan produk"
-      );
+      setError("Terjadi kesalahan saat menghapus produk.");
     } finally {
-      setIsSubmitting(false);
+      setConfirmId(null);
     }
   };
 
-  return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">
-        Admin - Produk Kayoe Moeda
-      </h1>
-
-      {/* Alert */}
-      {error && (
-        <div className="mb-4 bg-red-50 text-red-700 border border-red-300 px-4 py-2 rounded text-sm">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="mb-4 bg-emerald-50 text-emerald-700 border border-emerald-300 px-4 py-2 rounded text-sm">
-          {success}
-        </div>
-      )}
-
-      {/* FORM TAMBAH PRODUK */}
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block mb-1 text-sm font-medium">Nama Produk</label>
-            <input
-              name="name"
-              type="text"
-              className="w-full border px-3 py-2 rounded text-sm"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium">
-              Harga (Rupiah)
-            </label>
-            <input
-              name="price"
-              type="number"
-              min={0}
-              className="w-full border px-3 py-2 rounded text-sm"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium">Stok</label>
-            <input
-              name="capacity"
-              type="number"
-              min={1}
-              defaultValue={1}
-              className="w-full border px-3 py-2 rounded text-sm"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-sm font-medium">
-              Gambar (file)
-            </label>
-            <input
-              name="image"
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp"
-              className="w-full border px-3 py-2 rounded text-sm"
-              required
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium">Deskripsi</label>
-          <textarea
-            name="description"
-            rows={3}
-            className="w-full border px-3 py-2 rounded text-sm"
-            required
+  const columns = [
+    {
+      key: "image",
+      header: "Foto",
+      render: (row: ProdukItem) => (
+        <div className="relative h-12 w-16 overflow-hidden rounded-xl border border-km-line">
+          <Image
+            src={resolveImageSrc(row.image)}
+            alt={row.name}
+            fill
+            className="object-cover"
           />
         </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-60"
-        >
-          {isSubmitting ? "Menyimpan..." : "Simpan Produk"}
-        </button>
-      </form>
-
-      {/* LIST PRODUK */}
-      <h2 className="text-lg font-semibold mb-2">Daftar Produk</h2>
-
-      {produks.length === 0 ? (
-        <p className="text-sm text-gray-500">Belum ada produk Kayoe Moeda.</p>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {produks.map((produk) => {
-            const imageSrc = resolveImageSrc(produk.image);
-
-            return (
-              <Link
-                key={produk.id}
-                href={`/admin/products/${produk.id}`}
-                className="border rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow"
-              >
-                <div className="relative h-40 w-full">
-                  <Image
-                    src={imageSrc}
-                    alt={produk.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-3 space-y-1">
-                  <div className="text-sm font-semibold">{produk.name}</div>
-                  <div className="text-xs text-gray-600">
-                    Rp {produk.price.toLocaleString("id-ID")} • Stok{" "}
-                    {produk.capacity}
-                  </div>
-                  <p className="text-xs text-gray-500 line-clamp-2">
-                    {produk.description}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
+      ),
+    },
+    {
+      key: "name",
+      header: "Nama",
+      render: (row: ProdukItem) => (
+        <div>
+          <div className="font-semibold text-km-ink">{row.name}</div>
+          <div className="text-xs text-km-ink/50 line-clamp-1">
+            {row.description}
+          </div>
         </div>
-      )}
+      ),
+    },
+    {
+      key: "price",
+      header: "Harga",
+      render: (row: ProdukItem) => (
+        <div className="font-semibold text-km-ink">
+          {formatCurrency(row.price)}
+        </div>
+      ),
+    },
+    {
+      key: "capacity",
+      header: "Stok",
+      render: (row: ProdukItem) => (
+        <div className="text-sm text-km-ink">{row.capacity}</div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: () => (
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+          Aktif
+        </span>
+      ),
+    },
+    {
+      key: "updatedAt",
+      header: "Updated",
+      render: (row: ProdukItem) => (
+        <div className="text-xs text-km-ink/60">{formatDate(row.updatedAt)}</div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Aksi",
+      render: (row: ProdukItem) => (
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/admin/products/${row.id}/edit`}
+            className="rounded-full px-3 py-1 text-xs font-semibold text-km-wood ring-1 ring-km-wood"
+          >
+            Edit
+          </Link>
+          <button
+            type="button"
+            onClick={() => setConfirmId(row.id)}
+            className="rounded-full px-3 py-1 text-xs font-semibold text-red-600 ring-1 ring-red-200"
+          >
+            Delete
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Produk"
+        description="Kelola katalog produk Kayoe Moeda."
+        actions={
+          <Link
+            href="/admin/products/new"
+            className="rounded-full bg-km-wood px-4 py-2 text-xs font-semibold text-white ring-1 ring-km-wood no-underline hover:opacity-90"
+          >
+            Tambah Produk
+          </Link>
+        }
+      />
+
+      <FilterBar>
+        <div className="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <label className="text-xs font-semibold text-km-ink/70">
+            Search
+            <input
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              placeholder="Cari nama produk"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("q", e.target.value);
+                else params.delete("q");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+            />
+          </label>
+          <label className="text-xs font-semibold text-km-ink/70">
+            Sort
+            <select
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink"
+              value={sort}
+              onChange={(e) => {
+                const params = new URLSearchParams(searchParams?.toString());
+                params.set("sort", e.target.value);
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+            >
+              <option value="updated">Terbaru</option>
+              <option value="price-asc">Harga terendah</option>
+              <option value="price-desc">Harga tertinggi</option>
+              <option value="stock">Stok terendah</option>
+            </select>
+          </label>
+        </div>
+      </FilterBar>
+
+      {error && <Alert variant="error" title="Error" message={error} />}
+
+      <DataTable
+        columns={columns}
+        data={paginatedProduks}
+        loading={loading}
+        pagination={{
+          page,
+          pageSize,
+          total: filteredProduks.length,
+          onPageChange: setPage,
+        }}
+        emptyState={
+          <div className="flex flex-col items-center gap-3 text-center text-sm text-km-ink/60">
+            <div>Belum ada produk. Tambahkan produk baru untuk mulai.</div>
+            <Link
+              href="/admin/products/new"
+              className="rounded-full bg-km-wood px-4 py-2 text-xs font-semibold text-white ring-1 ring-km-wood no-underline"
+            >
+              Tambah Produk
+            </Link>
+          </div>
+        }
+      />
+
+      <ConfirmDialog
+        open={!!confirmId}
+        title="Hapus produk?"
+        description="Produk yang dihapus tidak bisa dikembalikan."
+        confirmLabel="Hapus Produk"
+        onConfirm={() => confirmId && handleDelete(confirmId)}
+        onCancel={() => setConfirmId(null)}
+      />
     </div>
   );
 }
