@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { utils, write } from "xlsx";
-import { Document, Page, StyleSheet, Text, renderToBuffer } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+  renderToBuffer,
+} from "@react-pdf/renderer";
 
 export type ReportRow = Record<string, string | number | null>;
 
@@ -24,24 +31,71 @@ export const toPdf = async (
   rows: ReportRow[],
   title: string
 ): Promise<Buffer> => {
+  const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
   const styles = StyleSheet.create({
     page: { padding: 24, fontSize: 10 },
     title: { fontSize: 14, marginBottom: 12 },
-    row: { marginBottom: 6 },
-    label: { fontWeight: "bold" },
+    empty: { fontSize: 10, color: "#6b7280" },
+    table: {
+      borderWidth: 1,
+      borderColor: "#E6E0D7",
+      borderRadius: 6,
+      overflow: "hidden",
+    },
+    headerRow: {
+      flexDirection: "row",
+      backgroundColor: "#F6F1E8",
+      borderBottomWidth: 1,
+      borderBottomColor: "#E6E0D7",
+    },
+    row: {
+      flexDirection: "row",
+      borderBottomWidth: 1,
+      borderBottomColor: "#EFE8DF",
+    },
+    cell: {
+      flexGrow: 1,
+      flexBasis: 0,
+      paddingVertical: 6,
+      paddingHorizontal: 8,
+      fontSize: 8,
+      color: "#1F1A17",
+    },
+    headerCell: {
+      fontSize: 8,
+      fontWeight: "bold",
+      color: "#6B5A4D",
+      paddingVertical: 6,
+      paddingHorizontal: 8,
+    },
   });
 
   const doc = (
     <Document>
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>{title}</Text>
-        {rows.map((row, idx) => (
-          <Text key={idx} style={styles.row}>
-            {Object.entries(row)
-              .map(([key, value]) => `${key}: ${value ?? "-"}`)
-              .join(" | ")}
-          </Text>
-        ))}
+        {rows.length === 0 ? (
+          <Text style={styles.empty}>Tidak ada data untuk periode ini.</Text>
+        ) : (
+          <View style={styles.table}>
+            <View style={styles.headerRow}>
+              {headers.map((header) => (
+                <Text key={header} style={styles.headerCell}>
+                  {header}
+                </Text>
+              ))}
+            </View>
+            {rows.map((row, idx) => (
+              <View key={idx} style={styles.row}>
+                {headers.map((header) => (
+                  <Text key={header} style={styles.cell}>
+                    {row[header] ?? "-"}
+                  </Text>
+                ))}
+              </View>
+            ))}
+          </View>
+        )}
       </Page>
     </Document>
   );
