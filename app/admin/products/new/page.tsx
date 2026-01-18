@@ -92,7 +92,6 @@ export default function AdminProductCreatePage() {
                 { label: "Lainnya", value: "lainnya" },
               ]}
             />
-            <TextField label="SKU (optional)" name="sku" />
           </div>
           <div className="space-y-4">
             <SelectField
@@ -104,7 +103,7 @@ export default function AdminProductCreatePage() {
               ]}
             />
             <FileUpload
-              label="Upload Gambar"
+              label="Ganti Gambar"
               name="image"
               preview={preview}
               onChange={(file) => {
