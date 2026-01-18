@@ -381,7 +381,7 @@ export default function AdminOrderDetailPage() {
             </select>
             <button
               type="button"
-              onClick={handleUpdateStatus}
+              onClick={() => handleUpdateStatus()}
               disabled={saving}
               className="mt-4 w-full rounded-full bg-km-wood px-4 py-2 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:opacity-60"
             >
