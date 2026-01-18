@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/navbar/navbar";
-import Footer from "@/components/footer";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
-import WhatsAppGate from "@/components/whatsapp-gate";
+import AppShell from "@/components/app-shell";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,13 +25,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className="min-h-screen text-km-ink antialiased">
         <SessionProvider session={session}>
-          <Navbar />
-
-          {/* ? Global offset untuk fixed navbar */}
-          <main className="pt-24">{children}</main>
-
-          <Footer />
-          <WhatsAppGate />
+          <AppShell>{children}</AppShell>
         </SessionProvider>
       </body>
     </html>

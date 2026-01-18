@@ -47,7 +47,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
   return (
     <div className="sticky top-0 z-40 border-b border-km-line bg-[var(--km-bg)]/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center gap-4">
           <Link href="/admin" className="flex items-center gap-2 no-underline">
             <div className="h-9 w-9 rounded-full bg-km-wood/10 ring-1 ring-km-line flex items-center justify-center text-xs font-semibold text-km-ink">
               KM
@@ -59,30 +59,29 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               <div className="text-xs text-km-ink/55">Dashboard</div>
             </div>
           </Link>
+          <div className="hidden lg:flex items-center gap-2">
+            {tabs.map((tab) => {
+              const active =
+                pathname === tab.href ||
+                (tab.href !== "/admin" && pathname.startsWith(tab.href));
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold no-underline ring-1 transition ${
+                    active
+                      ? "bg-km-wood text-white ring-km-wood"
+                      : "bg-white text-km-ink ring-km-line hover:bg-km-surface-alt"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="hidden xl:flex flex-1 items-center gap-2 justify-center">
-          {tabs.map((tab) => {
-            const active =
-              pathname === tab.href ||
-              (tab.href !== "/admin" && pathname.startsWith(tab.href));
-            return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold no-underline ring-1 transition ${
-                  active
-                    ? "bg-km-wood text-white ring-km-wood"
-                    : "bg-white text-km-ink ring-km-line hover:bg-km-surface-alt"
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-1 items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-3">
           <div className="hidden md:flex w-full max-w-xs items-center gap-2 rounded-full bg-white px-3 py-2 ring-1 ring-km-line">
             <input
               value={query}
@@ -90,7 +89,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                 setQuery(e.target.value);
                 handleSearch(e.target.value);
               }}
-              placeholder="Cari order / customer / produk…"
+              placeholder="Cari order / customer / produk..."
               className="w-full bg-transparent text-xs text-km-ink placeholder:text-km-ink/40 focus:outline-none"
             />
           </div>
@@ -142,7 +141,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                 setQuery(e.target.value);
                 handleSearch(e.target.value);
               }}
-              placeholder="Cari order / customer / produk…"
+              placeholder="Cari order / customer / produk..."
               className="w-full bg-transparent text-xs text-km-ink placeholder:text-km-ink/40 focus:outline-none"
             />
           </div>
