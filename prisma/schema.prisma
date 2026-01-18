@@ -319,6 +319,8 @@ model Order {
   paymentProofUrl        String?
   paymentProofUploadedAt DateTime?
 
+  stockAdjusted Boolean @default(false)
+
   items OrderItem[]
 
   createdAt DateTime @default(now())

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { adjustOrderStock } from "../stock";
 
 export const runtime = "nodejs";
 
@@ -132,7 +133,22 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    const updated = await prisma.order.findUnique({
+    if (status === "PROCESSING" || status === "DONE") {
+      try {
+        await adjustOrderStock(id, "deduct");
+      } catch (err: any) {
+        return NextResponse.json(
+          { message: err?.message || "Gagal mengurangi stok produk." },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (status === "CANCELLED") {
+      await adjustOrderStock(id, "restore");
+    }
+
+    const updatedWithItems = await prisma.order.findUnique({
       where: { id },
       include: {
         user: true,
@@ -140,7 +156,7 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json(updatedWithItems, { status: 200 });
   } catch (error: any) {
     console.error("PATCH /api/admin/orders/[id] error:", error);
     return NextResponse.json(
