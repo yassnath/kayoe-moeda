@@ -27,6 +27,36 @@ export const toXlsx = (rows: ReportRow[], sheetName = "Report") => {
   return write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 };
 
+const headerLabels: Record<string, string> = {
+  orderCode: "Order",
+  customer: "Customer",
+  email: "Email",
+  phone: "Phone",
+  total: "Total",
+  paymentStatus: "Payment",
+  shippingStatus: "Status",
+  createdAt: "Created",
+};
+
+const headerAlign: Record<string, "left" | "right" | "center"> = {
+  total: "right",
+  paymentStatus: "center",
+  shippingStatus: "center",
+};
+
+const headerWidth: Record<string, number> = {
+  orderCode: 90,
+  customer: 70,
+  email: 120,
+  phone: 80,
+  total: 60,
+  paymentStatus: 60,
+  shippingStatus: 70,
+  createdAt: 80,
+};
+
+const getColumnWidth = (key: string) => headerWidth[key] ?? 70;
+
 export const toPdf = async (
   rows: ReportRow[],
   title: string
@@ -54,8 +84,6 @@ export const toPdf = async (
       borderBottomColor: "#EFE8DF",
     },
     cell: {
-      flexGrow: 1,
-      flexBasis: 0,
       paddingVertical: 6,
       paddingHorizontal: 8,
       fontSize: 8,
@@ -68,6 +96,8 @@ export const toPdf = async (
       paddingVertical: 6,
       paddingHorizontal: 8,
     },
+    cellRight: { textAlign: "right" },
+    cellCenter: { textAlign: "center" },
   });
 
   const doc = (
@@ -80,15 +110,31 @@ export const toPdf = async (
           <View style={styles.table}>
             <View style={styles.headerRow}>
               {headers.map((header) => (
-                <Text key={header} style={styles.headerCell}>
-                  {header}
+                <Text
+                  key={header}
+                  style={[
+                    styles.headerCell,
+                    { width: getColumnWidth(header) },
+                    headerAlign[header] === "right" && styles.cellRight,
+                    headerAlign[header] === "center" && styles.cellCenter,
+                  ]}
+                >
+                  {headerLabels[header] ?? header}
                 </Text>
               ))}
             </View>
             {rows.map((row, idx) => (
               <View key={idx} style={styles.row}>
                 {headers.map((header) => (
-                  <Text key={header} style={styles.cell}>
+                  <Text
+                    key={header}
+                    style={[
+                      styles.cell,
+                      { width: getColumnWidth(header) },
+                      headerAlign[header] === "right" && styles.cellRight,
+                      headerAlign[header] === "center" && styles.cellCenter,
+                    ]}
+                  >
                     {row[header] ?? "-"}
                   </Text>
                 ))}
