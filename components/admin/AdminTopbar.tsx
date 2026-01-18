@@ -121,24 +121,11 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               onClick={() => setMenuOpen((prev) => !prev)}
               className="flex items-center gap-2 text-xs font-semibold text-km-ink"
             >
-              <span>Super Admin Kayoe Moeda</span>
-              {role && (
-                <span className="rounded-full bg-km-surface-alt px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-km-ink/70">
-                  {role}
-                </span>
-              )}
+              <span>{role === "OWNER" ? "Owner" : "Admin"}</span>
               <span className="text-km-ink/40">▾</span>
             </button>
             {menuOpen && (
               <div className="absolute right-0 top-11 w-44 rounded-2xl border border-km-line bg-white p-2 shadow-soft">
-                {role === "OWNER" && (
-                  <Link
-                    href="/admin"
-                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-km-ink hover:bg-km-surface-alt no-underline"
-                  >
-                    Kelola Admin
-                  </Link>
-                )}
                 <button
                   type="button"
                   onClick={() =>
