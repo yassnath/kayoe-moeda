@@ -1,10 +1,13 @@
-// app/admin/custom-orders/[id]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import PageHeader from "@/components/admin/PageHeader";
+import Alert from "@/components/admin/Alert";
+import TextArea from "@/components/admin/form/TextArea";
+import SelectField from "@/components/admin/form/SelectField";
+import { formatDate } from "@/components/admin/utils";
 import { resolveImageSrc } from "@/lib/utils";
 
 type CustomOrderDetail = {
@@ -18,68 +21,74 @@ type CustomOrderDetail = {
   image: string | null;
   status: string;
   createdAt: string;
+  internalNotes?: string | null;
+};
+
+const statusOptions = [
+  { label: "Baru", value: "NEW" },
+  { label: "Dalam Proses", value: "IN_PROGRESS" },
+  { label: "Selesai", value: "DONE" },
+  { label: "Batal", value: "CANCELLED" },
+];
+
+const typeLabel = (value: string) => {
+  switch (value) {
+    case "MUG":
+      return "Kursi";
+    case "GELAS":
+      return "Meja";
+    case "PIRING":
+      return "Lemari";
+    case "MANGKOK":
+      return "Rak";
+    case "LAINNYA":
+      return "Lainnya";
+    default:
+      return value;
+  }
+};
+
+const normalizePhoneForWa = (phone: string) => {
+  const digits = phone.replace(/[^\d]/g, "");
+  if (digits.startsWith("0")) return `62${digits.slice(1)}`;
+  return digits;
 };
 
 export default function AdminCustomOrderDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string;
 
   const [order, setOrder] = useState<CustomOrderDetail | null>(null);
   const [statusValue, setStatusValue] = useState<string>("NEW");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
-
     const fetchDetail = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const res = await fetch(`/api/admin/custom-orders/${id}`, {
-          method: "GET",
           cache: "no-store",
         });
-
-        let data: unknown = null;
-
-        try {
-          data = await res.json();
-        } catch {
-          console.error(
-            "Response GET /api/admin/custom-orders/[id] bukan JSON"
-          );
-          setError("Response server tidak valid");
-          return;
-        }
-
+        const data = await res.json().catch(() => null);
         if (!res.ok) {
-          const message =
-            data &&
-            typeof data === "object" &&
-            data !== null &&
-            "message" in data &&
-            typeof (data as any).message === "string"
-              ? (data as any).message
-              : "Gagal mengambil detail custom order";
-
-          setError(message);
+          setError(data?.message || "Custom order tidak ditemukan.");
+          setOrder(null);
           return;
         }
-
         const detail = data as CustomOrderDetail;
         setOrder(detail);
         setStatusValue(detail.status);
+        setNotes(detail.internalNotes ?? "");
       } catch (err) {
         console.error(err);
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Terjadi kesalahan saat mengambil detail custom order"
-        );
+        setError("Gagal memuat detail custom order.");
       } finally {
         setLoading(false);
       }
@@ -88,55 +97,9 @@ export default function AdminCustomOrderDetailPage() {
     fetchDetail();
   }, [id]);
 
-  const formatTanggal = (value: string) =>
-    new Date(value).toLocaleString("id-ID");
-
-  const formatStatus = (status: string) => {
-    switch (status) {
-      case "NEW":
-        return "Baru";
-      case "CONTACTED":
-        return "Sudah dihubungi";
-      case "IN_PROGRESS":
-        return "Dalam proses";
-      case "DONE":
-        return "Selesai";
-      case "CANCELLED":
-        return "Dibatalkan";
-      default:
-        return status;
-    }
-  };
-
-  const formatType = (type: string) => {
-    switch (type) {
-      case "MUG":
-        return "Kursi";
-      case "GELAS":
-        return "Meja";
-      case "PIRING":
-        return "Lemari";
-      case "MANGKOK":
-        return "Rak";
-      case "LAINNYA":
-        return "Lainnya";
-      default:
-        return type;
-    }
-  };
-
-  const normalizePhoneForWa = (phone: string) => {
-    const digits = phone.replace(/[^\d]/g, "");
-    if (digits.startsWith("0")) {
-      return "62" + digits.slice(1);
-    }
-    return digits;
-  };
-
-  const handleUpdateStatus = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
-
     setSaving(true);
     setError(null);
     setSuccess(null);
@@ -144,180 +107,127 @@ export default function AdminCustomOrderDetailPage() {
     try {
       const res = await fetch(`/api/admin/custom-orders/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: statusValue }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: statusValue, internalNotes: notes }),
       });
-
-      let data: unknown = null;
-
-      try {
-        data = await res.json();
-      } catch {
-        console.error(
-          "Response PATCH /api/admin/custom-orders/[id] bukan JSON"
-        );
-      }
-
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        const message =
-          data &&
-          typeof data === "object" &&
-          data !== null &&
-          "message" in data &&
-          typeof (data as any).message === "string"
-            ? (data as any).message
-            : "Gagal mengupdate custom order";
-
-        setError(message);
+        setError(data?.message || "Gagal memperbarui custom order.");
         return;
       }
-
-      if (data && typeof data === "object") {
-        const updated = data as CustomOrderDetail;
-        setOrder(updated);
-        setStatusValue(updated.status);
-      }
-
-      setSuccess("Status custom order berhasil diupdate.");
+      setOrder(data as CustomOrderDetail);
+      setSuccess("Custom order berhasil diperbarui.");
     } catch (err) {
       console.error(err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat mengupdate custom order"
-      );
+      setError("Terjadi kesalahan saat update custom order.");
     } finally {
       setSaving(false);
     }
   };
 
-  if (!id) {
-    return (
-      <div className="p-4 sm:p-6">
-        <p className="text-sm text-red-600">
-          ID custom order tidak ditemukan di URL.
-        </p>
-        <Link
-          href="/admin/custom-orders"
-          className="text-sm text-blue-600 hover:underline"
-        >
-          ← Kembali ke daftar custom order
-        </Link>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
-      <div className="p-4 sm:p-6">
-        <p className="text-sm text-gray-600">Memuat detail custom order...</p>
+      <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+        <p className="text-sm text-km-ink/60">Memuat detail custom order...</p>
       </div>
     );
   }
 
-  if (error || !order) {
+  if (!order) {
     return (
-      <div className="p-4 sm:p-6 space-y-2">
-        <p className="text-sm text-red-600">
-          {error ?? "Custom order tidak ditemukan"}
-        </p>
-        <Link
-          href="/admin/custom-orders"
-          className="text-sm text-blue-600 hover:underline"
+      <div className="space-y-3">
+        {error && <Alert variant="error" title="Error" message={error} />}
+        <button
+          type="button"
+          onClick={() => router.push("/admin/custom-orders")}
+          className="rounded-full border border-km-line px-4 py-2 text-xs font-semibold text-km-ink"
         >
-          ← Kembali ke daftar custom order
-        </Link>
+          Kembali
+        </button>
       </div>
     );
   }
 
   const waNumber = normalizePhoneForWa(order.phone);
-  const waMessage = encodeURIComponent(
-    `Halo ${order.customerName}, saya admin Kayoe Moeda ingin menindaklanjuti custom order Anda:\n\n` +
-      `Nama pesanan: ${order.orderName}\n` +
-      `Tipe: ${formatType(order.orderType)}\n\n` +
-      `Silakan balas pesan ini untuk diskusi lebih lanjut.`
-  );
-  const waUrl = `https://wa.me/${waNumber}?text=${waMessage}`;
+  const waUrl = waNumber
+    ? `https://wa.me/${waNumber}?text=${encodeURIComponent(
+        `Halo ${order.customerName}, kami dari Kayoe Moeda ingin menindaklanjuti custom order Anda.`
+      )}`
+    : "";
 
   return (
-    <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-4">
-      <h1 className="text-xl font-semibold mb-2">
-        Detail Custom Order Kayoe Moeda
-      </h1>
+    <div className="space-y-6">
+      <PageHeader
+        title="Detail Custom Order"
+        description={`Permintaan: ${order.orderName}`}
+        actions={
+          <button
+            type="button"
+            onClick={() => router.push("/admin/custom-orders")}
+            className="rounded-full border border-km-line px-4 py-2 text-xs font-semibold text-km-ink"
+          >
+            Kembali
+          </button>
+        }
+      />
 
-      <Link
-        href="/admin/custom-orders"
-        className="text-sm text-blue-600 hover:underline"
-      >
-        ← Kembali ke daftar custom order
-      </Link>
+      {error && <Alert variant="error" title="Error" message={error} />}
+      {success && <Alert variant="success" title="Berhasil" message={success} />}
 
-      {(error || success) && (
-        <div className="mt-3 space-y-2">
-          {error && (
-            <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded text-sm">
-              {error}
+      <div className="grid gap-6 lg:grid-cols-[1.3fr,0.7fr]">
+        <div className="space-y-4">
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Informasi Customer
             </div>
-          )}
-          {success && (
-            <div className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-4 py-2 rounded text-sm">
-              {success}
+            <div className="mt-2 space-y-1 text-sm text-km-ink/70">
+              <div>{order.customerName}</div>
+              <div>{order.email}</div>
+              <div>{order.phone}</div>
+              <div className="text-xs text-km-ink/50">
+                {formatDate(order.createdAt)}
+              </div>
             </div>
-          )}
-        </div>
-      )}
+            {waUrl && (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-3 inline-flex items-center rounded-full bg-km-brass px-4 py-2 text-xs font-semibold text-km-wood ring-1 ring-km-brass hover:opacity-90"
+              >
+                Hubungi via WhatsApp
+              </a>
+            )}
+          </div>
 
-      <div className="border rounded-lg bg-white p-4 space-y-3">
-        <div className="text-sm text-gray-700 space-y-1">
-          <div>
-            <span className="font-medium">ID:</span> {order.id}
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Detail Pesanan
+            </div>
+            <div className="mt-2 space-y-2 text-sm text-km-ink/70">
+              <div>
+                <span className="font-semibold text-km-ink">Nama:</span>{" "}
+                {order.orderName}
+              </div>
+              <div>
+                <span className="font-semibold text-km-ink">Tipe:</span>{" "}
+                {typeLabel(order.orderType)}
+              </div>
+              <div>
+                <span className="font-semibold text-km-ink">Deskripsi:</span>
+              </div>
+              <p className="text-sm text-km-ink/70 leading-relaxed">
+                {order.description}
+              </p>
+            </div>
           </div>
-          <div>
-            <span className="font-medium">Tanggal masuk:</span>{" "}
-            {formatTanggal(order.createdAt)}
-          </div>
-        </div>
 
-        <div className="border-t pt-3 text-sm text-gray-700 space-y-1">
-          <div className="font-semibold mb-1">Customer</div>
-          <div>
-            <span className="font-medium">Nama:</span> {order.customerName}
-          </div>
-          <div>
-            <span className="font-medium">Email:</span> {order.email}
-          </div>
-          <div>
-            <span className="font-medium">Telepon/WA:</span> {order.phone}
-          </div>
-        </div>
-
-        <div className="border-t pt-3 text-sm text-gray-700 space-y-1">
-          <div className="font-semibold mb-1">Detail Pesanan</div>
-          <div>
-            <span className="font-medium">Nama pesanan:</span>{" "}
-            {order.orderName}
-          </div>
-          <div>
-            <span className="font-medium">Tipe:</span>{" "}
-            {formatType(order.orderType)}
-          </div>
-          <div>
-            <span className="font-medium">Status:</span>{" "}
-            {formatStatus(order.status)}
-          </div>
-          <div>
-            <span className="font-medium">Deskripsi:</span>
-            <p className="mt-1 whitespace-pre-line">
-              {order.description}
-            </p>
-          </div>
-          {order.image && (
-            <div className="mt-2">
-              <span className="font-medium">Gambar referensi:</span>
-              <div className="mt-1 relative w-40 h-40 border rounded overflow-hidden">
+          <div className="rounded-3xl border border-km-line bg-white p-5 shadow-soft">
+            <div className="text-sm font-semibold text-km-ink">
+              Gambar Referensi
+            </div>
+            {order.image ? (
+              <div className="mt-3 relative h-56 w-full overflow-hidden rounded-2xl border border-km-line">
                 <Image
                   src={resolveImageSrc(order.image)}
                   alt={order.orderName}
@@ -325,53 +235,41 @@ export default function AdminCustomOrderDetailPage() {
                   className="object-cover"
                 />
               </div>
-            </div>
-          )}
-        </div>
-
-        <div className="border-t pt-3 flex flex-wrap gap-3">
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex w-full sm:w-auto items-center justify-center px-3 py-2 rounded text-sm font-medium bg-green-500 text-white hover:bg-green-600"
-          >
-            Hubungi via WhatsApp
-          </a>
-        </div>
-      </div>
-
-      {/* Form ubah status */}
-      <div className="border rounded-lg bg-white p-4 space-y-3">
-        <h2 className="text-sm font-semibold">Ubah Status Custom Order</h2>
-
-        <form onSubmit={handleUpdateStatus} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Status
-            </label>
-            <select
-              value={statusValue}
-              onChange={(e) => setStatusValue(e.target.value)}
-              className="w-full sm:w-auto border rounded px-3 py-2 text-sm"
-            >
-              <option value="NEW">Baru</option>
-              <option value="CONTACTED">Sudah dihubungi</option>
-              <option value="IN_PROGRESS">Dalam proses</option>
-              <option value="DONE">Selesai</option>
-              <option value="CANCELLED">Dibatalkan</option>
-            </select>
+            ) : (
+              <p className="mt-3 text-sm text-km-ink/60">Tidak ada gambar.</p>
+            )}
           </div>
+        </div>
 
+        <form
+          onSubmit={handleSave}
+          className="space-y-4 rounded-3xl border border-km-line bg-white p-5 shadow-soft"
+        >
+          <div className="text-sm font-semibold text-km-ink">Aksi</div>
+          <SelectField
+            label="Status"
+            name="status"
+            value={statusValue}
+            onChange={(e) => setStatusValue(e.target.value)}
+            options={statusOptions}
+          />
+          <TextArea
+            label="Internal Notes"
+            name="notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={6}
+          />
           <button
             type="submit"
             disabled={saving}
-            className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+            className="w-full rounded-full bg-km-wood px-4 py-2 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:opacity-60"
           >
-            {saving ? "Menyimpan..." : "Simpan Status"}
+            {saving ? "Menyimpan..." : "Simpan Perubahan"}
           </button>
         </form>
       </div>
     </div>
   );
 }
+

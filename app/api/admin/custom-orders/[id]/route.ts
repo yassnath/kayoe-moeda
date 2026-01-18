@@ -75,7 +75,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = (await req.json().catch(() => null)) as
-      | { status?: string }
+      | { status?: string; internalNotes?: string | null }
       | null;
 
     const status = body?.status;
@@ -86,10 +86,13 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    const internalNotes = body?.internalNotes ?? null;
+
     const order = await prisma.customOrder.update({
       where: { id },
       data: {
         status: status as any,
+        internalNotes,
       },
     });
 

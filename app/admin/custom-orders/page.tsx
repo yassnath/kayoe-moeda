@@ -1,8 +1,14 @@
-// app/admin/custom-orders/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import PageHeader from "@/components/admin/PageHeader";
+import SubTabs from "@/components/admin/SubTabs";
+import FilterBar from "@/components/admin/FilterBar";
+import DataTable from "@/components/admin/DataTable";
+import Alert from "@/components/admin/Alert";
+import { formatDate } from "@/components/admin/utils";
 
 type CustomOrder = {
   id: string;
@@ -15,61 +21,95 @@ type CustomOrder = {
   createdAt: string;
 };
 
+const statusTabs = [
+  { label: "Semua", value: "all" },
+  { label: "Baru", value: "NEW" },
+  { label: "Dalam Proses", value: "IN_PROGRESS" },
+  { label: "Selesai", value: "DONE" },
+];
+
+const formatStatus = (status: string) => {
+  switch (status) {
+    case "NEW":
+      return "Baru";
+    case "IN_PROGRESS":
+      return "Dalam Proses";
+    case "DONE":
+      return "Selesai";
+    case "CANCELLED":
+      return "Dibatalkan";
+    default:
+      return status;
+  }
+};
+
+const statusBadgeClass = (status: string) => {
+  switch (status) {
+    case "NEW":
+      return "bg-amber-50 text-amber-800 ring-amber-200";
+    case "IN_PROGRESS":
+      return "bg-blue-50 text-blue-700 ring-blue-200";
+    case "DONE":
+      return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+    case "CANCELLED":
+      return "bg-red-50 text-red-700 ring-red-200";
+    default:
+      return "bg-km-surface-alt text-km-ink ring-km-line";
+  }
+};
+
+const formatType = (type: string) => {
+  switch (type) {
+    case "MUG":
+      return "Kursi";
+    case "GELAS":
+      return "Meja";
+    case "PIRING":
+      return "Lemari";
+    case "MANGKOK":
+      return "Rak";
+    case "LAINNYA":
+      return "Lainnya";
+    default:
+      return type;
+  }
+};
+
 export default function AdminCustomOrdersPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname() || "/admin/custom-orders";
+  const query = searchParams?.get("q")?.toLowerCase() ?? "";
+  const statusFilter = searchParams?.get("status") ?? "all";
+  const startDate = searchParams?.get("start") ?? "";
+  const endDate = searchParams?.get("end") ?? "";
+
   const [orders, setOrders] = useState<CustomOrder[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [searchValue, setSearchValue] = useState(query);
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
       setError(null);
-
       try {
         const res = await fetch("/api/admin/custom-orders", {
           method: "GET",
           cache: "no-store",
         });
-
-        let data: unknown = null;
-
-        try {
-          data = await res.json();
-        } catch {
-          console.error(
-            "Response GET /api/admin/custom-orders bukan JSON valid"
-          );
-          setError("Response server tidak valid");
-          return;
-        }
-
+        const data = await res.json().catch(() => null);
         if (!res.ok) {
-          const message =
-            data &&
-            typeof data === "object" &&
-            data !== null &&
-            "message" in data &&
-            typeof (data as any).message === "string"
-              ? (data as any).message
-              : "Gagal mengambil data custom order";
-
-          setError(message);
+          setError(data?.message || "Gagal mengambil data custom order.");
+          setOrders([]);
           return;
         }
-
-        if (!Array.isArray(data)) {
-          setError("Format data custom order tidak sesuai");
-          return;
-        }
-
-        setOrders(data as CustomOrder[]);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Terjadi kesalahan saat mengambil custom order"
-        );
+        setError("Terjadi kesalahan saat mengambil custom order.");
       } finally {
         setLoading(false);
       }
@@ -78,128 +118,183 @@ export default function AdminCustomOrdersPage() {
     fetchOrders();
   }, []);
 
-  const formatTanggal = (value: string) =>
-    new Date(value).toLocaleString("id-ID");
+  useEffect(() => {
+    setSearchValue(query);
+  }, [query]);
 
-  const formatStatus = (status: string) => {
-    switch (status) {
-      case "NEW":
-        return "Baru";
-      case "CONTACTED":
-        return "Sudah dihubungi";
-      case "IN_PROGRESS":
-        return "Dalam proses";
-      case "DONE":
-        return "Selesai";
-      case "CANCELLED":
-        return "Dibatalkan";
-      default:
-        return status;
+  const filteredOrders = useMemo(() => {
+    let result = [...orders];
+    if (query) {
+      result = result.filter((order) =>
+        `${order.customerName} ${order.orderName} ${order.email}`
+          .toLowerCase()
+          .includes(query)
+      );
     }
-  };
+    if (statusFilter !== "all") {
+      result = result.filter((order) => order.status === statusFilter);
+    }
+    if (startDate) {
+      result = result.filter(
+        (order) => new Date(order.createdAt) >= new Date(startDate)
+      );
+    }
+    if (endDate) {
+      result = result.filter(
+        (order) => new Date(order.createdAt) <= new Date(endDate)
+      );
+    }
+    return result;
+  }, [orders, query, statusFilter, startDate, endDate]);
 
-  const formatType = (type: string) => {
-    switch (type) {
-      case "MUG":
-        return "Kursi";
-      case "GELAS":
-        return "Meja";
-      case "PIRING":
-        return "Lemari";
-      case "MANGKOK":
-        return "Rak";
-      case "LAINNYA":
-        return "Lainnya";
-      default:
-        return type;
-    }
-  };
+  const paginatedOrders = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredOrders.slice(start, start + pageSize);
+  }, [filteredOrders, page, pageSize]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, statusFilter, startDate, endDate]);
+
+  const columns = [
+    {
+      key: "createdAt",
+      header: "Tanggal",
+      render: (row: CustomOrder) => (
+        <div className="text-xs text-km-ink/70">{formatDate(row.createdAt)}</div>
+      ),
+    },
+    {
+      key: "customer",
+      header: "Customer",
+      render: (row: CustomOrder) => (
+        <div>
+          <div className="font-semibold text-km-ink">{row.customerName}</div>
+          <div className="text-xs text-km-ink/50">{row.email}</div>
+          <div className="text-xs text-km-ink/50">{row.phone}</div>
+        </div>
+      ),
+    },
+    {
+      key: "orderName",
+      header: "Pesanan",
+      render: (row: CustomOrder) => (
+        <div className="text-sm text-km-ink">{row.orderName}</div>
+      ),
+    },
+    {
+      key: "orderType",
+      header: "Tipe",
+      render: (row: CustomOrder) => (
+        <div className="text-sm text-km-ink">{formatType(row.orderType)}</div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (row: CustomOrder) => (
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${statusBadgeClass(
+            row.status
+          )}`}
+        >
+          {formatStatus(row.status)}
+        </span>
+      ),
+    },
+    {
+      key: "action",
+      header: "Aksi",
+      render: (row: CustomOrder) => (
+        <Link
+          href={`/admin/custom-orders/${row.id}`}
+          className="text-xs font-semibold text-km-wood underline"
+        >
+          Detail
+        </Link>
+      ),
+    },
+  ];
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">
-        Admin - Custom Order Kayoe Moeda
-      </h1>
+    <div className="space-y-6">
+      <PageHeader
+        title="Custom Order"
+        description="Kelola permintaan custom order pelanggan."
+      />
 
-      {error && (
-        <div className="mb-4 bg-red-50 text-red-700 border border-red-300 px-4 py-2 rounded text-sm">
-          {error}
+      <div className="rounded-3xl border border-km-line bg-white p-4 shadow-soft">
+        <SubTabs paramKey="status" tabs={statusTabs} />
+      </div>
+
+      <FilterBar>
+        <div className="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <label className="text-xs font-semibold text-km-ink/70">
+            Search
+            <input
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink focus:outline-none focus:ring-2 focus:ring-km-brass/60"
+              placeholder="Cari customer / pesanan"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("q", e.target.value);
+                else params.delete("q");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+            />
+          </label>
+
+          <label className="text-xs font-semibold text-km-ink/70">
+            Start date
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("start", e.target.value);
+                else params.delete("start");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink"
+            />
+          </label>
+
+          <label className="text-xs font-semibold text-km-ink/70">
+            End date
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                const params = new URLSearchParams(searchParams?.toString());
+                if (e.target.value) params.set("end", e.target.value);
+                else params.delete("end");
+                router.replace(`${pathname}?${params.toString()}`);
+              }}
+              className="mt-2 w-full rounded-2xl border border-km-line px-3 py-2 text-sm text-km-ink"
+            />
+          </label>
         </div>
-      )}
+      </FilterBar>
 
-      {loading && !error && (
-        <p className="text-sm text-gray-600">Memuat daftar custom order...</p>
-      )}
+      {error && <Alert variant="error" title="Error" message={error} />}
 
-      {!loading && !error && (
-        <>
-          <p className="text-sm text-gray-600 mb-3">
-            Total custom order:{" "}
-            <span className="font-semibold">{orders.length}</span>
-          </p>
-
-          {orders.length === 0 ? (
-            <p className="text-sm text-gray-500">
-              Belum ada custom order dari pelanggan Kayoe Moeda.
-            </p>
-          ) : (
-            <div className="overflow-x-auto border rounded-lg bg-white">
-              <table className="min-w-full text-xs sm:text-sm">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Tanggal</th>
-                    <th className="px-3 py-2 text-left">Customer</th>
-                    <th className="px-3 py-2 text-left">Pesanan</th>
-                    <th className="px-3 py-2 text-left">Tipe</th>
-                    <th className="px-3 py-2 text-left">Status</th>
-                    <th className="px-3 py-2 text-left">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr
-                      key={order.id}
-                      className="border-b last:border-b-0 hover:bg-gray-50"
-                    >
-                      <td className="px-3 py-2 whitespace-nowrap">
-                        {formatTanggal(order.createdAt)}
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="font-medium">
-                          {order.customerName}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {order.email}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {order.phone}
-                        </div>
-                      </td>
-                      <td className="px-3 py-2">{order.orderName}</td>
-                      <td className="px-3 py-2">
-                        {formatType(order.orderType)}
-                      </td>
-                      <td className="px-3 py-2">
-                        <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          {formatStatus(order.status)}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2">
-                        <Link
-                          href={`/admin/custom-orders/${order.id}`}
-                          className="text-xs text-blue-600 hover:underline"
-                        >
-                          Lihat detail
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
+      <DataTable
+        columns={columns}
+        data={paginatedOrders}
+        loading={loading}
+        pagination={{
+          page,
+          pageSize,
+          total: filteredOrders.length,
+          onPageChange: setPage,
+        }}
+        emptyState={
+          <div className="text-center text-sm text-km-ink/60">
+            Belum ada custom order.
+          </div>
+        }
+      />
     </div>
   );
 }

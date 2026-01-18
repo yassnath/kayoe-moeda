@@ -108,7 +108,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    let paymentStatus: "PENDING" | "PAID" | "CANCELLED" = "PENDING";
+    let paymentStatus: "PENDING" | "PAID" | "CANCELLED" | null = null;
     let shippingStatus:
       | "PENDING"
       | "PACKED"
@@ -116,10 +116,8 @@ export async function PATCH(req: NextRequest) {
       | "DELIVERED" = "PENDING";
 
     if (status === "PROCESSING") {
-      paymentStatus = "PAID";
       shippingStatus = "PACKED";
     } else if (status === "DONE") {
-      paymentStatus = "PAID";
       shippingStatus = "DELIVERED";
     } else if (status === "CANCELLED") {
       paymentStatus = "CANCELLED";
@@ -129,7 +127,7 @@ export async function PATCH(req: NextRequest) {
     await prisma.order.update({
       where: { id },
       data: {
-        paymentStatus,
+        ...(paymentStatus ? { paymentStatus } : {}),
         shippingStatus,
       },
     });

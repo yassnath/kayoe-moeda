@@ -130,6 +130,19 @@ export async function GET() {
     const list = await prisma.customOrder.findMany({
       where: { userId } as any,
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        customerName: true,
+        email: true,
+        phone: true,
+        orderName: true,
+        orderType: true,
+        description: true,
+        image: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return NextResponse.json(list, { status: 200 });

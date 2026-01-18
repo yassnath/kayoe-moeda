@@ -3,7 +3,7 @@ import Navbar from "@/components/navbar/navbar";
 import Footer from "@/components/footer";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
-import WhatsAppPopup from "@/components/whatsapp-popup";
+import WhatsAppGate from "@/components/whatsapp-gate";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default async function RootLayout({
           <main className="pt-24">{children}</main>
 
           <Footer />
-          <WhatsAppPopup />
+          <WhatsAppGate />
         </SessionProvider>
       </body>
     </html>
