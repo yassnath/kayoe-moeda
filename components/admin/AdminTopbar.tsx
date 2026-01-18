@@ -58,6 +58,11 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
     [pathname, router, searchParams]
   );
 
+  const visibleTabs =
+    role === "OWNER"
+      ? tabs
+      : tabs.filter((tab) => tab.href !== "/admin/reports");
+
   return (
     <div className="sticky top-0 z-40 border-b border-km-line bg-[var(--km-bg)]/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
@@ -74,7 +79,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
             </div>
           </Link>
           <div className="hidden lg:flex items-center gap-4">
-            {tabs.map((tab) => {
+            {visibleTabs.map((tab) => {
               const active =
                 pathname === tab.href ||
                 (tab.href !== "/admin" && pathname.startsWith(tab.href));
@@ -117,16 +122,23 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
               className="flex items-center gap-2 text-xs font-semibold text-km-ink"
             >
               <span>Super Admin Kayoe Moeda</span>
+              {role && (
+                <span className="rounded-full bg-km-surface-alt px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-km-ink/70">
+                  {role}
+                </span>
+              )}
               <span className="text-km-ink/40">▾</span>
             </button>
             {menuOpen && (
               <div className="absolute right-0 top-11 w-44 rounded-2xl border border-km-line bg-white p-2 shadow-soft">
-                <Link
-                  href="/admin"
-                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-km-ink hover:bg-km-surface-alt no-underline"
-                >
-                  Kelola Admin
-                </Link>
+                {role === "OWNER" && (
+                  <Link
+                    href="/admin"
+                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-km-ink hover:bg-km-surface-alt no-underline"
+                  >
+                    Kelola Admin
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={() =>
@@ -147,7 +159,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
 
       <div className="xl:hidden border-t border-km-line bg-[var(--km-bg)]">
         <div className="mx-auto flex flex-wrap gap-2 px-4 py-2 md:px-6">
-          {tabs.map((tab) => {
+          {visibleTabs.map((tab) => {
             const active =
               pathname === tab.href ||
               (tab.href !== "/admin" && pathname.startsWith(tab.href));
