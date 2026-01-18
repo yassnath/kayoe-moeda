@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageHeader from "@/components/admin/PageHeader";
 import Alert from "@/components/admin/Alert";
 
@@ -19,24 +19,9 @@ export default function AdminReportsPage() {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [downloadName, setDownloadName] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      if (downloadUrl) {
-        window.URL.revokeObjectURL(downloadUrl);
-      }
-    };
-  }, [downloadUrl]);
-
   const handleGenerate = async () => {
-    if (downloadUrl) {
-      window.URL.revokeObjectURL(downloadUrl);
-      setDownloadUrl(null);
-      setDownloadName(null);
-    }
     setError(null);
     setPreview(null);
     setIsGenerating(true);
@@ -63,8 +48,11 @@ export default function AdminReportsPage() {
           .get("content-disposition")
           ?.split("filename=")[1]
           ?.replace(/\"/g, "") || `report.${format}`;
-      setDownloadUrl(url);
-      setDownloadName(filename);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
       setError("Terjadi kesalahan saat generate laporan.");
@@ -140,6 +128,14 @@ export default function AdminReportsPage() {
             />
           </label>
         </div>
+        <button
+          type="button"
+          onClick={handleGenerate}
+          className="mt-6 inline-flex min-w-[180px] items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft ring-1 ring-emerald-600 hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isGenerating}
+        >
+          {isGenerating ? "Menyiapkan..." : "Download Laporan"}
+        </button>
       </div>
 
       <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
@@ -179,34 +175,8 @@ export default function AdminReportsPage() {
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleGenerate}
-            className="inline-flex min-w-[160px] items-center justify-center rounded-full bg-km-wood px-5 py-2 text-sm font-semibold text-white shadow-soft ring-1 ring-km-wood hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isGenerating}
-          >
-            {isGenerating ? "Menyiapkan..." : "Generate Preview"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (!downloadUrl) return;
-              const a = document.createElement("a");
-              a.href = downloadUrl;
-              a.download = downloadName || `report.${format}`;
-              a.click();
-            }}
-            className="inline-flex min-w-[160px] items-center justify-center rounded-full bg-km-ink px-5 py-2 text-sm font-semibold text-white shadow-soft ring-1 ring-km-ink hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={!downloadUrl}
-          >
-            Download File
-          </button>
-          {!downloadUrl && (
-            <span className="text-xs text-km-ink/50">
-              Klik Generate Preview dulu untuk menyiapkan file.
-            </span>
-          )}
+        <div className="mt-5 text-xs text-km-ink/50">
+          Klik tombol download untuk membuat file terbaru.
         </div>
       </div>
     </div>
