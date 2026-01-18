@@ -70,8 +70,8 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                   href={tab.href}
                   className={`rounded-full px-3 py-1.5 text-xs font-semibold no-underline ring-1 transition ${
                     active
-                      ? "bg-km-wood text-white ring-km-wood"
-                      : "bg-white text-km-ink ring-km-line hover:bg-km-surface-alt"
+                      ? "bg-km-wood text-white ring-km-wood shadow-soft"
+                      : "bg-white text-km-ink/80 ring-km-line hover:bg-km-surface-alt"
                   }`}
                 >
                   {tab.label}
@@ -124,8 +124,8 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                 href={tab.href}
                 className={`rounded-full px-3 py-1 text-[11px] font-semibold no-underline ring-1 transition ${
                   active
-                    ? "bg-km-wood text-white ring-km-wood"
-                    : "bg-white text-km-ink ring-km-line hover:bg-km-surface-alt"
+                    ? "bg-km-wood text-white ring-km-wood shadow-soft"
+                    : "bg-white text-km-ink/80 ring-km-line hover:bg-km-surface-alt"
                 }`}
               >
                 {tab.label}
