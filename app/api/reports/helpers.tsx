@@ -28,9 +28,6 @@ const bufferFromStream = async (stream: any): Promise<Buffer> =>
     });
     stream.on("end", () => resolve(Buffer.concat(chunks)));
     stream.on("error", reject);
-    if (typeof stream.end === "function") {
-      stream.end();
-    }
   });
 
 export const toPdf = async (
