@@ -83,6 +83,14 @@ export default function AdminReportsPage() {
       {error && <Alert variant="error" title="Error" message={error} />}
 
       <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm font-semibold text-km-ink">
+            Pengaturan Laporan
+          </div>
+          <div className="text-xs text-km-ink/50">
+            Pastikan rentang tanggal sudah sesuai.
+          </div>
+        </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="text-xs font-semibold text-km-ink/70">
             Jenis laporan
@@ -132,15 +140,6 @@ export default function AdminReportsPage() {
             />
           </label>
         </div>
-
-        <button
-          type="button"
-          onClick={handleGenerate}
-          className="mt-6 rounded-full bg-km-wood px-5 py-2.5 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isGenerating}
-        >
-          {isGenerating ? "Menyiapkan..." : "Generate Preview"}
-        </button>
       </div>
 
       <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
@@ -183,6 +182,14 @@ export default function AdminReportsPage() {
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <button
             type="button"
+            onClick={handleGenerate}
+            className="rounded-full bg-km-wood px-5 py-2 text-sm font-semibold text-white ring-1 ring-km-wood shadow-soft hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isGenerating}
+          >
+            {isGenerating ? "Menyiapkan..." : "Generate Preview"}
+          </button>
+          <button
+            type="button"
             onClick={() => {
               if (!downloadUrl) return;
               const a = document.createElement("a");
@@ -190,7 +197,7 @@ export default function AdminReportsPage() {
               a.download = downloadName || `report.${format}`;
               a.click();
             }}
-            className="rounded-full bg-km-wood px-5 py-2 text-sm font-semibold text-white ring-1 ring-km-wood hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-km-ink px-5 py-2 text-sm font-semibold text-white ring-1 ring-km-ink hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={!downloadUrl}
           >
             Download File

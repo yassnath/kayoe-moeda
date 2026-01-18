@@ -71,7 +71,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
                   className={`rounded-full px-3 py-1.5 text-xs font-semibold no-underline ring-1 transition ${
                     active
                       ? "bg-km-wood text-white ring-km-wood shadow-soft"
-                      : "bg-white text-km-ink/80 ring-km-line hover:bg-km-surface-alt"
+                      : "bg-white text-km-ink/75 ring-km-line hover:bg-km-surface-alt"
                   }`}
                 >
                   {tab.label}
@@ -81,7 +81,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-2">
           <div className="hidden md:flex w-full max-w-xs items-center gap-2 rounded-full bg-white px-3 py-2 ring-1 ring-km-line">
             <input
               value={query}
