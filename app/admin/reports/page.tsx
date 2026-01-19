@@ -10,7 +10,7 @@ export default async function AdminReportsPage() {
     | "CUSTOMER"
     | undefined;
 
-  if (!session || role !== "OWNER") {
+  if (!session || (role !== "ADMIN" && role !== "OWNER")) {
     redirect("/admin");
   }
 

@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     const session = await auth();
     const role = (session?.user as any)?.role;
 
-    if (!session || role !== "OWNER") {
+    if (!session || (role !== "ADMIN" && role !== "OWNER")) {
       return NextResponse.json(
         { message: "Tidak memiliki akses" },
         { status: 403 }

@@ -61,7 +61,7 @@ export default function AdminTopbar({ name, role }: AdminTopbarProps) {
   const visibleTabs =
     role === "OWNER"
       ? tabs
-      : tabs.filter((tab) => tab.href !== "/admin/reports");
+      : tabs.filter((tab) => tab.href !== "/admin/insight");
 
   return (
     <div className="sticky top-0 z-40 border-b border-km-line bg-[var(--km-bg)]/90 backdrop-blur">
