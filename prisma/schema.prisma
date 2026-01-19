@@ -129,6 +129,7 @@ model User {
   image         String?
   role          Role      @default(CUSTOMER)
   phone         String?
+  isActive      Boolean   @default(true)
 
   accounts     Account[]
   reservations Reservation[]
