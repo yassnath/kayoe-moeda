@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import AdminShell from "@/components/admin/AdminShell";
 import AdminTopbar from "@/components/admin/AdminTopbar";
+import { prisma } from "@/lib/prisma";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await auth();
@@ -11,6 +12,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   // ? Wajib login
   if (!session) {
     redirect("/signin?callbackUrl=/admin");
+  }
+
+  const userId = (session.user as any)?.id as string | undefined;
+  const user = userId
+    ? await prisma.user.findUnique({ where: { id: userId } })
+    : null;
+
+  if (!user || user.isActive === false) {
+    redirect("/signin");
   }
 
   // ? Role guard
