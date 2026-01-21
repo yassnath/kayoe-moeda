@@ -1,88 +1,18 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { resolveImageSrc } from "@/lib/utils";
-
-type ProdukDetail = {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  price: number;
-  capacity: number;
-  status?: "ACTIVE" | "INACTIVE";
-};
+import { prisma } from "@/lib/prisma";
 
 interface ProdukDetailProps {
   params: { id: string };
 }
 
-export default function DetailProdukPage({ params }: ProdukDetailProps) {
-  const [produk, setProduk] = useState<ProdukDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function DetailProdukPage({ params }: ProdukDetailProps) {
+  const produk = await prisma.produk.findFirst({
+    where: { id: params.id, status: "ACTIVE" },
+  });
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`/api/produk/${params.id}`, {
-          cache: "no-store",
-        });
-
-        const data = await res.json().catch(() => null);
-        if (!res.ok) {
-          const listRes = await fetch("/api/rooms", {
-            cache: "no-store",
-          });
-          const listData = await listRes.json().catch(() => null);
-          const found = Array.isArray(listData)
-            ? (listData as ProdukDetail[]).find((p) => p.id === params.id)
-            : null;
-
-          if (found) {
-            setProduk(found);
-            return;
-          }
-
-          setError(
-            data?.message || "Produk tidak ditemukan atau gagal dimuat."
-          );
-          setProduk(null);
-          return;
-        }
-
-        setProduk(data as ProdukDetail);
-      } catch (e) {
-        console.error(e);
-        setError("Gagal memuat detail produk.");
-        setProduk(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    load();
-  }, [params.id]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[var(--km-bg)]">
-        <section className="w-full py-12 lg:py-16">
-          <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
-            <div className="rounded-3xl border border-km-line bg-white p-6 shadow-soft">
-              <p className="text-sm text-km-ink/60">Memuat detail produk...</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    );
-  }
-
-  if (!produk || error) {
+  if (!produk) {
     return (
       <div className="min-h-screen bg-[var(--km-bg)]">
         <section className="w-full py-12 lg:py-16">
@@ -90,7 +20,7 @@ export default function DetailProdukPage({ params }: ProdukDetailProps) {
             <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-soft">
               <p className="text-sm font-semibold">Produk tidak ditemukan</p>
               <p className="text-sm mt-1 text-red-700/90">
-                {error ?? "Produk tidak tersedia."}
+                Produk tidak tersedia.
               </p>
               <Link
                 href="/produk"
