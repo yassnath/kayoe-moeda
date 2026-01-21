@@ -3,6 +3,8 @@ import Link from "next/link";
 import { resolveImageSrc } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 interface ProdukDetailProps {
   params: { id: string };
 }
