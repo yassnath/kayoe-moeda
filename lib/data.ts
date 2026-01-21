@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 export const getproduks = async () => {
   try {
     const result = await prisma.produk.findMany({
+      where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
     });
     return result;
