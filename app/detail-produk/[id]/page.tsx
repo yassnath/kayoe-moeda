@@ -117,8 +117,8 @@ export default async function DetailProdukPage({ params }: ProdukDetailProps) {
             <div className="flex flex-col gap-3">
               <Link
                 href={`/cart/checkout`}
-                className="w-full text-center rounded-full bg-km-wood text-white ring-1 ring-km-wood px-6 py-3 text-sm font-semibold
-                           shadow-soft hover:opacity-90 transition no-underline"
+                className="w-full inline-flex items-center justify-center rounded-full bg-km-wood text-white border border-km-wood px-6 py-3 text-sm font-semibold
+                           shadow-soft hover:opacity-90 transition no-underline min-h-[44px]"
               >
                 Pesan Sekarang
               </Link>
