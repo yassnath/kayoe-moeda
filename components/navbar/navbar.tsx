@@ -239,7 +239,7 @@ export default function Navbar() {
                 <button
                   type="button"
                   className="md:hidden inline-flex items-center justify-center rounded-full w-10 h-10
-                             bg-km-wood ring-1 ring-km-line text-white hover:opacity-90 transition"
+                             bg-km-brass ring-1 ring-km-brass/60 text-white hover:opacity-90 transition"
                   onClick={() => setMobileOpen((v) => !v)}
                   aria-label="Toggle menu"
                 >
@@ -276,7 +276,7 @@ export default function Navbar() {
                 className={[
                   "block px-4 py-3 rounded-2xl text-sm font-semibold transition no-underline",
                   isActive(it.href)
-                    ? "bg-km-wood ring-1 ring-km-line text-white"
+                    ? "bg-km-brass text-white ring-1 ring-km-brass/60"
                     : "text-km-ink/80 hover:text-km-ink hover:bg-km-sand",
                 ].join(" ")}
               >
