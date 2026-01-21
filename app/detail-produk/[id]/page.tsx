@@ -10,8 +10,35 @@ interface ProdukDetailProps {
 }
 
 export default async function DetailProdukPage({ params }: ProdukDetailProps) {
+  const resolvedParams = await Promise.resolve(params);
+  const id = resolvedParams?.id;
+
+  if (!id) {
+    return (
+      <div className="min-h-screen bg-[var(--km-bg)]">
+        <section className="w-full py-12 lg:py-16">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
+            <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-red-700 shadow-soft">
+              <p className="text-sm font-semibold">Produk tidak ditemukan</p>
+              <p className="text-sm mt-1 text-red-700/90">
+                ID produk tidak valid.
+              </p>
+              <Link
+                href="/produk"
+                className="mt-4 inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold
+                           bg-km-wood text-white ring-1 ring-km-wood hover:opacity-90 transition no-underline"
+              >
+                Kembali ke Produk
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   const produk = await prisma.produk.findFirst({
-    where: { id: params.id, status: "ACTIVE" },
+    where: { id, status: "ACTIVE" },
   });
 
   if (!produk) {
