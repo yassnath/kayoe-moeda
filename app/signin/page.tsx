@@ -22,7 +22,7 @@ export default function SignInPage() {
     setError(null);
 
     try {
-      const callbackUrl = searchParams.get("callbackUrl") ?? "/admin";
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
       const res = await signIn("credentials", {
         redirect: false,
@@ -42,8 +42,28 @@ export default function SignInPage() {
         return;
       }
 
-      const targetUrl = res?.url ?? callbackUrl;
-      router.push(targetUrl);
+      if (searchParams.get("callbackUrl")) {
+        const targetUrl = res?.url ?? callbackUrl;
+        router.push(targetUrl);
+        return;
+      }
+
+      const sessionRes = await fetch("/api/auth/session", {
+        cache: "no-store",
+      });
+      const session = await sessionRes.json().catch(() => null);
+      const userRole = (session?.user as any)?.role as
+        | "ADMIN"
+        | "OWNER"
+        | "CUSTOMER"
+        | undefined;
+
+      if (userRole === "ADMIN" || userRole === "OWNER") {
+        router.push("/admin");
+        return;
+      }
+
+      router.push("/");
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
     } finally {
